@@ -1,0 +1,576 @@
+0) Tech Stack & Conventions
+
+Runtime: Node.js (Express)
+
+DB: MySQL (mysql2/promise)
+
+Auth: JWT (Bearer) + Role-based access (Admin | Manager | Staff)
+
+Validation: Joi (via @hapi/joi or joi)
+
+Error format (uniform):
+
+{ "error": { "code": "VALIDATION_ERROR", "message": "Field X is required", "details": [{ "path": "email", "type": "string.email" }] } }
+
+
+List responses (uniform):
+
+{ "data": [/* rows */], "meta": { "page": 1, "limit": 10, "total": 123 } }
+
+
+Pagination params: page (default 1), limit (default 10, max 100)
+
+Sorting params: sortBy (whitelisted columns), sortDir (asc|desc)
+
+Date range params: from=YYYY-MM-DD, to=YYYY-MM-DD
+
+Search param: search (applies to sensible columns per resource)
+
+1) Project Skeleton
+src/
+  app.js
+  server.js
+  config/
+    env.js
+    db.js
+    jwt.js
+  middleware/
+    auth.js          # verifyJWT
+    rbac.js          # checkRole('Admin'|'Manager'|'Staff')
+    validate.js      # with Joi
+    paginate.js      # parse page/limit/sort/search/from/to
+  utils/
+    responses.js     # ok(data,meta), created(data), error(...)
+    sql.js           # helpers for filters/sort
+  routes/
+    auth.routes.js
+    users.routes.js
+    roles.routes.js
+    lookups.routes.js
+    products.routes.js
+    customers.routes.js
+    orders.routes.js
+    dashboard.routes.js
+    wishlist.routes.js
+  controllers/
+    *.controller.js
+  models/
+    *.model.js
+
+2) Validation (Joi) — Pattern
+2.1 Middleware
+// middleware/validate.js
+const Joi = require('joi');
+
+exports.validateBody = (schema) => (req, res, next) => {
+  const { error, value } = schema.validate(req.body, { abortEarly: false, stripUnknown: true });
+  if (error) {
+    return res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Request body validation failed',
+        details: error.details.map(d => ({ path: d.path.join('.'), type: d.type, message: d.message }))
+      }
+    });
+  }
+  req.body = value; next();
+};
+
+exports.validateQuery = (schema) => (req, res, next) => {
+  const { error, value } = schema.validate(req.query, { abortEarly: false, stripUnknown: true });
+  if (error) {
+    return res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Query validation failed',
+        details: error.details.map(d => ({ path: d.path.join('.'), type: d.type, message: d.message }))
+      }
+    });
+  }
+  req.query = value; next();
+};
+
+2.2 Common Joi Fragments
+// validators/common.js
+const Joi = require('joi');
+
+exports.paginationQuery = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
+  sortBy: Joi.string().valid('name','created_at','updated_at','price','stock','date_added','total','last_login_at'),
+  sortDir: Joi.string().valid('asc','desc').default('asc'),
+  search: Joi.string().trim().allow('', null),
+  from: Joi.date().iso(),
+  to: Joi.date().iso()
+}).unknown(false);
+
+exports.idParam = Joi.object({ id: Joi.number().integer().positive().required() });
+
+exports.uuidOrCode = Joi.string().max(30);
+exports.positiveInt = Joi.number().integer().positive();
+exports.money = Joi.number().precision(2).min(0);
+
+3) Auth
+3.1 Endpoints
+
+POST /auth/register
+
+POST /auth/login
+
+GET /auth/me (JWT)
+
+PUT /auth/me (JWT)
+
+3.2 Validation
+// validators/auth.js
+const Joi = require('joi');
+
+exports.register = Joi.object({
+  name: Joi.string().min(2).max(120).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).max(64).required()
+});
+
+exports.login = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).max(64).required()
+});
+
+exports.updateMe = Joi.object({
+  name: Joi.string().min(2).max(120),
+  phone: Joi.string().max(30)
+});
+
+3.3 Responses
+
+200 /auth/login:
+
+{ "token": "<jwt>", "user": { "id": 1, "name": "Ali", "email": "a@x.com", "role": "Admin" } }
+
+
+401 invalid credentials / expired token.
+
+4) Users (Admin / Manager)
+4.1 Endpoints
+
+GET /users
+
+GET /users/:id
+
+POST /users
+
+PUT /users/:id
+
+DELETE /users/:id
+
+4.2 Validation
+// validators/users.js
+const Joi = require('joi');
+const { paginationQuery, positiveInt } = require('./common');
+
+exports.listQuery = paginationQuery.keys({
+  status: Joi.string().valid('Active','Inactive'),
+  role_id: positiveInt
+});
+
+exports.create = Joi.object({
+  name: Joi.string().min(2).max(120).required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(8).max(64).required(),
+  role_id: positiveInt.required(),
+  status: Joi.string().valid('Active','Inactive').default('Active'),
+  phone: Joi.string().max(30).allow(null, '')
+});
+
+exports.update = Joi.object({
+  name: Joi.string().min(2).max(120),
+  email: Joi.string().email(),
+  password: Joi.string().min(8).max(64),
+  role_id: positiveInt,
+  status: Joi.string().valid('Active','Inactive'),
+  phone: Joi.string().max(30).allow(null, '')
+});
+
+5) Roles (Admin)
+5.1 Endpoints
+
+GET /roles
+
+PUT /roles/:id (update description/status/level)
+
+(Optional) GET /permissions, PUT /roles/:id/permissions
+
+5.2 Validation
+// validators/roles.js
+const Joi = require('joi');
+const { paginationQuery } = require('./common');
+
+exports.listQuery = paginationQuery;
+
+exports.update = Joi.object({
+  description: Joi.string().max(500).allow('', null),
+  level: Joi.number().integer().min(1).max(5),
+  status: Joi.string().valid('Active','Inactive')
+});
+
+6) Lookups (Headers & Values)
+6.1 Endpoints
+
+GET /lookups/headers
+
+POST /lookups/headers
+
+PUT /lookups/headers/:id
+
+DELETE /lookups/headers/:id
+
+GET /lookups/values
+
+GET /lookups/values/:id
+
+POST /lookups/values
+
+PUT /lookups/values/:id
+
+DELETE /lookups/values/:id
+
+6.2 Validation
+// validators/lookups.js
+const Joi = require('joi');
+const { paginationQuery, positiveInt } = require('./common');
+
+exports.headersList = paginationQuery.keys({
+  category: Joi.string().valid('Product','Order','Payment','Location','Customer','Promotion'),
+  status: Joi.string().valid('Active','Inactive'),
+  type: Joi.string().valid('System','Custom')
+});
+
+exports.headerCreate = Joi.object({
+  name: Joi.string().min(2).max(120).required(),
+  description: Joi.string().max(500).allow('', null),
+  category: Joi.string().valid('Product','Order','Payment','Location','Customer','Promotion'),
+  type: Joi.string().valid('System','Custom').default('Custom'),
+  status: Joi.string().valid('Active','Inactive').default('Active')
+});
+
+exports.headerUpdate = Joi.object({
+  name: Joi.string().min(2).max(120),
+  description: Joi.string().max(500).allow('', null),
+  category: Joi.string().valid('Product','Order','Payment','Location','Customer','Promotion'),
+  type: Joi.string().valid('System','Custom'),
+  status: Joi.string().valid('Active','Inactive')
+});
+
+exports.valuesList = paginationQuery.keys({
+  header_id: positiveInt.required(),
+  status: Joi.string().valid('Active','Inactive')
+});
+
+exports.valueCreate = Joi.object({
+  header_id: positiveInt.required(),
+  value: Joi.string().min(1).max(150).required(),
+  description: Joi.string().max(500).allow('', null),
+  status: Joi.string().valid('Active','Inactive').default('Active'),
+  order: Joi.number().integer().min(1).default(1),
+  parent_value_id: positiveInt.allow(null)
+});
+
+exports.valueUpdate = Joi.object({
+  value: Joi.string().min(1).max(150),
+  description: Joi.string().max(500).allow('', null),
+  status: Joi.string().valid('Active','Inactive'),
+  order: Joi.number().integer().min(1),
+  parent_value_id: positiveInt.allow(null)
+});
+
+7) Products
+7.1 Endpoints
+
+GET /products
+
+GET /products/:id
+
+POST /products
+
+PUT /products/:id
+
+DELETE /products/:id
+
+7.2 Validation
+// validators/products.js
+const Joi = require('joi');
+const { paginationQuery, positiveInt, money } = require('./common');
+
+exports.listQuery = paginationQuery.keys({
+  category_value_id: positiveInt,
+  brand_value_id: positiveInt,
+  status: Joi.string().valid('Active','Inactive'),
+  stock_status: Joi.string().valid('Active','Low Stock','Out of Stock'),
+  minPrice: money,
+  maxPrice: money
+});
+
+const base = {
+  sku: Joi.string().max(50).required(),
+  name: Joi.string().max(180).required(),
+  description: Joi.string().allow('', null),
+  category_value_id: positiveInt.allow(null),
+  brand_value_id: positiveInt.allow(null),
+  price: money.required(),
+  stock: Joi.number().integer().min(0).default(0),
+  stock_status: Joi.string().valid('Active','Low Stock','Out of Stock').default('Active'),
+  status: Joi.string().valid('Active','Inactive').default('Active'),
+  images: Joi.array().items(Joi.string().uri().max(500)).default([]),
+  variants: Joi.array().items(Joi.object({
+    size_value_id: positiveInt.allow(null),
+    color_value_id: positiveInt.allow(null),
+    sku: Joi.string().max(50).allow('', null),
+    extra_price: money.default(0),
+    stock: Joi.number().integer().min(0).default(0)
+  })).default([])
+};
+
+exports.create = Joi.object(base);
+exports.update = Joi.object({
+  ...base,
+  sku: Joi.string().max(50) // not required in update
+});
+
+8) Customers
+8.1 Endpoints
+
+GET /customers
+
+GET /customers/:user_id
+
+PUT /customers/:user_id
+
+GET /customers/:user_id/addresses
+
+POST /customers/:user_id/addresses
+
+PUT /customers/:user_id/addresses/:id
+
+DELETE /customers/:user_id/addresses/:id
+
+8.2 Validation
+// validators/customers.js
+const Joi = require('joi');
+const { paginationQuery, positiveInt } = require('./common');
+
+exports.listQuery = paginationQuery.keys({
+  status: Joi.string().valid('Active','Inactive'),
+  tier_value_id: positiveInt,
+  minOrders: Joi.number().integer().min(0),
+  maxOrders: Joi.number().integer().min(0),
+  minSpend: Joi.number().precision(2).min(0),
+  maxSpend: Joi.number().precision(2).min(0)
+});
+
+exports.update = Joi.object({
+  name: Joi.string().min(2).max(120),
+  phone: Joi.string().max(30),
+  status: Joi.string().valid('Active','Inactive'),
+  tier_value_id: positiveInt.allow(null)
+});
+
+exports.addressCreate = Joi.object({
+  label: Joi.string().valid('HOME','OFFICE').default('HOME'),
+  line1: Joi.string().max(150).required(),
+  line2: Joi.string().max(150).allow('', null),
+  city_value_id: positiveInt.allow(null),
+  postal_code: Joi.string().max(20).allow('', null),
+  phone: Joi.string().max(30).allow('', null),
+  is_default: Joi.boolean().default(false)
+});
+
+exports.addressUpdate = Joi.object({
+  label: Joi.string().valid('HOME','OFFICE'),
+  line1: Joi.string().max(150),
+  line2: Joi.string().max(150).allow('', null),
+  city_value_id: positiveInt.allow(null),
+  postal_code: Joi.string().max(20).allow('', null),
+  phone: Joi.string().max(30).allow('', null),
+  is_default: Joi.boolean()
+});
+
+9) Wishlist & Recently Viewed
+9.1 Endpoints
+
+GET /me/wishlist
+
+POST /me/wishlist → { product_id }
+
+DELETE /me/wishlist/:product_id
+
+GET /me/recently-viewed?limit=10
+
+9.2 Validation
+// validators/wishlist.js
+const Joi = require('joi');
+const { positiveInt } = require('./common');
+
+exports.add = Joi.object({ product_id: positiveInt.required() });
+
+10) Orders
+10.1 Endpoints
+
+GET /orders
+
+GET /orders/:id
+
+POST /orders (place order; no payment yet)
+
+PUT /orders/:id/status
+
+GET /orders/:id/history
+
+10.2 Validation
+// validators/orders.js
+const Joi = require('joi');
+const { paginationQuery, positiveInt, money } = require('./common');
+
+exports.listQuery = paginationQuery.keys({
+  status_value_id: positiveInt,
+  payment_method_value_id: positiveInt
+});
+
+exports.place = Joi.object({
+  items: Joi.array().items(Joi.object({
+    product_id: positiveInt.required(),
+    variant_id: positiveInt.allow(null),
+    quantity: Joi.number().integer().min(1).required()
+  })).min(1).required(),
+  address_id: positiveInt.required(),
+  shipment: Joi.object({
+    method_value_id: positiveInt.allow(null),
+    scheduled_date: Joi.date().iso().allow(null)
+  }).default({}),
+  payment_method_value_id: positiveInt.allow(null),
+  discount_type_value_id: positiveInt.allow(null),
+  notes: Joi.string().max(500).allow('', null)
+});
+
+exports.statusUpdate = Joi.object({
+  to_status_value_id: positiveInt.required()
+});
+
+10.3 Business Rules
+
+Validate stock for each item; atomic transaction:
+
+Insert orders, 2) insert order_items, 3) decrement product/variant stock, 4) optional shipments, 5) write order_status_history.
+
+On status change, always append to order_status_history with changed_by = req.user.id.
+
+11) Dashboard
+11.1 Endpoints
+
+GET /dashboard/metrics
+
+Returns: { total_revenue, total_orders, total_customers, products_sold, delta_orders_pct, delta_revenue_pct, delta_customers_pct }
+
+GET /dashboard/sales-performance?from&to&interval=month|day
+
+Returns two series (orders, revenue) for charts.
+
+GET /dashboard/sales-by-category?from&to
+
+Aggregates by products.category_value_id (join via order_items → products).
+
+12) Example Route Wiring (Products)
+// routes/products.routes.js
+const router = require('express').Router();
+const { validateQuery, validateBody } = require('../middleware/validate');
+const { listQuery, create, update } = require('../validators/products');
+const auth = require('../middleware/auth');
+const { checkRole } = require('../middleware/rbac');
+const ctrl = require('../controllers/products.controller');
+
+router.get('/',
+  auth.verifyJWT,
+  validateQuery(listQuery),
+  ctrl.list
+);
+
+router.get('/:id',
+  auth.verifyJWT,
+  ctrl.getById
+);
+
+router.post('/',
+  auth.verifyJWT,
+  checkRole(['Admin','Manager']),
+  validateBody(create),
+  ctrl.create
+);
+
+router.put('/:id',
+  auth.verifyJWT,
+  checkRole(['Admin','Manager']),
+  validateBody(update),
+  ctrl.update
+);
+
+router.delete('/:id',
+  auth.verifyJWT,
+  checkRole(['Admin']),
+  ctrl.remove
+);
+
+module.exports = router;
+
+13) Example Controller Contract (Products)
+
+List (with pagination/search/filters/sort):
+
+Request: GET /products?page=1&limit=10&search=abaya&category_value_id=12&minPrice=1000&maxPrice=7000&sortBy=price&sortDir=asc
+
+Response:
+
+{
+  "data": [
+    { "id": 15, "sku": "AB-101", "name": "Black Abaya", "price": 4500, "stock": 12, "status":"Active", "category_value_id":12, "brand_value_id":3, "date_added":"2025-09-01" }
+  ],
+  "meta": { "page": 1, "limit": 10, "total": 57 }
+}
+
+
+Create:
+
+Request: POST /products
+
+{
+  "sku": "AB-101",
+  "name": "Black Abaya Classic",
+  "description": "Soft crepe fabric",
+  "category_value_id": 12,
+  "brand_value_id": 3,
+  "price": 4500,
+  "stock": 25,
+  "images": ["https://cdn/abaya1.jpg"],
+  "variants": [
+    { "size_value_id": 101, "color_value_id": null, "sku": "AB-101-S", "extra_price": 0, "stock": 10 }
+  ]
+}
+
+
+Response: 201 Created
+
+{ "data": { "id": 44, "sku": "AB-101", ... } }
+
+14) Security & Ops
+
+JWT: short token TTL + refresh strategy (optional)
+
+Password hashing: bcrypt with salt
+
+Rate limiting (optional): express-rate-limit on auth & orders
+
+CORS: restrict to your frontend domain(s)
+
+MySQL: use pooled connections; transactions for orders
+
+Logging: request logs + error logs (pino/winston)
+
+Migrations/Seeds: add a seeds script for roles (Admin/Manager/Staff), default admin user, and lookup headers/values (Product Categories, Cities, Order Status, Payment Methods, Brands, Sizes, etc.)
