@@ -68,18 +68,10 @@ const deleteHeader = async (req, res) => {
 // Values
 const listValues = async (req, res) => {
   try {
-    const { page, limit, header_id, ...filters } = req.pagination;
+    const { page, limit, filters } = req.pagination;
     
-    if (!header_id) {
-      return res.status(400).json(responses.validationError([{
-        path: 'header_id',
-        type: 'any.required',
-        message: 'Header ID is required'
-      }]));
-    }
-    
-    const values = await LookupValue.findAll({ ...filters, header_id }, { page, limit, ...req.query });
-    const total = await LookupValue.count({ ...filters, header_id });
+    const values = await LookupValue.findAll(filters, { page, limit, ...req.query });
+    const total = await LookupValue.count(filters);
     
     res.json(responses.ok(values, {
       page,
