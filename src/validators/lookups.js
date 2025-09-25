@@ -2,7 +2,7 @@ const Joi = require('joi');
 const { paginationQuery, positiveInt } = require('./common');
 
 exports.headersList = paginationQuery.keys({
-  category: Joi.string().valid('Product', 'Order', 'Payment', 'Location', 'Customer', 'Promotion'),
+  category: Joi.string().valid('Product', 'Order', 'Payment', 'Location', 'Customer', 'Promotion').allow(null),
   status: Joi.string().valid('Active', 'Inactive'),
   type: Joi.string().valid('System', 'Custom')
 });
@@ -10,7 +10,7 @@ exports.headersList = paginationQuery.keys({
 exports.headerCreate = Joi.object({
   name: Joi.string().min(2).max(120).required(),
   description: Joi.string().max(500).allow('', null),
-  category: Joi.string().valid('Product', 'Order', 'Payment', 'Location', 'Customer', 'Promotion'),
+  category: Joi.string().valid('Product', 'Order', 'Payment', 'Location', 'Customer', 'Promotion').allow(null),
   type: Joi.string().valid('System', 'Custom').default('Custom'),
   status: Joi.string().valid('Active', 'Inactive').default('Active')
 });
@@ -18,13 +18,12 @@ exports.headerCreate = Joi.object({
 exports.headerUpdate = Joi.object({
   name: Joi.string().min(2).max(120),
   description: Joi.string().max(500).allow('', null),
-  category: Joi.string().valid('Product', 'Order', 'Payment', 'Location', 'Customer', 'Promotion'),
+  category: Joi.string().valid('Product', 'Order', 'Payment', 'Location', 'Customer', 'Promotion').allow(null),
   type: Joi.string().valid('System', 'Custom'),
   status: Joi.string().valid('Active', 'Inactive')
 });
 
 exports.valuesList = paginationQuery.keys({
-  header_id: positiveInt.required(),
   status: Joi.string().valid('Active', 'Inactive')
 });
 

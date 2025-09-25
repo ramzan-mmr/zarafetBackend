@@ -24,15 +24,13 @@ class LookupValue {
   static async findAll(filters = {}, pagination = {}) {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
-    const allowedColumns = ['header_id', 'status'];
+    const allowedColumns = ['status'];
     const { whereClause, values } = buildWhereClause(filters, allowedColumns);
     const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['value', 'order', 'created_at']);
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
     const query = `
-      SELECT lv.*, lh.name as header_name, lh.category as header_category
-      FROM lookup_values lv 
-      LEFT JOIN lookup_headers lh ON lv.header_id = lh.id
+      SELECT * FROM lookup_values
       ${whereClause} 
       ${orderClause} 
       ${paginationClause}
@@ -65,11 +63,11 @@ class LookupValue {
   
   static async count(filters = {}) {
     const { buildWhereClause } = require('../utils/sql');
-    const allowedColumns = ['header_id', 'status'];
+    const allowedColumns = ['status'];
     const { whereClause, values } = buildWhereClause(filters, allowedColumns);
     
     const [rows] = await db.execute(
-      `SELECT COUNT(*) as total FROM lookup_values lv ${whereClause}`,
+      `SELECT COUNT(*) as total FROM lookup_values ${whereClause}`,
       values
     );
     return rows[0].total;
