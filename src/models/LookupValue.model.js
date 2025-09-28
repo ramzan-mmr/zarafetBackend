@@ -60,6 +60,23 @@ class LookupValue {
     );
     return rows;
   }
+
+  static async findByMultipleHeaders(header_ids, status = 'Active') {
+    if (!header_ids || header_ids.length === 0) {
+      return [];
+    }
+    
+    const placeholders = header_ids.map(() => '?').join(',');
+    const [rows] = await db.execute(
+      `SELECT lv.*, lh.name as header_name, lh.category as header_category
+       FROM lookup_values lv 
+       LEFT JOIN lookup_headers lh ON lv.header_id = lh.id
+       WHERE lv.header_id IN (${placeholders}) AND lv.status = ? 
+       ORDER BY lv.header_id, lv.\`order\`, lv.value`,
+      [...header_ids, status]
+    );
+    return rows;
+  }
   
   static async count(filters = {}) {
     const { buildWhereClause } = require('../utils/sql');

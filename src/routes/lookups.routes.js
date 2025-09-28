@@ -417,6 +417,96 @@ router.get('/values/:id',
   ctrl.getValueById
 );
 
+/**
+ * @swagger
+ * /lookups/values/by-headers:
+ *   post:
+ *     summary: Get lookup values by multiple header IDs
+ *     tags: [Lookups]
+ *     security:
+ *       - bearerAuth: []
+ *     description: |
+ *       **Access Control**: Super_Admin, Admin, Manager roles only
+ *       Get lookup values for multiple header IDs in a single request
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - header_ids
+ *             properties:
+ *               header_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 minItems: 1
+ *                 example: [1, 2, 3]
+ *               status:
+ *                 type: string
+ *                 enum: [Active, Inactive]
+ *                 default: Active
+ *                 description: Filter by status
+ *     responses:
+ *       200:
+ *         description: Lookup values retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 1
+ *                         header_id:
+ *                           type: integer
+ *                           example: 1
+ *                         value:
+ *                           type: string
+ *                           example: "Electronics"
+ *                         description:
+ *                           type: string
+ *                           example: "Electronic products"
+ *                         status:
+ *                           type: string
+ *                           example: "Active"
+ *                         order:
+ *                           type: integer
+ *                           example: 1
+ *                         parent_value_id:
+ *                           type: integer
+ *                           nullable: true
+ *                         created_at:
+ *                           type: string
+ *                           format: date-time
+ *                         header_name:
+ *                           type: string
+ *                           example: "Product Categories"
+ *                         header_category:
+ *                           type: string
+ *                           example: "Product"
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       403:
+ *         $ref: '#/components/responses/ForbiddenError'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.post('/values/by-headers',
+  validateBody(require('../validators/lookups').valuesByHeaders),
+  ctrl.getValuesByHeaders
+);
+
 router.post('/values',
   validateBody(valueCreate),
   ctrl.createValue
