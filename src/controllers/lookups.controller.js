@@ -149,6 +149,26 @@ const deleteValue = async (req, res) => {
   }
 };
 
+const getValuesByHeaders = async (req, res) => {
+  try {
+    const { header_ids, status = 'Active' } = req.body;
+    
+    // Get all lookup values for the specified header IDs
+    const values = await LookupValue.findByMultipleHeaders(header_ids, status);
+    
+    // Group values by header_id
+    const groupedValues = {};
+    header_ids.forEach(headerId => {
+      groupedValues[headerId] = values.filter(value => value.header_id === headerId);
+    });
+    
+    res.json(responses.ok(groupedValues));
+  } catch (error) {
+    console.error('Get values by headers error:', error);
+    res.status(500).json(responses.internalError('Failed to fetch lookup values by headers'));
+  }
+};
+
 module.exports = {
   listHeaders,
   createHeader,
@@ -158,5 +178,6 @@ module.exports = {
   getValueById,
   createValue,
   updateValue,
-  deleteValue
+  deleteValue,
+  getValuesByHeaders
 };

@@ -43,3 +43,8 @@ exports.valueUpdate = Joi.object({
   order: Joi.number().integer().min(1),
   parent_value_id: positiveInt.allow(null)
 });
+
+exports.valuesByHeaders = Joi.object({
+  header_ids: Joi.array().items(positiveInt).min(1).required(),
+  status: Joi.string().valid('Active', 'Inactive').default('Active')
+});
