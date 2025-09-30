@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Sep 26, 2025 at 09:01 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost
+-- Generation Time: Sep 30, 2025 at 01:59 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -90,7 +90,10 @@ CREATE TABLE `lookup_headers` (
 --
 
 INSERT INTO `lookup_headers` (`id`, `code`, `name`, `description`, `category`, `type`, `status`, `created_at`) VALUES
-(7, 'LH-00007', 'City', 'city', NULL, 'Custom', 'Active', '2025-09-26 01:51:18');
+(7, 'LH-00007', 'City', 'city', NULL, 'Custom', 'Active', '2025-09-26 01:51:18'),
+(8, 'LH-00008', 'productCategory', 'Product Category', NULL, 'Custom', 'Active', '2025-09-28 23:24:34'),
+(18, 'LH-00018', 'Product Colors', 'Available colors for products', NULL, 'Custom', 'Active', '2025-09-29 01:14:22'),
+(19, 'LH-00019', 'Product Sizes', 'Available sizes for products', NULL, 'Custom', 'Active', '2025-09-29 01:14:46');
 
 -- --------------------------------------------------------
 
@@ -116,7 +119,12 @@ CREATE TABLE `lookup_values` (
 --
 
 INSERT INTO `lookup_values` (`id`, `code`, `header_id`, `value`, `description`, `status`, `order`, `parent_value_id`, `created_at`, `created_by`) VALUES
-(2, 'LV-00002', 7, '3r4asfas', 'asdfa', 'Active', 1, NULL, '2025-09-26 02:21:26', 1);
+(2, 'LV-00002', 7, '3r4asfas', 'asdfa', 'Active', 1, NULL, '2025-09-26 02:21:26', 1),
+(3, 'LV-00003', 8, 'Abayas ', 'Abayas ', 'Active', 1, NULL, '2025-09-28 23:25:07', 1),
+(4, 'LV-00004', 8, 'Dresses ', 'Dresses ', 'Active', 1, NULL, '2025-09-28 23:25:25', 1),
+(5, 'LV-00005', 8, 'women', 'WOMEN ', 'Active', 1, NULL, '2025-09-28 23:26:39', 1),
+(6, 'LV-00006', 8, 'babies', 'babies', 'Active', 1, NULL, '2025-09-28 23:26:56', 1),
+(7, 'LV-00007', 8, 'children', 'children', 'Active', 1, NULL, '2025-09-28 23:27:20', 1);
 
 -- --------------------------------------------------------
 
@@ -192,15 +200,24 @@ CREATE TABLE `products` (
   `name` varchar(180) NOT NULL,
   `description` text DEFAULT NULL,
   `category_value_id` int(11) DEFAULT NULL,
-  `brand_value_id` int(11) DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
   `stock` int(11) DEFAULT 0,
   `stock_status` enum('Active','Low Stock','Out of Stock') DEFAULT 'Active',
   `status` enum('Active','Inactive') DEFAULT 'Active',
   `date_added` date DEFAULT curdate(),
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `original_price` decimal(10,2) DEFAULT NULL COMMENT 'Original price before discount',
+  `current_price` decimal(10,2) DEFAULT NULL COMMENT 'Current selling price',
+  `discount_percentage` decimal(5,2) DEFAULT NULL COMMENT 'Discount percentage calculated automatically'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`id`, `code`, `sku`, `name`, `description`, `category_value_id`, `price`, `stock`, `stock_status`, `status`, `date_added`, `created_at`, `updated_at`, `original_price`, `current_price`, `discount_percentage`) VALUES
+(1, 'PRD-00001', 'SKU-MG6HA9NJ-ZY8VN', 'Tesging ....', 'fldjsakfjdsalfjdsal', 3, 500.00, 0, 'Out of Stock', 'Active', '2025-09-30', '2025-09-30 16:32:37', '2025-09-30 16:32:37', 600.00, 500.00, 16.67);
 
 -- --------------------------------------------------------
 
@@ -215,6 +232,17 @@ CREATE TABLE `product_images` (
   `order` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `product_images`
+--
+
+INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `order`) VALUES
+(1, 1, 'http://localhost:3000/uploads/products/1/mg6ha9p5-5ed26de2475281b3.jpg', 1),
+(2, 1, 'http://localhost:3000/uploads/products/1/mg6ha9p8-8a58bc62e867be55.jpg', 2),
+(3, 1, 'http://localhost:3000/uploads/products/1/mg6ha9p9-1f73074fa6c70478.jpg', 3),
+(4, 1, 'http://localhost:3000/uploads/products/1/mg6ha9p9-a009fe3501e46445.jpg', 4),
+(5, 1, 'http://localhost:3000/uploads/products/1/mg6ha9p9-49c30ee626851025.jpg', 5);
+
 -- --------------------------------------------------------
 
 --
@@ -224,12 +252,23 @@ CREATE TABLE `product_images` (
 CREATE TABLE `product_variants` (
   `id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `size_value_id` int(11) DEFAULT NULL,
-  `color_value_id` int(11) DEFAULT NULL,
   `sku` varchar(50) DEFAULT NULL,
   `extra_price` decimal(10,2) DEFAULT 0.00,
-  `stock` int(11) DEFAULT 0
+  `stock` int(11) DEFAULT 0,
+  `size` enum('XS','S','M','L','XL','XXL','XXXL') DEFAULT NULL,
+  `color_name` varchar(100) DEFAULT NULL,
+  `color_code` varchar(7) DEFAULT NULL COMMENT 'Hex color code like #FF5733',
+  `color_image` varchar(500) DEFAULT NULL COMMENT 'Optional color swatch image URL'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `product_variants`
+--
+
+INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock`, `size`, `color_name`, `color_code`, `color_image`) VALUES
+(1, 1, 'TESGING-....-S-Red', 0.00, 5, 'S', 'Red', '#ff0000', ''),
+(2, 1, 'TESGING-....-S-Blue', 0.00, 10, 'S', 'Blue', '#0c13e4', ''),
+(3, 1, 'TESGING-....-M-Black', 0.00, 34, 'M', 'Black', '#000000', '');
 
 -- --------------------------------------------------------
 
@@ -319,7 +358,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `code`, `name`, `email`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-09-26 00:38:13', '2025-09-23 23:51:29', '2025-09-26 00:38:13');
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-09-28 23:34:53', '2025-09-23 23:51:29', '2025-09-28 23:34:53');
 
 -- --------------------------------------------------------
 
@@ -425,7 +464,6 @@ ALTER TABLE `products`
   ADD UNIQUE KEY `sku` (`sku`),
   ADD UNIQUE KEY `code` (`code`),
   ADD KEY `category_value_id` (`category_value_id`),
-  ADD KEY `brand_value_id` (`brand_value_id`),
   ADD KEY `idx_products_status` (`status`,`stock_status`);
 
 --
@@ -441,9 +479,7 @@ ALTER TABLE `product_images`
 ALTER TABLE `product_variants`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `sku` (`sku`),
-  ADD KEY `product_id` (`product_id`),
-  ADD KEY `size_value_id` (`size_value_id`),
-  ADD KEY `color_value_id` (`color_value_id`);
+  ADD KEY `product_id` (`product_id`);
 
 --
 -- Indexes for table `recently_viewed`
@@ -513,13 +549,13 @@ ALTER TABLE `applied_discounts`
 -- AUTO_INCREMENT for table `lookup_headers`
 --
 ALTER TABLE `lookup_headers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `lookup_values`
 --
 ALTER TABLE `lookup_values`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -549,19 +585,19 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `recently_viewed`
@@ -655,8 +691,7 @@ ALTER TABLE `order_status_history`
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
-  ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_value_id`) REFERENCES `lookup_values` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`brand_value_id`) REFERENCES `lookup_values` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_value_id`) REFERENCES `lookup_values` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `product_images`
@@ -668,9 +703,7 @@ ALTER TABLE `product_images`
 -- Constraints for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  ADD CONSTRAINT `product_variants_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `product_variants_ibfk_2` FOREIGN KEY (`size_value_id`) REFERENCES `lookup_values` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `product_variants_ibfk_3` FOREIGN KEY (`color_value_id`) REFERENCES `lookup_values` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `product_variants_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `recently_viewed`
