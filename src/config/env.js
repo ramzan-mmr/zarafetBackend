@@ -33,5 +33,11 @@ module.exports = {
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100
+  },
+
+  // Local Storage Configuration
+  storage: {
+    uploadsDir: process.env.UPLOADS_DIR || 'uploads',
+    baseUrl: process.env.BASE_URL || 'http://localhost:3000'
   }
 };
