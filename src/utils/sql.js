@@ -14,7 +14,7 @@ const buildWhereClause = (filters, allowedColumns = []) => {
           values.push(value);
         } else if (key === 'search') {
           // Handle search across multiple columns
-          conditions.push(`(name LIKE ? OR description LIKE ? OR sku LIKE ?)`);
+          conditions.push(`(p.name LIKE ? OR p.description LIKE ? OR p.sku LIKE ?)`);
           const searchTerm = `%${value}%`;
           values.push(searchTerm, searchTerm, searchTerm);
         } else if (key === 'from') {
@@ -24,10 +24,10 @@ const buildWhereClause = (filters, allowedColumns = []) => {
           conditions.push(`created_at <= ?`);
           values.push(value);
         } else if (key === 'minPrice') {
-          conditions.push(`price >= ?`);
+          conditions.push(`p.price >= ?`);
           values.push(value);
         } else if (key === 'maxPrice') {
-          conditions.push(`price <= ?`);
+          conditions.push(`p.price <= ?`);
           values.push(value);
         } else if (key === 'minOrders') {
           conditions.push(`total_orders >= ?`);
@@ -42,7 +42,12 @@ const buildWhereClause = (filters, allowedColumns = []) => {
           conditions.push(`total_spend <= ?`);
           values.push(value);
         } else {
-          conditions.push(`${key} = ?`);
+           // Use table alias for product table columns
+          if (key === 'status' || key === 'stock_status' || key === 'category_value_id') {
+            conditions.push(`p.${key} = ?`);
+          } else {
+            conditions.push(`${key} = ?`);
+          }
           values.push(value);
         }
       }

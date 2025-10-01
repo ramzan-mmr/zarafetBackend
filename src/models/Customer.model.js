@@ -2,10 +2,32 @@ const db = require('../config/db');
 
 class Customer {
   static async findAll(filters = {}, pagination = {}) {
-    const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
+    const { buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
-    const allowedColumns = ['status', 'tier_value_id'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    // Build custom where clause for customer-specific columns
+    const conditions = [];
+    const values = [];
+    
+    // Handle status filter
+    if (filters.status) {
+      conditions.push('u.status = ?');
+      values.push(filters.status);
+    }
+    
+    // Handle tier filter
+    if (filters.tier_value_id) {
+      conditions.push('cp.tier_value_id = ?');
+      values.push(filters.tier_value_id);
+    }
+    
+    // Handle search filter
+    if (filters.search) {
+      conditions.push('(u.name LIKE ? OR u.email LIKE ?)');
+      const searchTerm = `%${filters.search}%`;
+      values.push(searchTerm, searchTerm);
+    }
+    
+    const whereClause = conditions.length > 0 ? 'AND ' + conditions.join(' AND ') : '';
     const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'created_at', 'last_login_at']);
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
@@ -24,7 +46,7 @@ class Customer {
       LEFT JOIN lookup_values lv ON cp.tier_value_id = lv.id
       LEFT JOIN roles r ON u.role_id = r.id
       WHERE r.name = 'Customer'
-      ${whereClause ? 'AND ' + whereClause.replace('WHERE ', '') : ''}
+      ${whereClause}
       ${orderClause} 
       ${paginationClause}
     `;
@@ -55,9 +77,30 @@ class Customer {
   }
   
   static async count(filters = {}) {
-    const { buildWhereClause } = require('../utils/sql');
-    const allowedColumns = ['status', 'tier_value_id'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    // Build custom where clause for customer-specific columns
+    const conditions = [];
+    const values = [];
+    
+    // Handle status filter
+    if (filters.status) {
+      conditions.push('u.status = ?');
+      values.push(filters.status);
+    }
+    
+    // Handle tier filter
+    if (filters.tier_value_id) {
+      conditions.push('cp.tier_value_id = ?');
+      values.push(filters.tier_value_id);
+    }
+    
+    // Handle search filter
+    if (filters.search) {
+      conditions.push('(u.name LIKE ? OR u.email LIKE ?)');
+      const searchTerm = `%${filters.search}%`;
+      values.push(searchTerm, searchTerm);
+    }
+    
+    const whereClause = conditions.length > 0 ? 'AND ' + conditions.join(' AND ') : '';
     
     const [rows] = await db.execute(
       `SELECT COUNT(*) as total 
@@ -65,7 +108,7 @@ class Customer {
        LEFT JOIN customer_profiles cp ON u.id = cp.user_id
        LEFT JOIN roles r ON u.role_id = r.id
        WHERE r.name = 'Customer'
-       ${whereClause ? 'AND ' + whereClause.replace('WHERE ', '') : ''}`,
+       ${whereClause}`,
       values
     );
     return rows[0].total;
