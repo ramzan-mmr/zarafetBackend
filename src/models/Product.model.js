@@ -4,16 +4,28 @@ const ImageService = require('../utils/imageService');
 
 class Product {
   static async create(productData) {
-    const { sku, name, description, category_value_id, price, original_price, current_price, stock, stock_status, status, images, variants } = productData;
+    const { name, description, category_value_id, price, original_price, current_price, stock, stock_status, status, images, variants } = productData;
     
-    // Auto-generate SKU if not provided
-    let finalSku = sku;
-    if (!finalSku || finalSku.trim() === '') {
-      // Generate a unique SKU based on timestamp and random number
-      const timestamp = Date.now().toString(36);
-      const random = Math.random().toString(36).substr(2, 5);
-      finalSku = `SKU-${timestamp}-${random}`.toUpperCase();
-    }
+    // Generate SKU from product name (first letter of each word + random string)
+    const generateSkuFromName = (productName) => {
+      if (!productName || productName.trim() === '') {
+        // Fallback if no name provided
+        const timestamp = Date.now().toString(36);
+        const random = Math.random().toString(36).substr(2, 5);
+        return `SKU-${timestamp}-${random}`.toUpperCase();
+      }
+      
+      // Extract first letter of each word
+      const words = productName.trim().split(/\s+/);
+      const initials = words.map(word => word.charAt(0).toUpperCase()).join('');
+      
+      // Generate random string
+      const random = Math.random().toString(36).substr(2, 8);
+      
+      return `${initials}-${random}`.toUpperCase();
+    };
+    
+    const finalSku = generateSkuFromName(name);
     
     // Calculate discount percentage if both prices are provided
     let discount_percentage = null;

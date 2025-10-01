@@ -18,11 +18,40 @@ const wishlistRoutes = require('./routes/wishlist.routes');
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware with image-friendly configuration
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "http:", "https:", "*"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+      scriptSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+}));
 
 // CORS configuration
 app.use(cors(config.cors));
+
+// Additional CORS middleware for images
+app.use((req, res, next) => {
+  // Allow all origins for image requests
+  if (req.path.startsWith('/uploads/')) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    // Override security headers for images
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+    res.removeHeader('Content-Security-Policy');
+  }
+  next();
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -44,8 +73,40 @@ app.use('/orders', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static('uploads'));
+// Serve static files from uploads directory with CORS headers
+app.use('/uploads', (req, res, next) => {
+  // Set CORS headers for static files
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+  
+  // Override security headers for images
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  res.removeHeader('Content-Security-Policy');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  next();
+}, express.static('uploads', {
+  setHeaders: (res, path) => {
+    // Set additional headers for images
+    if (path.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.removeHeader('Content-Security-Policy');
+    }
+  }
+}));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -65,6 +126,56 @@ app.get('/health', (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     environment: config.server.env
+  });
+});
+
+// Specific route for serving images with proper CORS headers
+app.get('/uploads/products/:productId/:filename', (req, res) => {
+  const { productId, filename } = req.params;
+  
+  // Set comprehensive CORS headers
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Cache-Control', 'public, max-age=31536000');
+  
+  // Override security headers for images
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  res.removeHeader('Content-Security-Policy');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  // Set content type for images
+  const ext = filename.split('.').pop().toLowerCase();
+  const mimeTypes = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'webp': 'image/webp'
+  };
+  
+  if (mimeTypes[ext]) {
+    res.type(mimeTypes[ext]);
+  }
+  
+  // Serve the file
+  res.sendFile(`${__dirname}/uploads/products/${productId}/${filename}`, (err) => {
+    if (err) {
+      console.error('Error serving image:', err);
+      res.status(404).json({
+        error: {
+          code: 'IMAGE_NOT_FOUND',
+          message: 'Image not found'
+        }
+      });
+    }
   });
 });
 
