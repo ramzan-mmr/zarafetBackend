@@ -42,7 +42,14 @@ const create = async (req, res) => {
   } catch (error) {
     console.error('Create product error:', error);
     if (error.code === 'ER_DUP_ENTRY') {
-      res.status(409).json(responses.conflict('Product with this SKU already exists'));
+      // If SKU conflict occurs, try again with a new random SKU
+      try {
+        const product = await Product.create(req.body);
+        res.status(201).json(responses.created(product));
+      } catch (retryError) {
+        console.error('Retry create product error:', retryError);
+        res.status(500).json(responses.internalError('Failed to create product after retry'));
+      }
     } else {
       res.status(500).json(responses.internalError('Failed to create product'));
     }

@@ -10,7 +10,7 @@ exports.listQuery = paginationQuery.keys({
 });
 
 const base = {
-  sku: Joi.string().max(50).allow('', null),
+  // SKU is now auto-generated from product name, no longer required
   name: Joi.string().max(180).required(),
   description: Joi.string().allow('', null),
   category_value_id: positiveInt.allow(null),
@@ -34,6 +34,6 @@ const base = {
 
 exports.create = Joi.object(base);
 exports.update = Joi.object({
-  ...base,
-  sku: Joi.string().max(50) // not required in update
+  ...base
+  // SKU is auto-generated, not required in update
 });
