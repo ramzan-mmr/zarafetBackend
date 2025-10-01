@@ -96,7 +96,14 @@ class Product {
         
         await db.execute(
           `INSERT INTO product_variants (product_id, size, color_name, color_code, color_image, sku, extra_price, stock) 
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE
+           size = VALUES(size),
+           color_name = VALUES(color_name),
+           color_code = VALUES(color_code),
+           color_image = VALUES(color_image),
+           extra_price = VALUES(extra_price),
+           stock = VALUES(stock)`,
           [productId, variant.size, variant.color_name, variant.color_code, colorImageUrl, variant.sku, variant.extra_price, variant.stock]
         );
       }
@@ -108,9 +115,45 @@ class Product {
   static async findAll(filters = {}, pagination = {}) {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
-    const allowedColumns = ['category_value_id', 'status', 'stock_status'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
-    const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'price', 'stock', 'date_added', 'created_at']);
+    // Handle multiple categories separately
+    let whereClause = '';
+    let values = [];
+    
+    if (filters.categories && filters.categories.length > 0) {
+      // Handle multiple categories
+      const categoryPlaceholders = filters.categories.map(() => '?').join(',');
+      whereClause = `WHERE p.category_value_id IN (${categoryPlaceholders})`;
+      values = [...filters.categories];
+      
+      // Remove categories from filters to avoid double processing
+      const { categories, ...otherFilters } = filters;
+      const { whereClause: otherWhereClause, values: otherValues } = buildWhereClause(otherFilters, ['status', 'stock_status', 'search', 'minPrice', 'maxPrice']);
+      
+      if (otherWhereClause) {
+        whereClause += ` AND ${otherWhereClause.replace('WHERE ', '')}`;
+        values.push(...otherValues);
+      }
+    } else {
+      // Use normal filter processing
+      const allowedColumns = ['category_value_id', 'status', 'stock_status', 'search', 'minPrice', 'maxPrice'];
+      const result = buildWhereClause(filters, allowedColumns);
+      whereClause = result.whereClause;
+      values = result.values;
+    }
+    
+    // Handle type filtering
+    if (filters.type) {
+      const typeCondition = this.getTypeCondition(filters.type);
+      if (typeCondition) {
+        if (whereClause) {
+          whereClause += ` AND ${typeCondition}`;
+        } else {
+          whereClause = `WHERE ${typeCondition}`;
+        }
+      }
+    }
+    
+    const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'price', 'stock', 'date_added', 'created_at', 'total_orders']);
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
     const query = `
@@ -162,8 +205,32 @@ class Product {
   
   static async count(filters = {}) {
     const { buildWhereClause } = require('../utils/sql');
-    const allowedColumns = ['category_value_id', 'status', 'stock_status'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    
+    // Handle multiple categories separately
+    let whereClause = '';
+    let values = [];
+    
+    if (filters.categories && filters.categories.length > 0) {
+      // Handle multiple categories
+      const categoryPlaceholders = filters.categories.map(() => '?').join(',');
+      whereClause = `WHERE p.category_value_id IN (${categoryPlaceholders})`;
+      values = [...filters.categories];
+      
+      // Remove categories from filters to avoid double processing
+      const { categories, ...otherFilters } = filters;
+      const { whereClause: otherWhereClause, values: otherValues } = buildWhereClause(otherFilters, ['status', 'stock_status', 'search', 'minPrice', 'maxPrice']);
+      
+      if (otherWhereClause) {
+        whereClause += ` AND ${otherWhereClause.replace('WHERE ', '')}`;
+        values.push(...otherValues);
+      }
+    } else {
+      // Use normal filter processing
+      const allowedColumns = ['category_value_id', 'status', 'stock_status', 'search', 'minPrice', 'maxPrice'];
+      const result = buildWhereClause(filters, allowedColumns);
+      whereClause = result.whereClause;
+      values = result.values;
+    }
     
     const [rows] = await db.execute(
       `SELECT COUNT(*) as total FROM products p ${whereClause}`,
@@ -215,47 +282,70 @@ class Product {
     
     // Update images if provided
     if (images !== undefined) {
-      // Get existing images to delete from storage
-      const [existingImages] = await db.execute(
-        'SELECT image_url FROM product_images WHERE product_id = ?',
+      // Separate existing URLs from new base64 images
+      const existingUrls = [];
+      const newBase64Images = [];
+      
+      images.forEach(image => {
+        if (typeof image === 'string') {
+          if (image.startsWith('http') || image.startsWith('data:')) {
+            if (image.startsWith('data:')) {
+              newBase64Images.push(image);
+            } else {
+              existingUrls.push(image);
+            }
+          }
+        }
+      });
+      
+      // Get current images from database
+      const [currentImages] = await db.execute(
+        'SELECT image_url FROM product_images WHERE product_id = ? ORDER BY `order`',
         [id]
       );
+      const currentUrls = currentImages.map(img => img.image_url);
       
-      // Delete existing images from storage
-      if (existingImages.length > 0) {
-        const existingUrls = existingImages.map(img => img.image_url);
+      // Find images to delete (current images not in the new list)
+      const imagesToDelete = currentUrls.filter(url => !existingUrls.includes(url));
+      
+      // Delete removed images from storage
+      if (imagesToDelete.length > 0) {
         try {
-          await ImageService.deleteImages(existingUrls);
+          await ImageService.deleteImages(imagesToDelete);
         } catch (error) {
-          console.error('Error deleting existing images:', error);
+          console.error('Error deleting removed images:', error);
         }
       }
       
-      // Delete existing image records from database
+      // Delete all existing image records from database
       await db.execute('DELETE FROM product_images WHERE product_id = ?', [id]);
       
-      // Process and upload new images
-      if (images.length > 0) {
+      // Process and upload new base64 images
+      let newImageUrls = [];
+      if (newBase64Images.length > 0) {
         try {
           const folder = ImageService.getProductImageFolder(id);
-          const imageUrls = await ImageService.processAndUploadImages(images, folder, {
+          newImageUrls = await ImageService.processAndUploadImages(newBase64Images, folder, {
             quality: 85,
             maxWidth: 1200,
             maxHeight: 1200,
             format: 'jpeg'
           });
-          
-          // Store new image URLs in database
-          for (let i = 0; i < imageUrls.length; i++) {
-            await db.execute(
-              'INSERT INTO product_images (product_id, image_url, `order`) VALUES (?, ?, ?)',
-              [id, imageUrls[i], i + 1]
-            );
-          }
         } catch (error) {
           console.error('Error processing new images:', error);
-          // Continue with update even if image processing fails
+          throw new Error(`Image processing failed: ${error.message}`);
         }
+      }
+      
+      // Combine existing URLs with new URLs
+      const allImageUrls = [...existingUrls, ...newImageUrls];
+      
+      // Store all image URLs in database
+      for (let i = 0; i < allImageUrls.length; i++) {
+        await db.execute(
+          'INSERT INTO product_images (product_id, image_url, `order`) VALUES (?, ?, ?)',
+          [id, allImageUrls[i], i + 1]
+        );
       }
     }
     
@@ -304,7 +394,14 @@ class Product {
           
           await db.execute(
             `INSERT INTO product_variants (product_id, size, color_name, color_code, color_image, sku, extra_price, stock) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+             size = VALUES(size),
+             color_name = VALUES(color_name),
+             color_code = VALUES(color_code),
+             color_image = VALUES(color_image),
+             extra_price = VALUES(extra_price),
+             stock = VALUES(stock)`,
             [id, variant.size, variant.color_name, variant.color_code, colorImageUrl, variant.sku, variant.extra_price, variant.stock]
           );
         }
@@ -359,6 +456,20 @@ class Product {
       'UPDATE product_variants SET stock = stock - ? WHERE id = ?',
       [quantity, variantId]
     );
+  }
+  
+  // Helper method to get type condition for filtering
+  static getTypeCondition(type) {
+    switch (type) {
+      case 'trending':
+        return `p.discount_percentage IS NOT NULL AND p.discount_percentage > 0 AND p.stock_status != 'Out of Stock'`;
+      case 'latest':
+        return `p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)`;
+      case 'featured':
+        return `(p.discount_percentage > 20 OR p.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)) AND p.stock_status != 'Out of Stock'`;
+      default:
+        return null;
+    }
   }
 }
 

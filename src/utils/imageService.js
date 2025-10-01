@@ -16,9 +16,31 @@ class ImageService {
    */
   static async processImage(base64Data, options = {}) {
     try {
+      // Validate base64 data
+      if (!base64Data || typeof base64Data !== 'string') {
+        throw new Error('Invalid base64 data');
+      }
+      
       // Remove data URL prefix if present
       const base64String = base64Data.replace(/^data:image\/[a-z]+;base64,/, '');
+      
+      // Validate base64 string
+      if (!base64String || base64String.length === 0) {
+        throw new Error('Empty base64 string');
+      }
+      
+      // Check if it's valid base64
+      const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+      if (!base64Regex.test(base64String)) {
+        throw new Error('Invalid base64 format');
+      }
+      
       const imageBuffer = Buffer.from(base64String, 'base64');
+      
+      // Validate buffer
+      if (!imageBuffer || imageBuffer.length === 0) {
+        throw new Error('Invalid image buffer');
+      }
       
       // Default optimization settings
       const defaultOptions = {
@@ -30,8 +52,21 @@ class ImageService {
       
       const settings = { ...defaultOptions, ...options };
       
-      // Process image with Sharp
-      let sharpInstance = sharp(imageBuffer);
+      // First, try to get image metadata to validate format
+      let sharpInstance;
+      try {
+        sharpInstance = sharp(imageBuffer);
+        const metadata = await sharpInstance.metadata();
+        
+        // If we can't get metadata, the image format is not supported
+        if (!metadata || !metadata.format) {
+          throw new Error('Unsupported image format');
+        }
+        
+      } catch (sharpError) {
+        console.error('Sharp metadata error:', sharpError);
+        throw new Error(`Unsupported image format: ${sharpError.message}`);
+      }
       
       // Resize if needed
       if (settings.maxWidth || settings.maxHeight) {
@@ -53,7 +88,7 @@ class ImageService {
       return await sharpInstance.toBuffer();
     } catch (error) {
       console.error('Error processing image:', error);
-      throw new Error('Failed to process image');
+      throw new Error(`Failed to process image: ${error.message}`);
     }
   }
 

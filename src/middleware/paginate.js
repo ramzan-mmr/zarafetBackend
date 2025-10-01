@@ -9,6 +9,8 @@ const parsePagination = (req, res, next) => {
     search,
     from,
     to,
+    minPrice,
+    maxPrice,
     ...filters
   } = req.query;
   
@@ -51,7 +53,9 @@ const parsePagination = (req, res, next) => {
     search,
     from,
     to,
-    filters
+    minPrice,
+    maxPrice,
+    ...filters
   };
   
   next();

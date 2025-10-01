@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth.routes');
 const usersRoutes = require('./routes/users.routes');
 const rolesRoutes = require('./routes/roles.routes');
 const lookupsRoutes = require('./routes/lookups.routes');
+const publicRoutes = require('./routes/public.routes');
 const productsRoutes = require('./routes/products.routes');
 const customersRoutes = require('./routes/customers.routes');
 const ordersRoutes = require('./routes/orders.routes');
@@ -179,7 +180,10 @@ app.get('/uploads/products/:productId/:filename', (req, res) => {
   });
 });
 
-// API routes
+// Public API routes (no authentication required)
+app.use('/public', publicRoutes);
+
+// Protected API routes (authentication required)
 app.use('/auth', authRoutes);
 app.use('/users', usersRoutes);
 app.use('/roles', rolesRoutes);

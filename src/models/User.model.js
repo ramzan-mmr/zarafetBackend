@@ -48,10 +48,32 @@ class User {
   }
   
   static async findAll(filters = {}, pagination = {}) {
-    const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
+    const { buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
-    const allowedColumns = ['status', 'role_id'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    // Build custom where clause for user-specific columns
+    const conditions = [];
+    const values = [];
+    
+    // Handle status filter
+    if (filters.status) {
+      conditions.push('u.status = ?');
+      values.push(filters.status);
+    }
+    
+    // Handle role filter
+    if (filters.role_id) {
+      conditions.push('u.role_id = ?');
+      values.push(filters.role_id);
+    }
+    
+    // Handle search filter
+    if (filters.search) {
+      conditions.push('(u.name LIKE ? OR u.email LIKE ?)');
+      const searchTerm = `%${filters.search}%`;
+      values.push(searchTerm, searchTerm);
+    }
+    
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
     const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'created_at', 'updated_at', 'last_login_at']);
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
@@ -69,9 +91,30 @@ class User {
   }
   
   static async count(filters = {}) {
-    const { buildWhereClause } = require('../utils/sql');
-    const allowedColumns = ['status', 'role_id'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    // Build custom where clause for user-specific columns
+    const conditions = [];
+    const values = [];
+    
+    // Handle status filter
+    if (filters.status) {
+      conditions.push('u.status = ?');
+      values.push(filters.status);
+    }
+    
+    // Handle role filter
+    if (filters.role_id) {
+      conditions.push('u.role_id = ?');
+      values.push(filters.role_id);
+    }
+    
+    // Handle search filter
+    if (filters.search) {
+      conditions.push('(u.name LIKE ? OR u.email LIKE ?)');
+      const searchTerm = `%${filters.search}%`;
+      values.push(searchTerm, searchTerm);
+    }
+    
+    const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
     
     const [rows] = await db.execute(
       `SELECT COUNT(*) as total FROM users u ${whereClause}`,
