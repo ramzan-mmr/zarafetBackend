@@ -2,6 +2,7 @@ const LookupValue = require('../models/LookupValue.model');
 const Product = require('../models/Product.model');
 const User = require('../models/User.model');
 const Customer = require('../models/Customer.model');
+const Address = require('../models/Address.model');
 const PublicModule = require('../models/public.module');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
@@ -401,6 +402,165 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Address management for authenticated customers
+const getAddresses = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    
+    const addresses = await Address.findAll(user_id);
+    
+    res.json({
+      success: true,
+      data: addresses,
+      message: 'Addresses retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get addresses error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch addresses'
+    });
+  }
+};
+
+const createAddress = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    
+    const addressData = {
+      ...req.body,
+      user_id
+    };
+    
+    const address = await Address.create(addressData);
+    
+    res.status(201).json({
+      success: true,
+      data: address,
+      message: 'Address created successfully'
+    });
+  } catch (error) {
+    console.error('Create address error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create address'
+    });
+  }
+};
+
+const updateAddress = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+    
+    const existingAddress = await Address.findById(id);
+    if (!existingAddress) {
+      return res.status(404).json({
+        success: false,
+        message: 'Address not found'
+      });
+    }
+    
+    // Verify address belongs to user
+    if (existingAddress.user_id != user_id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Address does not belong to you'
+      });
+    }
+    
+    const addressData = {
+      ...req.body,
+      user_id
+    };
+    
+    const address = await Address.update(id, addressData);
+    
+    res.json({
+      success: true,
+      data: address,
+      message: 'Address updated successfully'
+    });
+  } catch (error) {
+    console.error('Update address error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update address'
+    });
+  }
+};
+
+const deleteAddress = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+    
+    const existingAddress = await Address.findById(id);
+    if (!existingAddress) {
+      return res.status(404).json({
+        success: false,
+        message: 'Address not found'
+      });
+    }
+    
+    // Verify address belongs to user
+    if (existingAddress.user_id != user_id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Address does not belong to you'
+      });
+    }
+    
+    await Address.delete(id);
+    
+    res.json({
+      success: true,
+      message: 'Address deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete address error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete address'
+    });
+  }
+};
+
+const getAddressById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+    
+    const address = await Address.findById(id);
+    if (!address) {
+      return res.status(404).json({
+        success: false,
+        message: 'Address not found'
+      });
+    }
+    
+    // Verify address belongs to user
+    if (address.user_id != user_id) {
+      return res.status(403).json({
+        success: false,
+        message: 'Address does not belong to you'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: address,
+      message: 'Address retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get address by ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch address'
+    });
+  }
+};
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -409,7 +569,13 @@ module.exports = {
   getTrendingProducts,
   getLatestProducts,
   getFeaturedProducts,
-  getProductById
+  getProductById,
+  // Address management
+  getAddresses,
+  createAddress,
+  updateAddress,
+  deleteAddress,
+  getAddressById
   // Add more exports here as you add more methods
   // getCategories,
   // getSettings

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 02, 2025 at 01:56 AM
+-- Generation Time: Oct 03, 2025 at 10:46 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `addresses` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `label` enum('HOME','OFFICE') DEFAULT 'HOME',
+  `label` varchar(50) DEFAULT 'Home',
   `line1` varchar(150) NOT NULL,
   `line2` varchar(150) DEFAULT NULL,
   `city_value_id` int(11) DEFAULT NULL,
@@ -38,6 +38,14 @@ CREATE TABLE `addresses` (
   `phone` varchar(30) DEFAULT NULL,
   `is_default` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `addresses`
+--
+
+INSERT INTO `addresses` (`id`, `user_id`, `label`, `line1`, `line2`, `city_value_id`, `postal_code`, `phone`, `is_default`) VALUES
+(3, 5, 'HOME', '123 Main Street', 'Apt 4B', NULL, '12345', '+1234567890', 1),
+(8, 5, 'Apartment', '123 Complex Ave', 'Unit 4B', 26, '11111', '+1111111111', 0);
 
 -- --------------------------------------------------------
 
@@ -74,7 +82,8 @@ CREATE TABLE `customer_profiles` (
 
 INSERT INTO `customer_profiles` (`user_id`, `total_orders`, `total_spend`, `points`, `tier_value_id`, `reg_date`, `last_order_at`) VALUES
 (2, 0, 0.00, 0, NULL, '2025-10-02', NULL),
-(3, 0, 0.00, 0, NULL, '2025-10-02', NULL);
+(3, 0, 0.00, 0, NULL, '2025-10-02', NULL),
+(5, 0, 0.00, 0, NULL, '2025-10-03', NULL);
 
 -- --------------------------------------------------------
 
@@ -447,9 +456,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `code`, `name`, `email`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-02 04:47:50', '2025-09-23 23:51:29', '2025-10-02 04:47:50'),
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-03 23:38:50', '2025-09-23 23:51:29', '2025-10-03 23:38:50'),
 (2, 'USR-00002', 'Test User', 'test@example.com', '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
-(3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17');
+(3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-04 00:42:23', '2025-10-03 22:51:42', '2025-10-04 00:42:23');
 
 -- --------------------------------------------------------
 
@@ -628,7 +638,7 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `applied_discounts`
@@ -712,7 +722,7 @@ ALTER TABLE `shipments`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `wishlists`

@@ -27,7 +27,7 @@ class Address {
        FROM addresses a 
        LEFT JOIN lookup_values lv ON a.city_value_id = lv.id
        WHERE a.user_id = ? 
-       ORDER BY a.is_default DESC, a.created_at DESC`,
+       ORDER BY a.is_default DESC, a.id DESC`,
       [user_id]
     );
     return rows;

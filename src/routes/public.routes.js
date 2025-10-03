@@ -1,6 +1,8 @@
 const router = require('express').Router();
-const { validateBody } = require('../middleware/validate');
-const { customerSignup, customerLogin } = require('../validators/public');
+const { validateBody, validateParams } = require('../middleware/validate');
+const { verifyJWT } = require('../middleware/auth');
+const { customerSignup, customerLogin, addressCreate, addressUpdate } = require('../validators/public');
+const { idParam } = require('../validators/common');
 const publicCtrl = require('../controllers/public.controller');
 
 /**
@@ -133,30 +135,6 @@ router.get('/products', publicCtrl.getProducts);
 
 /**
  * @swagger
- * /public/products/{id}:
- *   get:
- *     summary: Get single product by ID
- *     tags: [Public APIs]
- *     description: Get detailed information about a specific product
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: Product ID
- *     responses:
- *       200:
- *         description: Product retrieved successfully
- *       404:
- *         description: Product not found
- *       500:
- *         description: Internal server error
- */
-router.get('/products/:id', publicCtrl.getProductById);
-
-/**
- * @swagger
  * /public/products/trending:
  *   get:
  *     summary: Get trending products
@@ -220,6 +198,30 @@ router.get('/products/latest', publicCtrl.getLatestProducts);
  *         description: Internal server error
  */
 router.get('/products/featured', publicCtrl.getFeaturedProducts);
+
+/**
+ * @swagger
+ * /public/products/{id}:
+ *   get:
+ *     summary: Get single product by ID
+ *     tags: [Public APIs]
+ *     description: Get detailed information about a specific product
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product retrieved successfully
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/products/:id', publicCtrl.getProductById);
 
 // Customer authentication routes
 /**
@@ -303,6 +305,208 @@ router.post('/auth/signup', validateBody(customerSignup), publicCtrl.customerSig
  *         description: Internal server error
  */
 router.post('/auth/login', validateBody(customerLogin), publicCtrl.customerLogin);
+
+/**
+ * @swagger
+ * /public/addresses:
+ *   get:
+ *     summary: Get customer addresses
+ *     tags: [Public APIs]
+ *     description: Get all addresses for the authenticated customer
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Addresses retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/addresses', verifyJWT, publicCtrl.getAddresses);
+
+/**
+ * @swagger
+ * /public/addresses:
+ *   post:
+ *     summary: Create new address
+ *     tags: [Public APIs]
+ *     description: Create a new address for the authenticated customer
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - line1
+ *             properties:
+ *               label:
+ *                 type: string
+ *                 maxLength: 50
+ *                 default: Home
+ *                 example: "Home"
+ *               line1:
+ *                 type: string
+ *                 maxLength: 150
+ *                 example: "123 Main Street"
+ *               line2:
+ *                 type: string
+ *                 maxLength: 150
+ *                 example: "Apt 4B"
+ *               city_value_id:
+ *                 type: integer
+ *                 example: 1
+ *               postal_code:
+ *                 type: string
+ *                 maxLength: 20
+ *                 example: "12345"
+ *               phone:
+ *                 type: string
+ *                 maxLength: 30
+ *                 example: "+1234567890"
+ *               is_default:
+ *                 type: boolean
+ *                 default: false
+ *                 example: true
+ *     responses:
+ *       201:
+ *         description: Address created successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/addresses', verifyJWT, validateBody(addressCreate), publicCtrl.createAddress);
+
+/**
+ * @swagger
+ * /public/addresses/{id}:
+ *   get:
+ *     summary: Get address by ID
+ *     tags: [Public APIs]
+ *     description: Get a specific address by ID for the authenticated customer
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Address ID
+ *     responses:
+ *       200:
+ *         description: Address retrieved successfully
+ *       403:
+ *         description: Address does not belong to you
+ *       404:
+ *         description: Address not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/addresses/:id', verifyJWT, validateParams(idParam), publicCtrl.getAddressById);
+
+/**
+ * @swagger
+ * /public/addresses/{id}:
+ *   put:
+ *     summary: Update address
+ *     tags: [Public APIs]
+ *     description: Update an existing address for the authenticated customer
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Address ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               label:
+ *                 type: string
+ *                 maxLength: 50
+ *                 example: "Office"
+ *               line1:
+ *                 type: string
+ *                 maxLength: 150
+ *                 example: "123 Main Street"
+ *               line2:
+ *                 type: string
+ *                 maxLength: 150
+ *                 example: "Apt 4B"
+ *               city_value_id:
+ *                 type: integer
+ *                 example: 1
+ *               postal_code:
+ *                 type: string
+ *                 maxLength: 20
+ *                 example: "12345"
+ *               phone:
+ *                 type: string
+ *                 maxLength: 30
+ *                 example: "+1234567890"
+ *               is_default:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Address updated successfully
+ *       400:
+ *         description: Validation error
+ *       403:
+ *         description: Address does not belong to you
+ *       404:
+ *         description: Address not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/addresses/:id', verifyJWT, validateParams(idParam), validateBody(addressUpdate), publicCtrl.updateAddress);
+
+/**
+ * @swagger
+ * /public/addresses/{id}:
+ *   delete:
+ *     summary: Delete address
+ *     tags: [Public APIs]
+ *     description: Delete an address for the authenticated customer
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Address ID
+ *     responses:
+ *       200:
+ *         description: Address deleted successfully
+ *       403:
+ *         description: Address does not belong to you
+ *       404:
+ *         description: Address not found
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/addresses/:id', verifyJWT, validateParams(idParam), publicCtrl.deleteAddress);
 
 // Add more public routes here in the future
 // router.get('/categories', publicCtrl.getCategories);
