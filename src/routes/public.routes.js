@@ -201,6 +201,65 @@ router.get('/products/featured', publicCtrl.getFeaturedProducts);
 
 /**
  * @swagger
+ * /public/products/bulk:
+ *   get:
+ *     summary: Get multiple products by IDs
+ *     tags: [Public APIs]
+ *     description: Get detailed information about multiple products by providing comma-separated product IDs
+ *     parameters:
+ *       - in: query
+ *         name: ids
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Comma-separated product IDs (e.g., "1,2,3,4")
+ *         example: "1,2,3,4"
+ *     responses:
+ *       200:
+ *         description: Products retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       name:
+ *                         type: string
+ *                         example: "Summer Dress"
+ *                       price:
+ *                         type: number
+ *                         example: 99.99
+ *                       images:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         example: ["image1.jpg", "image2.jpg"]
+ *                       variants:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                 message:
+ *                   type: string
+ *                   example: "Retrieved 3 products successfully"
+ *       400:
+ *         description: Bad request - Invalid or missing product IDs
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/products/bulk', publicCtrl.getProductsByIds);
+
+/**
+ * @swagger
  * /public/products/{id}:
  *   get:
  *     summary: Get single product by ID

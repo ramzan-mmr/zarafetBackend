@@ -402,6 +402,44 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Get multiple products by IDs
+const getProductsByIds = async (req, res) => {
+  try {
+    const { ids } = req.query;
+    
+    if (!ids) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product IDs are required. Use comma-separated values like: ?ids=1,2,3'
+      });
+    }
+    
+    // Parse comma-separated IDs
+    const productIds = ids.split(',').map(id => id.trim()).filter(id => id);
+    
+    if (productIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one valid product ID is required'
+      });
+    }
+    
+    const products = await PublicModule.getProductsByIds(productIds);
+    
+    res.json({
+      success: true,
+      data: products,
+      message: `Retrieved ${products.length} products successfully`
+    });
+  } catch (error) {
+    console.error('Get products by IDs error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch products'
+    });
+  }
+};
+
 // Address management for authenticated customers
 const getAddresses = async (req, res) => {
   try {
@@ -570,6 +608,7 @@ module.exports = {
   getLatestProducts,
   getFeaturedProducts,
   getProductById,
+  getProductsByIds,
   // Address management
   getAddresses,
   createAddress,

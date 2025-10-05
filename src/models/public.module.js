@@ -296,6 +296,35 @@ class PublicModule {
       main_image: images.length > 0 ? images[0].image_url : null
     };
   }
+
+  // Get multiple products by IDs
+  static async getProductsByIds(ids) {
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return [];
+    }
+
+    // Filter out invalid IDs and ensure they are integers
+    const validIds = ids
+      .map(id => parseInt(id))
+      .filter(id => !isNaN(id) && id > 0);
+
+    if (validIds.length === 0) {
+      return [];
+    }
+
+    const placeholders = validIds.map(() => '?').join(',');
+    const [rows] = await db.execute(`
+      SELECT p.*, 
+             lv.value as category_name,
+             (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY \`order\` LIMIT 1) as main_image
+      FROM products p
+      LEFT JOIN lookup_values lv ON p.category_value_id = lv.id
+      WHERE p.id IN (${placeholders}) AND p.status = 'Active'
+      ORDER BY FIELD(p.id, ${placeholders})
+    `, [...validIds, ...validIds]);
+
+    return await this.enrichProductsWithDetails(rows);
+  }
 }
 
 module.exports = PublicModule;
