@@ -3,6 +3,7 @@ const Product = require('../models/Product.model');
 const User = require('../models/User.model');
 const Customer = require('../models/Customer.model');
 const Address = require('../models/Address.model');
+const Category = require('../models/Category.model');
 const PublicModule = require('../models/public.module');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
@@ -599,6 +600,28 @@ const getAddressById = async (req, res) => {
   }
 };
 
+// Get all categories (public)
+const getCategories = async (req, res) => {
+  try {
+    const { status = 'Active' } = req.query;
+    const categories = await Category.findAll({ status });
+    
+    res.json({
+      success: true,
+      data: categories,
+      message: 'Categories retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get public categories error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch categories'
+    });
+  }
+};
+
+// Removed: getRootCategories, getCategoryHierarchy, getCategoryById, getCategoriesByParent - keeping it simple
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -614,8 +637,9 @@ module.exports = {
   createAddress,
   updateAddress,
   deleteAddress,
-  getAddressById
+  getAddressById,
+  // Category management
+  getCategories
   // Add more exports here as you add more methods
-  // getCategories,
   // getSettings
 };
