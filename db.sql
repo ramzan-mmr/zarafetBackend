@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 03, 2025 at 10:46 PM
+-- Generation Time: Oct 08, 2025 at 12:16 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,7 +45,8 @@ CREATE TABLE `addresses` (
 
 INSERT INTO `addresses` (`id`, `user_id`, `label`, `line1`, `line2`, `city_value_id`, `postal_code`, `phone`, `is_default`) VALUES
 (3, 5, 'HOME', '123 Main Street', 'Apt 4B', NULL, '12345', '+1234567890', 1),
-(8, 5, 'Apartment', '123 Complex Ave', 'Unit 4B', 26, '11111', '+1111111111', 0);
+(8, 5, 'Apartment', '123 Complex Ave', 'Unit 4B', 26, '11111', '+1111111111', 0),
+(11, 6, 'asdfa', '2342', '234', 26, '23423', '234234234', 0);
 
 -- --------------------------------------------------------
 
@@ -59,6 +60,33 @@ CREATE TABLE `applied_discounts` (
   `discount_type_value_id` int(11) NOT NULL,
   `amount` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `categories`
+--
+
+CREATE TABLE `categories` (
+  `id` int(11) NOT NULL,
+  `code` varchar(20) DEFAULT NULL,
+  `name` varchar(120) NOT NULL,
+  `description` text DEFAULT NULL,
+  `image_url` varchar(500) DEFAULT NULL,
+  `parent_id` int(11) DEFAULT NULL COMMENT 'For hierarchical categories',
+  `sort_order` int(11) DEFAULT 1,
+  `status` enum('Active','Inactive') DEFAULT 'Active',
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`id`, `code`, `name`, `description`, `image_url`, `parent_id`, `sort_order`, `status`, `created_at`, `updated_at`, `created_by`) VALUES
+(3, 'CAT-00003', 'Test Controller Category', 'Testing controller', NULL, NULL, 1, 'Active', '2025-10-07 23:46:39', '2025-10-07 23:46:39', 1);
 
 -- --------------------------------------------------------
 
@@ -83,7 +111,8 @@ CREATE TABLE `customer_profiles` (
 INSERT INTO `customer_profiles` (`user_id`, `total_orders`, `total_spend`, `points`, `tier_value_id`, `reg_date`, `last_order_at`) VALUES
 (2, 0, 0.00, 0, NULL, '2025-10-02', NULL),
 (3, 0, 0.00, 0, NULL, '2025-10-02', NULL),
-(5, 0, 0.00, 0, NULL, '2025-10-03', NULL);
+(5, 0, 0.00, 0, NULL, '2025-10-03', NULL),
+(6, 0, 0.00, 0, NULL, '2025-10-07', NULL);
 
 -- --------------------------------------------------------
 
@@ -456,10 +485,11 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `code`, `name`, `email`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-03 23:38:50', '2025-09-23 23:51:29', '2025-10-03 23:38:50'),
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-08 00:09:35', '2025-09-23 23:51:29', '2025-10-08 00:09:35'),
 (2, 'USR-00002', 'Test User', 'test@example.com', '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
 (3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
-(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-04 00:42:23', '2025-10-03 22:51:42', '2025-10-04 00:42:23');
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-04 00:42:23', '2025-10-03 22:51:42', '2025-10-04 00:42:23'),
+(6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51');
 
 -- --------------------------------------------------------
 
@@ -493,6 +523,17 @@ ALTER TABLE `applied_discounts`
   ADD PRIMARY KEY (`id`),
   ADD KEY `order_id` (`order_id`),
   ADD KEY `discount_type_value_id` (`discount_type_value_id`);
+
+--
+-- Indexes for table `categories`
+--
+ALTER TABLE `categories`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`),
+  ADD KEY `parent_id` (`parent_id`),
+  ADD KEY `status` (`status`),
+  ADD KEY `sort_order` (`sort_order`),
+  ADD KEY `created_by` (`created_by`);
 
 --
 -- Indexes for table `customer_profiles`
@@ -638,13 +679,19 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `applied_discounts`
 --
 ALTER TABLE `applied_discounts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `categories`
+--
+ALTER TABLE `categories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `lookup_headers`
@@ -722,7 +769,7 @@ ALTER TABLE `shipments`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `wishlists`
@@ -747,6 +794,13 @@ ALTER TABLE `addresses`
 ALTER TABLE `applied_discounts`
   ADD CONSTRAINT `applied_discounts_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `applied_discounts_ibfk_2` FOREIGN KEY (`discount_type_value_id`) REFERENCES `lookup_values` (`id`);
+
+--
+-- Constraints for table `categories`
+--
+ALTER TABLE `categories`
+  ADD CONSTRAINT `categories_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `categories_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `customer_profiles`

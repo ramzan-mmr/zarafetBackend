@@ -1,8 +1,9 @@
 const router = require('express').Router();
-const { validateBody, validateParams } = require('../middleware/validate');
+const { validateBody, validateParams, validateQuery } = require('../middleware/validate');
 const { verifyJWT } = require('../middleware/auth');
 const { customerSignup, customerLogin, addressCreate, addressUpdate } = require('../validators/public');
 const { idParam } = require('../validators/common');
+const { publicCategoryQuery } = require('../validators/categories');
 const publicCtrl = require('../controllers/public.controller');
 
 /**
@@ -567,8 +568,31 @@ router.put('/addresses/:id', verifyJWT, validateParams(idParam), validateBody(ad
  */
 router.delete('/addresses/:id', verifyJWT, validateParams(idParam), publicCtrl.deleteAddress);
 
+// Category routes - Simplified
+/**
+ * @swagger
+ * /public/categories:
+ *   get:
+ *     summary: Get all categories
+ *     tags: [Public APIs]
+ *     description: Get all active categories
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [Active, Inactive]
+ *           default: Active
+ *         description: Category status filter
+ *     responses:
+ *       200:
+ *         description: Categories retrieved successfully
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/categories', validateQuery(publicCategoryQuery), publicCtrl.getCategories);
+
 // Add more public routes here in the future
-// router.get('/categories', publicCtrl.getCategories);
 // router.get('/settings', publicCtrl.getSettings);
 // etc.
 

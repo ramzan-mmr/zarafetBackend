@@ -16,6 +16,7 @@ const customersRoutes = require('./routes/customers.routes');
 const ordersRoutes = require('./routes/orders.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const wishlistRoutes = require('./routes/wishlist.routes');
+const categoriesRoutes = require('./routes/categories.routes');
 
 const app = express();
 
@@ -193,6 +194,7 @@ app.use('/customers', customersRoutes);
 app.use('/orders', ordersRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/me', wishlistRoutes);
+app.use('/categories', categoriesRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

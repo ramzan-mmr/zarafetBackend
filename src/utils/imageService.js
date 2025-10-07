@@ -242,6 +242,47 @@ class ImageService {
     }
     return `products/${productId}/variants`;
   }
+
+  /**
+   * Upload category image from multer file
+   * @param {Object} file - Multer file object
+   * @returns {Promise<Object>} - Upload result with URL
+   */
+  static async uploadCategoryImage(file) {
+    try {
+      if (!file) {
+        throw new Error('No file provided');
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomString = crypto.randomBytes(4).toString('hex');
+      const extension = path.extname(file.originalname);
+      const filename = `category-${timestamp}-${randomString}${extension}`;
+      
+      // Create categories directory if it doesn't exist
+      const categoriesDir = path.join(UPLOADS_DIR, 'categories');
+      await fs.mkdir(categoriesDir, { recursive: true });
+      
+      // Move file to categories directory
+      const filePath = path.join(categoriesDir, filename);
+      await fs.rename(file.path, filePath);
+      
+      // Generate URL
+      const url = `${BASE_URL}/uploads/categories/${filename}`;
+      
+      return {
+        url,
+        filename,
+        path: filePath,
+        size: file.size,
+        mimetype: file.mimetype
+      };
+    } catch (error) {
+      console.error('Error uploading category image:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = ImageService;
