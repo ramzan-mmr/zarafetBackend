@@ -299,4 +299,38 @@ router.delete('/:id',
   ctrl.remove
 );
 
+/**
+ * @swagger
+ * /products/categories:
+ *   get:
+ *     summary: Get available categories for products
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of available categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ */
+router.get('/categories', ctrl.getAvailableCategories);
+
 module.exports = router;

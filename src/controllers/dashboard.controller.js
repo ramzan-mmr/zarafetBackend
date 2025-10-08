@@ -136,15 +136,15 @@ const getSalesByCategory = async (req, res) => {
     
     const [rows] = await db.execute(
       `SELECT 
-         lv.value as category_name,
+         c.name as category_name,
          COUNT(DISTINCT o.id) as orders,
          COALESCE(SUM(oi.quantity * oi.unit_price), 0) as revenue
        FROM orders o
        JOIN order_items oi ON o.id = oi.order_id
        JOIN products p ON oi.product_id = p.id
-       LEFT JOIN lookup_values lv ON p.category_value_id = lv.id
+       LEFT JOIN categories c ON p.category_value_id = c.id
        WHERE 1=1 ${whereClause}
-       GROUP BY p.category_value_id, lv.value
+       GROUP BY p.category_value_id, c.name
        ORDER BY revenue DESC`
     );
     

@@ -6,6 +6,18 @@ class Product {
   static async create(productData) {
     const { name, description, category_value_id, price, original_price, current_price, stock, stock_status, status, images, variants } = productData;
     
+    // Validate category_value_id if provided
+    if (category_value_id !== undefined && category_value_id !== null) {
+      const [categoryExists] = await db.execute(
+        'SELECT id FROM categories WHERE id = ?',
+        [category_value_id]
+      );
+      
+      if (categoryExists.length === 0) {
+        throw new Error(`Category with ID ${category_value_id} does not exist. Available categories: 6 (Abayas), 7 (babies), 8 (children), 9 (Dresses), 10 (women)`);
+      }
+    }
+    
     // Generate SKU from product name (first letter of each word + random string)
     const generateSkuFromName = (productName) => {
       if (!productName || productName.trim() === '') {
@@ -158,9 +170,9 @@ class Product {
     
     const query = `
       SELECT p.*, 
-             lv1.value as category_name
+             c.name as category_name
       FROM products p 
-      LEFT JOIN lookup_values lv1 ON p.category_value_id = lv1.id
+      LEFT JOIN categories c ON p.category_value_id = c.id
       ${whereClause} 
       ${orderClause} 
       ${paginationClause}
@@ -173,9 +185,9 @@ class Product {
   static async findById(id) {
     const [rows] = await db.execute(
       `SELECT p.*, 
-              lv1.value as category_name
+              c.name as category_name
        FROM products p 
-       LEFT JOIN lookup_values lv1 ON p.category_value_id = lv1.id
+       LEFT JOIN categories c ON p.category_value_id = c.id
        WHERE p.id = ?`,
       [id]
     );
@@ -241,6 +253,18 @@ class Product {
   
   static async update(id, updateData) {
     const { images, variants, original_price, current_price, ...productData } = updateData;
+    
+    // Validate category_value_id if provided
+    if (productData.category_value_id !== undefined && productData.category_value_id !== null) {
+      const [categoryExists] = await db.execute(
+        'SELECT id FROM categories WHERE id = ?',
+        [productData.category_value_id]
+      );
+      
+      if (categoryExists.length === 0) {
+        throw new Error(`Category with ID ${productData.category_value_id} does not exist. Available categories: 6 (Abayas), 7 (babies), 8 (children), 9 (Dresses), 10 (women)`);
+      }
+    }
     
     const fields = [];
     const values = [];
