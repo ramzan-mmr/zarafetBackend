@@ -49,6 +49,10 @@ const conflict = (message = 'Resource conflict') => {
   return error('CONFLICT', message);
 };
 
+const badRequest = (message = 'Bad request') => {
+  return error('BAD_REQUEST', message);
+};
+
 const internalError = (message = 'Internal server error') => {
   return error('INTERNAL_ERROR', message);
 };
@@ -62,5 +66,6 @@ module.exports = {
   unauthorized,
   forbidden,
   conflict,
+  badRequest,
   internalError
 };

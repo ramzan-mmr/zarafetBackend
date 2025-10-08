@@ -108,7 +108,7 @@ class Category {
     return this.findById(id);
   }
   
-  static async delete(id) {
+  static async delete(id, force = false) {
     // Check if category has children
     const [children] = await db.execute(
       'SELECT COUNT(*) as count FROM categories WHERE parent_id = ?',
@@ -126,7 +126,20 @@ class Category {
     );
     
     if (products[0].count > 0) {
-      throw new Error('Cannot delete category that is used by products.');
+      if (force) {
+        // Force delete: Update products to use a default category or set to null
+        console.log(`Force deleting category ${id}, updating ${products[0].count} products`);
+        
+        // Option 1: Set products to null category (if your schema allows)
+        await db.execute(
+          'UPDATE products SET category_value_id = NULL WHERE category_value_id = ?',
+          [id]
+        );
+        
+        console.log(`Updated ${products[0].count} products to remove category reference`);
+      } else {
+        throw new Error('Cannot delete category that is used by products.');
+      }
     }
     
     await db.execute('DELETE FROM categories WHERE id = ?', [id]);

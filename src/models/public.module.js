@@ -19,10 +19,10 @@ class PublicModule {
   static async getTrendingProducts(limit = 8) {
     const [rows] = await db.execute(`
       SELECT p.*, 
-             lv.value as category_name,
+             c.name as category_name,
              (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY \`order\` LIMIT 1) as main_image
       FROM products p
-      LEFT JOIN lookup_values lv ON p.category_value_id = lv.id
+      LEFT JOIN categories c ON p.category_value_id = c.id
       WHERE p.status = 'Active' 
         AND p.stock_status != 'Out of Stock'
         AND p.discount_percentage IS NOT NULL
@@ -38,10 +38,10 @@ class PublicModule {
   static async getLatestProducts(limit = 8) {
     const [rows] = await db.execute(`
       SELECT p.*, 
-             lv.value as category_name,
+             c.name as category_name,
              (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY \`order\` LIMIT 1) as main_image
       FROM products p
-      LEFT JOIN lookup_values lv ON p.category_value_id = lv.id
+      LEFT JOIN categories c ON p.category_value_id = c.id
       WHERE p.status = 'Active'
       ORDER BY p.created_at DESC
       LIMIT ?
@@ -54,10 +54,10 @@ class PublicModule {
   static async getFeaturedProducts(limit = 8) {
     const [rows] = await db.execute(`
       SELECT p.*, 
-             lv.value as category_name,
+             c.name as category_name,
              (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY \`order\` LIMIT 1) as main_image
       FROM products p
-      LEFT JOIN lookup_values lv ON p.category_value_id = lv.id
+      LEFT JOIN categories c ON p.category_value_id = c.id
       WHERE p.status = 'Active' 
         AND p.stock_status != 'Out of Stock'
         AND (
@@ -118,9 +118,9 @@ class PublicModule {
     
     const query = `
       SELECT p.*, 
-             lv1.value as category_name
+             c.name as category_name
       FROM products p 
-      LEFT JOIN lookup_values lv1 ON p.category_value_id = lv1.id
+      LEFT JOIN categories c ON p.category_value_id = c.id
       ${whereClause} 
       ${orderClause} 
       ${paginationClause}
@@ -264,10 +264,10 @@ class PublicModule {
   static async getProductById(id) {
     const [rows] = await db.execute(`
       SELECT p.*, 
-             lv.value as category_name,
+             c.name as category_name,
              (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY \`order\` LIMIT 1) as main_image
       FROM products p
-      LEFT JOIN lookup_values lv ON p.category_value_id = lv.id
+      LEFT JOIN categories c ON p.category_value_id = c.id
       WHERE p.id = ? AND p.status = 'Active'
     `, [id]);
 
@@ -315,10 +315,10 @@ class PublicModule {
     const placeholders = validIds.map(() => '?').join(',');
     const [rows] = await db.execute(`
       SELECT p.*, 
-             lv.value as category_name,
+             c.name as category_name,
              (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY \`order\` LIMIT 1) as main_image
       FROM products p
-      LEFT JOIN lookup_values lv ON p.category_value_id = lv.id
+      LEFT JOIN categories c ON p.category_value_id = c.id
       WHERE p.id IN (${placeholders}) AND p.status = 'Active'
       ORDER BY FIELD(p.id, ${placeholders})
     `, [...validIds, ...validIds]);

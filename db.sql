@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 08, 2025 at 12:16 AM
+-- Generation Time: Oct 08, 2025 at 08:14 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -86,7 +86,11 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `code`, `name`, `description`, `image_url`, `parent_id`, `sort_order`, `status`, `created_at`, `updated_at`, `created_by`) VALUES
-(3, 'CAT-00003', 'Test Controller Category', 'Testing controller', NULL, NULL, 1, 'Active', '2025-10-07 23:46:39', '2025-10-07 23:46:39', 1);
+(6, 'CAT-00006', 'Abayas', 'Traditional Islamic garments for women', NULL, NULL, 2, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1),
+(7, 'CAT-00007', 'babies', 'Clothing and accessories for infants and babies', NULL, NULL, 3, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1),
+(8, 'CAT-00008', 'children', 'Clothing and accessories for children', NULL, NULL, 4, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1),
+(9, 'CAT-00009', 'Dresses', 'Various styles of dresses for women', NULL, NULL, 5, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1),
+(10, 'CAT-00010', 'women', 'General category for women\'s apparel and accessories', NULL, NULL, 6, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1);
 
 -- --------------------------------------------------------
 
@@ -261,23 +265,23 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `code`, `sku`, `name`, `description`, `category_value_id`, `price`, `stock`, `stock_status`, `status`, `date_added`, `created_at`, `updated_at`, `original_price`, `current_price`, `discount_percentage`) VALUES
-(2, 'PRD-00002', 'SKU-MG7U0TUT-QYB84', 'Testing product', 'fldsjafldsa fldsa dsadsa', 5, 300.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:16:57', '2025-10-01 15:16:57', 400.00, 300.00, 25.00),
-(3, 'PRD-00003', 'SKU-MG7U19CV-J6KV2', 'Testing product', 'fldsjafldsa fldsa dsadsa', 5, 300.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:17:17', '2025-10-01 15:17:17', 400.00, 300.00, 25.00),
-(4, 'PRD-00004', 'TESTING-6AFC6CA2', 'Testing', 'afdsasihT', 5, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:28:31', '2025-10-01 15:28:31', 400.00, 300.00, 25.00),
-(5, 'PRD-00005', 'THIS-TESTING-9953ACED', 'Updated Product', 'Updated description', 5, 25.00, 0, 'Active', 'Active', '2025-10-01', '2025-10-01 15:30:13', '2025-10-02 04:43:16', 33.00, 23.00, 30.30),
-(7, 'PRD-00007', 'BSA-UK1EOAFS', 'Black SIlk Abaya', 'fdslafkdsa', 5, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:24', '2025-10-02 01:29:04', 60.00, 50.00, 16.67),
-(8, 'PRD-00008', 'BSA-GWNWXIXD', 'Black SIlk Abaya', 'fdslafkdsa', 5, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:51', '2025-10-01 15:36:51', 60.00, 50.00, 16.67),
-(9, 'PRD-00009', 'BSA-H1IWRY2D', 'Black SIlk Abaya', 'fdslafkdsa', 5, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:37:32', '2025-10-01 15:37:32', 60.00, 50.00, 16.67),
-(10, 'PRD-00010', 'BSA-D305YAO0', 'Black SIlk Abaya', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:00', '2025-10-01 15:38:00', 60.00, 50.00, 16.67),
-(11, 'PRD-00011', 'BSA-FT1GNCS4', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-01 15:38:04', 60.00, 50.00, 16.67),
-(12, 'PRD-00012', 'BSA-8TT2D302', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-02 04:43:33', 60.00, 50.00, 16.67),
-(13, 'PRD-00013', 'BSA-J6CFUPPP', 'Black SIlk Abaya', 'fdslafkdsa', 3, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:05', '2025-10-02 01:13:34', 60.00, 50.00, 16.67),
-(14, 'PRD-00014', 'BSA-5GT87547', 'Black SIlk Abaya', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-01 15:38:07', 60.00, 50.00, 16.67),
-(15, 'PRD-00015', 'BSA-4AVCILJU', 'Black SIlk Abaya ......', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-01 17:37:09', 60.00, 50.00, 16.67),
-(16, 'PRD-00016', 'BSA-ZK6EFBXR', 'Black SIlk Abaya', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-01 15:38:07', 60.00, 50.00, 16.67),
-(17, 'PRD-00017', 'BSA-M1L63XBK', 'Black SIlk Abaya', 'fdslafkdsa', 5, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:11', '2025-10-01 15:38:11', 60.00, 50.00, 16.67),
-(18, 'PRD-00018', 'BS-B3GMJHO3', 'Updated Test Product', 'Testing image processing fix', 6, 25.00, 10, 'Active', 'Active', '2025-10-01', '2025-10-01 15:40:43', '2025-10-02 01:37:52', 30.00, 25.00, 16.67),
-(19, 'PRD-00019', 'A-2WIMT3N0', 'asdfasdfas', '3333333333333333333333333333333', 5, 23.00, 234, 'Active', 'Active', '2025-10-02', '2025-10-02 01:30:18', '2025-10-02 04:44:25', 10.00, 23.00, NULL);
+(2, 'PRD-00002', 'SKU-MG7U0TUT-QYB84', 'Testing product', 'fldsjafldsa fldsa dsadsa', 6, 300.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:16:57', '2025-10-08 23:10:09', 400.00, 300.00, 25.00),
+(3, 'PRD-00003', 'SKU-MG7U19CV-J6KV2', 'Testing product', 'fldsjafldsa fldsa dsadsa', 8, 300.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:17:17', '2025-10-08 23:10:17', 400.00, 300.00, 25.00),
+(4, 'PRD-00004', 'TESTING-6AFC6CA2', 'Testing', 'afdsasihT', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:28:31', '2025-10-08 23:09:59', 400.00, 300.00, 25.00),
+(5, 'PRD-00005', 'THIS-TESTING-9953ACED', 'Updated Product', 'Updated description', 6, 23.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:30:13', '2025-10-08 23:10:51', 33.00, 23.00, 30.30),
+(7, 'PRD-00007', 'BSA-UK1EOAFS', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:24', '2025-10-08 22:53:30', 60.00, 50.00, 16.67),
+(8, 'PRD-00008', 'BSA-GWNWXIXD', 'Black SIlk Abaya', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:51', '2025-10-08 22:53:48', 60.00, 50.00, 16.67),
+(9, 'PRD-00009', 'BSA-H1IWRY2D', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:37:32', '2025-10-08 23:08:08', 60.00, 50.00, 16.67),
+(10, 'PRD-00010', 'BSA-D305YAO0', 'Black SIlk Abaya', 'fdslafkdsa', 8, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:00', '2025-10-08 23:08:15', 60.00, 50.00, 16.67),
+(11, 'PRD-00011', 'BSA-FT1GNCS4', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-08 23:08:22', 60.00, 50.00, 16.67),
+(12, 'PRD-00012', 'BSA-8TT2D302', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-08 23:08:30', 60.00, 50.00, 16.67),
+(13, 'PRD-00013', 'BSA-J6CFUPPP', 'Black SIlk Abaya', 'fdslafkdsa', 10, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:05', '2025-10-08 23:08:47', 60.00, 50.00, 16.67),
+(14, 'PRD-00014', 'BSA-5GT87547', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-08 23:08:59', 60.00, 50.00, 16.67),
+(15, 'PRD-00015', 'BSA-4AVCILJU', 'Black SIlk Abaya ......', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-08 23:09:50', 60.00, 50.00, 16.67),
+(16, 'PRD-00016', 'BSA-ZK6EFBXR', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-08 23:09:12', 60.00, 50.00, 16.67),
+(17, 'PRD-00017', 'BSA-M1L63XBK', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:11', '2025-10-08 23:09:19', 60.00, 50.00, 16.67),
+(19, 'PRD-00019', 'A-2WIMT3N0', 'Updated Test Product', '3333333333333333333333333333333', 7, 25.00, 234, 'Active', 'Active', '2025-10-02', '2025-10-02 01:30:18', '2025-10-08 23:00:45', 10.00, 23.00, NULL),
+(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 23, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-08 23:12:27', 2344.00, 234.00, 90.02);
 
 -- --------------------------------------------------------
 
@@ -297,66 +301,82 @@ CREATE TABLE `product_images` (
 --
 
 INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `order`) VALUES
-(6, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvf-e431ee6b14c870ab.jpg', 1),
-(7, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvr-3e695b2b55219a5d.jpg', 2),
-(8, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvr-7355a3034e902a67.jpg', 3),
-(9, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvs-7c01f50e08ea51e2.jpg', 4),
-(10, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvs-583742b239aedac7.jpg', 5),
-(11, 3, 'http://localhost:3000/uploads/products/3/mg7u19d1-838a7aebfa921fae.jpg', 1),
-(12, 3, 'http://localhost:3000/uploads/products/3/mg7u19d2-ee1882a2d373325e.jpg', 2),
-(13, 3, 'http://localhost:3000/uploads/products/3/mg7u19d3-f9f6f5d7d425ebdb.jpg', 3),
-(14, 3, 'http://localhost:3000/uploads/products/3/mg7u19d4-f6f39610a330f938.jpg', 4),
-(15, 3, 'http://localhost:3000/uploads/products/3/mg7u19d4-8e4276062dd3d3d0.jpg', 5),
-(16, 4, 'http://localhost:3000/uploads/products/4/mg7ufpf9-5641879e875cbec7.jpg', 1),
-(17, 4, 'http://localhost:3000/uploads/products/4/mg7ufpfi-1f76102507034f7b.jpg', 2),
-(18, 4, 'http://localhost:3000/uploads/products/4/mg7ufpfj-6d08257c240af98d.jpg', 3),
-(19, 4, 'http://localhost:3000/uploads/products/4/mg7ufpfj-c9862f71eef737b5.jpg', 4),
-(20, 4, 'http://localhost:3000/uploads/products/4/mg7ufpfj-fde62aa054b02629.jpg', 5),
-(31, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5u-b33e0353446bea82.jpg', 1),
-(32, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5v-ca6da264f6d81209.jpg', 2),
-(33, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5w-39c09d54ceb311b1.jpg', 3),
-(34, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5x-e350d64407250e9c.jpg', 4),
-(35, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5x-32d9107aea4a504f.jpg', 5),
-(36, 9, 'http://localhost:3000/uploads/products/9/mg7uramf-de10389db058ab0e.jpg', 1),
-(37, 9, 'http://localhost:3000/uploads/products/9/mg7uramh-b05819c9c3240b8b.jpg', 2),
-(38, 9, 'http://localhost:3000/uploads/products/9/mg7urami-b424b2477e81eeaf.jpg', 3),
-(39, 9, 'http://localhost:3000/uploads/products/9/mg7uramj-7b40c0bdd9ef47c7.jpg', 4),
-(40, 9, 'http://localhost:3000/uploads/products/9/mg7uramj-01c214e1703914d1.jpg', 5),
-(41, 10, 'http://localhost:3000/uploads/products/10/mg7urw3b-e4bf2d9f7db89e91.jpg', 1),
-(42, 10, 'http://localhost:3000/uploads/products/10/mg7urw3c-e8a0756796b84014.jpg', 2),
-(43, 10, 'http://localhost:3000/uploads/products/10/mg7urw3c-45ecdf4ef3056418.jpg', 3),
-(44, 10, 'http://localhost:3000/uploads/products/10/mg7urw3d-8ae522eba427cc26.jpg', 4),
-(45, 10, 'http://localhost:3000/uploads/products/10/mg7urw3e-5caf091afc9e278d.jpg', 5),
-(46, 11, 'http://localhost:3000/uploads/products/11/mg7urz0k-a63ee1ee7bb67b23.jpg', 1),
-(47, 11, 'http://localhost:3000/uploads/products/11/mg7urz0k-80d5df0aa7cc3e94.jpg', 2),
-(48, 11, 'http://localhost:3000/uploads/products/11/mg7urz0l-ed60b80fc2490675.jpg', 3),
-(49, 11, 'http://localhost:3000/uploads/products/11/mg7urz0m-47ab2c449ece426a.jpg', 4),
-(50, 11, 'http://localhost:3000/uploads/products/11/mg7urz0m-4bfc9a850db88b8f.jpg', 5),
-(61, 14, 'http://localhost:3000/uploads/products/14/mg7us1ia-f0141c42acb957c5.jpg', 1),
-(62, 14, 'http://localhost:3000/uploads/products/14/mg7us1ib-5f153b76b4a6b404.jpg', 2),
-(63, 14, 'http://localhost:3000/uploads/products/14/mg7us1ib-54ddaa52cef7c09e.jpg', 3),
-(64, 14, 'http://localhost:3000/uploads/products/14/mg7us1ic-c0d3d430b8917881.jpg', 4),
-(65, 14, 'http://localhost:3000/uploads/products/14/mg7us1ic-904148aaa4763b77.jpg', 5),
-(71, 16, 'http://localhost:3000/uploads/products/16/mg7us1ss-99163e3c5b2c9cbb.jpg', 1),
-(72, 16, 'http://localhost:3000/uploads/products/16/mg7us1ss-da3e9a910ad9c1f7.jpg', 2),
-(73, 16, 'http://localhost:3000/uploads/products/16/mg7us1st-7d1ec4941ac31e90.jpg', 3),
-(74, 16, 'http://localhost:3000/uploads/products/16/mg7us1st-57ee332bab6cbf50.jpg', 4),
-(75, 16, 'http://localhost:3000/uploads/products/16/mg7us1st-d172a256c658e199.jpg', 5),
-(76, 17, 'http://localhost:3000/uploads/products/17/mg7us4px-6dafa35bea3f844c.jpg', 1),
-(77, 17, 'http://localhost:3000/uploads/products/17/mg7us4py-0edd3c21e453adbb.jpg', 2),
-(78, 17, 'http://localhost:3000/uploads/products/17/mg7us4py-a0f211578dabf0e5.jpg', 3),
-(79, 17, 'http://localhost:3000/uploads/products/17/mg7us4pz-9ea6e00a9aa087be.jpg', 4),
-(80, 17, 'http://localhost:3000/uploads/products/17/mg7us4pz-7085c0fe10d0345e.jpg', 5),
-(89, 18, 'http://localhost:3000/uploads/products/18/mg8g7br7-1fc8fee3f9fc6af9.jpg', 1),
-(102, 12, 'http://localhost:3000/uploads/products/12/mg7urzi9-2d35a8bb74f74c37.jpg', 1),
-(103, 12, 'http://localhost:3000/uploads/products/12/mg7urzi9-f37b3c7b1d5372f8.jpg', 2),
-(104, 12, 'http://localhost:3000/uploads/products/12/mg7urzia-53ae6259dae52d77.jpg', 3),
-(105, 12, 'http://localhost:3000/uploads/products/12/mg7urzib-ccc54230706cb657.jpg', 4),
-(106, 12, 'http://localhost:3000/uploads/products/12/mg8mu4f6-683ea3f0965b0edd.jpg', 5),
-(107, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm1-dc8a0bb52264efef.jpg', 1),
-(108, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm6-16fc4f0336c195c4.jpg', 2),
-(109, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm7-ce8b3be468dd3cab.jpg', 3),
-(110, 19, 'http://localhost:3000/uploads/products/19/mg8mv81g-98115437a5d0b59b.jpg', 4);
+(111, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm1-dc8a0bb52264efef.jpg', 1),
+(112, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm6-16fc4f0336c195c4.jpg', 2),
+(113, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm7-ce8b3be468dd3cab.jpg', 3),
+(114, 19, 'http://localhost:3000/uploads/products/19/mg8mv81g-98115437a5d0b59b.jpg', 4),
+(115, 7, 'http://localhost:3000/uploads/products/7/mgiaewpi-1eaa9929c4d4e2fa.jpg', 1),
+(116, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5u-b33e0353446bea82.jpg', 1),
+(117, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5v-ca6da264f6d81209.jpg', 2),
+(118, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5w-39c09d54ceb311b1.jpg', 3),
+(119, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5x-e350d64407250e9c.jpg', 4),
+(120, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5x-32d9107aea4a504f.jpg', 5),
+(151, 9, 'http://localhost:3000/uploads/products/9/mg7uramf-de10389db058ab0e.jpg', 1),
+(152, 9, 'http://localhost:3000/uploads/products/9/mg7uramh-b05819c9c3240b8b.jpg', 2),
+(153, 9, 'http://localhost:3000/uploads/products/9/mg7urami-b424b2477e81eeaf.jpg', 3),
+(154, 9, 'http://localhost:3000/uploads/products/9/mg7uramj-7b40c0bdd9ef47c7.jpg', 4),
+(155, 9, 'http://localhost:3000/uploads/products/9/mg7uramj-01c214e1703914d1.jpg', 5),
+(156, 10, 'http://localhost:3000/uploads/products/10/mg7urw3b-e4bf2d9f7db89e91.jpg', 1),
+(157, 10, 'http://localhost:3000/uploads/products/10/mg7urw3c-e8a0756796b84014.jpg', 2),
+(158, 10, 'http://localhost:3000/uploads/products/10/mg7urw3c-45ecdf4ef3056418.jpg', 3),
+(159, 10, 'http://localhost:3000/uploads/products/10/mg7urw3d-8ae522eba427cc26.jpg', 4),
+(160, 10, 'http://localhost:3000/uploads/products/10/mg7urw3e-5caf091afc9e278d.jpg', 5),
+(161, 11, 'http://localhost:3000/uploads/products/11/mg7urz0k-a63ee1ee7bb67b23.jpg', 1),
+(162, 11, 'http://localhost:3000/uploads/products/11/mg7urz0k-80d5df0aa7cc3e94.jpg', 2),
+(163, 11, 'http://localhost:3000/uploads/products/11/mg7urz0l-ed60b80fc2490675.jpg', 3),
+(164, 11, 'http://localhost:3000/uploads/products/11/mg7urz0m-47ab2c449ece426a.jpg', 4),
+(165, 11, 'http://localhost:3000/uploads/products/11/mg7urz0m-4bfc9a850db88b8f.jpg', 5),
+(166, 12, 'http://localhost:3000/uploads/products/12/mg7urzi9-2d35a8bb74f74c37.jpg', 1),
+(167, 12, 'http://localhost:3000/uploads/products/12/mg7urzi9-f37b3c7b1d5372f8.jpg', 2),
+(168, 12, 'http://localhost:3000/uploads/products/12/mg7urzia-53ae6259dae52d77.jpg', 3),
+(169, 12, 'http://localhost:3000/uploads/products/12/mg7urzib-ccc54230706cb657.jpg', 4),
+(170, 12, 'http://localhost:3000/uploads/products/12/mg8mu4f6-683ea3f0965b0edd.jpg', 5),
+(171, 13, 'http://localhost:3000/uploads/products/13/mgiayk8w-21fda6a369e12ca5.jpg', 1),
+(172, 13, 'http://localhost:3000/uploads/products/13/mgiayk91-c0abe049d39ee757.jpg', 2),
+(173, 13, 'http://localhost:3000/uploads/products/13/mgiayk93-20600b79ab055c61.jpg', 3),
+(174, 13, 'http://localhost:3000/uploads/products/13/mgiayk94-9b87bdfec74b2223.jpg', 4),
+(175, 14, 'http://localhost:3000/uploads/products/14/mg7us1ia-f0141c42acb957c5.jpg', 1),
+(176, 14, 'http://localhost:3000/uploads/products/14/mg7us1ib-5f153b76b4a6b404.jpg', 2),
+(177, 14, 'http://localhost:3000/uploads/products/14/mg7us1ib-54ddaa52cef7c09e.jpg', 3),
+(178, 14, 'http://localhost:3000/uploads/products/14/mg7us1ic-c0d3d430b8917881.jpg', 4),
+(179, 14, 'http://localhost:3000/uploads/products/14/mg7us1ic-904148aaa4763b77.jpg', 5),
+(180, 16, 'http://localhost:3000/uploads/products/16/mg7us1ss-99163e3c5b2c9cbb.jpg', 1),
+(181, 16, 'http://localhost:3000/uploads/products/16/mg7us1ss-da3e9a910ad9c1f7.jpg', 2),
+(182, 16, 'http://localhost:3000/uploads/products/16/mg7us1st-7d1ec4941ac31e90.jpg', 3),
+(183, 16, 'http://localhost:3000/uploads/products/16/mg7us1st-57ee332bab6cbf50.jpg', 4),
+(184, 16, 'http://localhost:3000/uploads/products/16/mg7us1st-d172a256c658e199.jpg', 5),
+(185, 17, 'http://localhost:3000/uploads/products/17/mg7us4px-6dafa35bea3f844c.jpg', 1),
+(186, 17, 'http://localhost:3000/uploads/products/17/mg7us4py-0edd3c21e453adbb.jpg', 2),
+(187, 17, 'http://localhost:3000/uploads/products/17/mg7us4py-a0f211578dabf0e5.jpg', 3),
+(188, 17, 'http://localhost:3000/uploads/products/17/mg7us4pz-9ea6e00a9aa087be.jpg', 4),
+(189, 17, 'http://localhost:3000/uploads/products/17/mg7us4pz-7085c0fe10d0345e.jpg', 5),
+(190, 15, 'http://localhost:3000/uploads/products/15/mgiazx1g-a990e050e3e4de6c.jpg', 1),
+(191, 15, 'http://localhost:3000/uploads/products/15/mgiazx1i-0cc6d0c16187efe0.jpg', 2),
+(192, 15, 'http://localhost:3000/uploads/products/15/mgiazx1k-c0253b2155492037.jpg', 3),
+(193, 15, 'http://localhost:3000/uploads/products/15/mgiazx1m-89a181c63aeedd35.jpg', 4),
+(194, 4, 'http://localhost:3000/uploads/products/4/mg7ufpf9-5641879e875cbec7.jpg', 1),
+(195, 4, 'http://localhost:3000/uploads/products/4/mg7ufpfi-1f76102507034f7b.jpg', 2),
+(196, 4, 'http://localhost:3000/uploads/products/4/mg7ufpfj-6d08257c240af98d.jpg', 3),
+(197, 4, 'http://localhost:3000/uploads/products/4/mg7ufpfj-c9862f71eef737b5.jpg', 4),
+(198, 4, 'http://localhost:3000/uploads/products/4/mg7ufpfj-fde62aa054b02629.jpg', 5),
+(199, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvf-e431ee6b14c870ab.jpg', 1),
+(200, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvr-3e695b2b55219a5d.jpg', 2),
+(201, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvr-7355a3034e902a67.jpg', 3),
+(202, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvs-7c01f50e08ea51e2.jpg', 4),
+(203, 2, 'http://localhost:3000/uploads/products/2/mg7u0tvs-583742b239aedac7.jpg', 5),
+(204, 3, 'http://localhost:3000/uploads/products/3/mg7u19d1-838a7aebfa921fae.jpg', 1),
+(205, 3, 'http://localhost:3000/uploads/products/3/mg7u19d2-ee1882a2d373325e.jpg', 2),
+(206, 3, 'http://localhost:3000/uploads/products/3/mg7u19d3-f9f6f5d7d425ebdb.jpg', 3),
+(207, 3, 'http://localhost:3000/uploads/products/3/mg7u19d4-f6f39610a330f938.jpg', 4),
+(208, 3, 'http://localhost:3000/uploads/products/3/mg7u19d4-8e4276062dd3d3d0.jpg', 5),
+(209, 5, 'http://localhost:3000/uploads/products/5/mgib181o-de266ec74ea63cfb.jpg', 1),
+(210, 5, 'http://localhost:3000/uploads/products/5/mgib181r-7329ba6d6ec78d8b.jpg', 2),
+(211, 5, 'http://localhost:3000/uploads/products/5/mgib181t-831b0018a82397e7.jpg', 3),
+(212, 5, 'http://localhost:3000/uploads/products/5/mgib181v-8405810053d8fa64.jpg', 4),
+(213, 20, 'http://localhost:3000/uploads/products/20/mgib3aan-ccd5bea86a39c0f5.jpg', 1),
+(214, 20, 'http://localhost:3000/uploads/products/20/mgib3aar-d5bf4a50b8eb7a4f.jpg', 2),
+(215, 20, 'http://localhost:3000/uploads/products/20/mgib3aat-9ea9b38a2fa45630.jpg', 3),
+(216, 20, 'http://localhost:3000/uploads/products/20/mgib3aav-f13369f26cdc27c6.jpg', 4);
 
 -- --------------------------------------------------------
 
@@ -381,20 +401,13 @@ CREATE TABLE `product_variants` (
 --
 
 INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock`, `size`, `color_name`, `color_code`, `color_image`) VALUES
-(4, 2, 'TESTING-PRODUCT-S-Black', 0.00, 23, 'S', 'Black', '#000000', ''),
-(6, 4, 'TESTING-6AFC6CA2-S-Black-A3DC93', 0.00, 10, 'S', 'Black', '#000000', ''),
-(9, 8, 'S-Black-3C54CC', 0.00, 234, 'S', 'Black', '#000000', ''),
-(10, 9, 'S-Black-2A0153', 0.00, 234, 'S', 'Black', '#000000', ''),
-(11, 10, 'S-Black-08ED74', 0.00, 234, 'S', 'Black', '#000000', ''),
-(12, 11, 'S-Black-A5864C', 0.00, 234, 'S', 'Black', '#000000', ''),
-(15, 14, 'S-Black-FB8FDC', 0.00, 234, 'S', 'Black', '#000000', ''),
-(17, 16, 'S-Black-795366', 0.00, 234, 'S', 'Black', '#000000', ''),
-(18, 17, 'S-Black-8DBDD8', 0.00, 234, 'S', 'Black', '#000000', ''),
-(20, 15, 'S-Black-B006FF', 0.00, 234, 'S', 'Black', '#000000', ''),
-(21, 13, 'BLACK-SILK-ABAYA-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
-(30, 18, 'TEST-M-RED-001', 0.00, 5, 'M', 'Test Color', '#FF0000', ''),
-(37, 19, 'ASDFASDFAS-S-asdfasd', 0.00, 777, 'S', 'asdfasd', '#000000', ''),
-(38, 19, 'ASDFASDFAS-M-Blue', 25.00, 23, 'M', 'Blue', '#087fba', '');
+(39, 19, 'ASDFASDFAS-S-asdfasd', 0.00, 777, 'S', 'asdfasd', '#000000', ''),
+(40, 19, 'ASDFASDFAS-M-Blue', 25.00, 23, 'M', 'Blue', '#087fba', ''),
+(45, 13, 'BLACK-SILK-ABAYA-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
+(49, 15, 'BLACK-SILK-ABAYA-......-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
+(50, 4, 'TESTING-S-Black', 0.00, 10, 'S', 'Black', '#000000', ''),
+(51, 2, 'TESTING-PRODUCT-S-Black', 0.00, 23, 'S', 'Black', '#000000', ''),
+(52, 20, 'ASDFASD-M-sdfgs', 34.00, 34, 'M', 'sdfgs', '#000000', '');
 
 -- --------------------------------------------------------
 
@@ -691,7 +704,7 @@ ALTER TABLE `applied_discounts`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `lookup_headers`
@@ -733,19 +746,19 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=217;
 
 --
 -- AUTO_INCREMENT for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `recently_viewed`
@@ -846,7 +859,7 @@ ALTER TABLE `order_status_history`
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
-  ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_value_id`) REFERENCES `lookup_values` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_value_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `product_images`

@@ -1,5 +1,8 @@
 const Category = require('../models/Category.model');
 const responses = require('../utils/responses');
+const ImageService = require('../utils/imageService');
+const path = require('path');
+const fs = require('fs').promises;
 
 // List categories with pagination and filters
 const listCategories = async (req, res) => {
@@ -40,8 +43,23 @@ const getCategoryById = async (req, res) => {
 // Create new category
 const createCategory = async (req, res) => {
   try {
+    let imageUrl = null;
+    
+    // Handle image upload if provided
+    if (req.file) {
+      try {
+        // Generate public URL for the uploaded image
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        imageUrl = `${baseUrl}/uploads/categories/${req.file.filename}`;
+      } catch (imageError) {
+        console.error('Image processing error:', imageError);
+        // Continue without image if processing fails
+      }
+    }
+    
     const categoryData = {
       ...req.body,
+      image_url: imageUrl,
       created_by: req.user.id
     };
     
@@ -64,6 +82,24 @@ const updateCategory = async (req, res) => {
     }
     
     const updateData = { ...req.body };
+    
+    // Handle image upload if provided
+    if (req.file) {
+      try {
+        // Delete old image if exists
+        if (existingCategory.image_url) {
+          await ImageService.deleteFromLocal(existingCategory.image_url);
+        }
+        
+        // Generate public URL for the new image
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        updateData.image_url = `${baseUrl}/uploads/categories/${req.file.filename}`;
+      } catch (imageError) {
+        console.error('Image processing error:', imageError);
+        return res.status(500).json(responses.internalError('Failed to process image'));
+      }
+    }
+    
     const category = await Category.update(id, updateData);
     res.json(responses.ok(category));
   } catch (error) {
@@ -72,17 +108,57 @@ const updateCategory = async (req, res) => {
   }
 };
 
-// Delete category
-const deleteCategory = async (req, res) => {
+// Upload category image
+const uploadCategoryImage = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    if (!req.file) {
+      return res.status(400).json(responses.badRequest('No image file provided'));
+    }
     
     const existingCategory = await Category.findById(id);
     if (!existingCategory) {
       return res.status(404).json(responses.notFound('Category'));
     }
     
-    await Category.delete(id);
+    // Delete old image if exists
+    if (existingCategory.image_url) {
+      await ImageService.deleteFromLocal(existingCategory.image_url);
+    }
+    
+    // Generate public URL for the new image
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const imageUrl = `${baseUrl}/uploads/categories/${req.file.filename}`;
+    
+    // Update category with new image URL
+    const updateData = { image_url: imageUrl };
+    const category = await Category.update(id, updateData);
+    
+    res.json(responses.ok(category));
+  } catch (error) {
+    console.error('Upload category image error:', error);
+    res.status(500).json(responses.internalError('Failed to upload category image'));
+  }
+};
+
+// Delete category
+const deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { force } = req.query; // Allow force delete
+    
+    const existingCategory = await Category.findById(id);
+    if (!existingCategory) {
+      return res.status(404).json(responses.notFound('Category'));
+    }
+    
+    // Delete associated image if exists
+    if (existingCategory.image_url) {
+      await ImageService.deleteFromLocal(existingCategory.image_url);
+    }
+    
+    await Category.delete(id, force === 'true');
     res.status(204).send();
   } catch (error) {
     console.error('Delete category error:', error);
@@ -102,5 +178,6 @@ module.exports = {
   getCategoryById,
   createCategory,
   updateCategory,
+  uploadCategoryImage,
   deleteCategory
 };

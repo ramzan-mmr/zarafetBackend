@@ -1,4 +1,5 @@
 const Product = require('../models/Product.model');
+const Category = require('../models/Category.model');
 const responses = require('../utils/responses');
 
 const list = async (req, res) => {
@@ -94,10 +95,22 @@ const remove = async (req, res) => {
   }
 };
 
+// Get available categories for products
+const getAvailableCategories = async (req, res) => {
+  try {
+    const categories = await Category.findAll({ status: 'Active' });
+    res.json(responses.ok(categories));
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).json(responses.internalError('Failed to fetch categories'));
+  }
+};
+
 module.exports = {
   list,
   getById,
   create,
   update,
-  remove
+  remove,
+  getAvailableCategories
 };
