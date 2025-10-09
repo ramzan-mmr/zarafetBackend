@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Oct 08, 2025 at 08:14 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost
+-- Generation Time: Oct 09, 2025 at 01:49 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -86,11 +86,11 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `code`, `name`, `description`, `image_url`, `parent_id`, `sort_order`, `status`, `created_at`, `updated_at`, `created_by`) VALUES
-(6, 'CAT-00006', 'Abayas', 'Traditional Islamic garments for women', NULL, NULL, 2, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1),
-(7, 'CAT-00007', 'babies', 'Clothing and accessories for infants and babies', NULL, NULL, 3, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1),
-(8, 'CAT-00008', 'children', 'Clothing and accessories for children', NULL, NULL, 4, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1),
-(9, 'CAT-00009', 'Dresses', 'Various styles of dresses for women', NULL, NULL, 5, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1),
-(10, 'CAT-00010', 'women', 'General category for women\'s apparel and accessories', NULL, NULL, 6, 'Active', '2025-10-08 22:07:30', '2025-10-08 22:07:30', 1);
+(6, 'CAT-00006', 'Abayas', 'Traditional Islamic garments for women', 'http://localhost:3000/uploads/categories/category-1760008344333-460014214.png', NULL, 2, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:12:24', 1),
+(7, 'CAT-00007', 'babies', 'Clothing and accessories for infants and babies', 'http://localhost:3000/uploads/categories/category-1760008353056-6592573.png', NULL, 3, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:12:33', 1),
+(8, 'CAT-00008', 'children', 'Clothing and accessories for children', 'http://localhost:3000/uploads/categories/category-1760008363487-209003718.png', NULL, 4, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:12:43', 1),
+(9, 'CAT-00009', 'Dresses', 'Various styles of dresses for women', 'http://localhost:3000/uploads/categories/category-1760008390238-618347433.png', NULL, 5, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:13:10', 1),
+(10, 'CAT-00010', 'women', 'General category for women\'s apparel and accessories', 'http://localhost:3000/uploads/categories/category-1760008380851-577969868.png', NULL, 6, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:13:00', 1);
 
 -- --------------------------------------------------------
 
@@ -422,6 +422,14 @@ CREATE TABLE `recently_viewed` (
   `viewed_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `recently_viewed`
+--
+
+INSERT INTO `recently_viewed` (`id`, `user_id`, `product_id`, `viewed_at`) VALUES
+(3, 5, 20, '2025-10-09 16:48:30'),
+(5, 5, 19, '2025-10-09 16:48:48');
+
 -- --------------------------------------------------------
 
 --
@@ -498,10 +506,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `code`, `name`, `email`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-08 00:09:35', '2025-09-23 23:51:29', '2025-10-08 00:09:35'),
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-09 15:36:20', '2025-09-23 23:51:29', '2025-10-09 15:36:20'),
 (2, 'USR-00002', 'Test User', 'test@example.com', '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
 (3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
-(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-04 00:42:23', '2025-10-03 22:51:42', '2025-10-04 00:42:23'),
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-09 15:45:44', '2025-10-03 22:51:42', '2025-10-09 15:45:44'),
 (6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51');
 
 -- --------------------------------------------------------
@@ -516,6 +524,13 @@ CREATE TABLE `wishlists` (
   `product_id` int(11) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `wishlists`
+--
+
+INSERT INTO `wishlists` (`id`, `user_id`, `product_id`, `created_at`) VALUES
+(1, 5, 20, '2025-10-09 16:38:49');
 
 --
 -- Indexes for dumped tables
@@ -764,7 +779,7 @@ ALTER TABLE `product_variants`
 -- AUTO_INCREMENT for table `recently_viewed`
 --
 ALTER TABLE `recently_viewed`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -788,7 +803,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `wishlists`
 --
 ALTER TABLE `wishlists`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
