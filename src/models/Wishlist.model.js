@@ -31,12 +31,10 @@ class Wishlist {
               p.price,
               p.sku,
               p.status as product_status,
-              c.name as category_name,
-              lv2.value as brand_name
+              c.name as category_name
        FROM wishlists w 
        LEFT JOIN products p ON w.product_id = p.id
        LEFT JOIN categories c ON p.category_value_id = c.id
-       LEFT JOIN lookup_values lv2 ON p.brand_value_id = lv2.id
        WHERE w.user_id = ? AND p.status = 'Active'
        ORDER BY w.created_at DESC`,
       [user_id]

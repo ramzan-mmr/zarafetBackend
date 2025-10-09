@@ -44,7 +44,9 @@ const buildWhereClause = (filters, allowedColumns = []) => {
         } else {
            // Use table alias for product table columns
           if (key === 'status' || key === 'stock_status' || key === 'category_value_id') {
-            conditions.push(`p.${key} = ?`);
+            // For categories, use 'c' alias, for products use 'p' alias
+            const alias = key === 'category_value_id' ? 'p' : 'c';
+            conditions.push(`${alias}.${key} = ?`);
           } else {
             conditions.push(`${key} = ?`);
           }

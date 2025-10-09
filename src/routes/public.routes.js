@@ -592,6 +592,155 @@ router.delete('/addresses/:id', verifyJWT, validateParams(idParam), publicCtrl.d
  */
 router.get('/categories', validateQuery(publicCategoryQuery), publicCtrl.getCategories);
 
+// Wishlist routes (require authentication)
+/**
+ * @swagger
+ * /public/wishlist:
+ *   get:
+ *     summary: Get user wishlist
+ *     tags: [Public APIs]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Wishlist retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/wishlist', verifyJWT, publicCtrl.getWishlist);
+
+/**
+ * @swagger
+ * /public/wishlist:
+ *   post:
+ *     summary: Add product to wishlist
+ *     tags: [Public APIs]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - product_id
+ *             properties:
+ *               product_id:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: Product added to wishlist
+ *       409:
+ *         description: Product already in wishlist
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/wishlist', verifyJWT, validateBody(require('../validators/wishlist').add), publicCtrl.addToWishlist);
+
+/**
+ * @swagger
+ * /public/wishlist/{product_id}:
+ *   delete:
+ *     summary: Remove product from wishlist
+ *     tags: [Public APIs]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: product_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product removed from wishlist
+ *       404:
+ *         description: Product not in wishlist
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/wishlist/:product_id', verifyJWT, validateParams(idParam), publicCtrl.removeFromWishlist);
+
+// Recently viewed routes (require authentication, limit to 3 products)
+/**
+ * @swagger
+ * /public/recently-viewed:
+ *   get:
+ *     summary: Get user's recently viewed products (max 3)
+ *     tags: [Public APIs]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Recently viewed products retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/recently-viewed', verifyJWT, publicCtrl.getRecentlyViewed);
+
+/**
+ * @swagger
+ * /public/recently-viewed:
+ *   post:
+ *     summary: Add product to recently viewed (max 3 products)
+ *     tags: [Public APIs]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - product_id
+ *             properties:
+ *               product_id:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       201:
+ *         description: Product added to recently viewed
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/recently-viewed', verifyJWT, validateBody(require('joi').object({
+  product_id: require('joi').number().integer().positive().required()
+})), publicCtrl.addToRecentlyViewed);
+
+// Debug endpoint to test database connection
+router.get('/debug-db', async (req, res) => {
+  try {
+    const db = require('../config/db');
+    const [results] = await db.execute('SELECT COUNT(*) as count FROM categories');
+    res.json({
+      success: true,
+      data: results,
+      message: 'Database connection test successful'
+    });
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Database connection failed',
+      error: error.message
+    });
+  }
+});
+
 // Add more public routes here in the future
 // router.get('/settings', publicCtrl.getSettings);
 // etc.
