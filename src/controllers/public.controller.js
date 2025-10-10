@@ -622,6 +622,127 @@ const getCategories = async (req, res) => {
 
 // Removed: getRootCategories, getCategoryHierarchy, getCategoryById, getCategoriesByParent - keeping it simple
 
+// Wishlist management for authenticated customers
+const getWishlist = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const Wishlist = require('../models/Wishlist.model');
+    
+    const wishlist = await Wishlist.findAll(user_id);
+    
+    res.json({
+      success: true,
+      data: wishlist,
+      message: 'Wishlist retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get wishlist error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch wishlist'
+    });
+  }
+};
+
+const addToWishlist = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const { product_id } = req.body;
+    
+    const Wishlist = require('../models/Wishlist.model');
+    const added = await Wishlist.add(user_id, product_id);
+    
+    if (!added) {
+      return res.status(409).json({
+        success: false,
+        message: 'Product already in wishlist'
+      });
+    }
+    
+    res.status(201).json({
+      success: true,
+      message: 'Product added to wishlist'
+    });
+  } catch (error) {
+    console.error('Add to wishlist error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add product to wishlist'
+    });
+  }
+};
+
+const removeFromWishlist = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const { product_id } = req.params;
+    
+    const Wishlist = require('../models/Wishlist.model');
+    const removed = await Wishlist.remove(user_id, product_id);
+    
+    if (!removed) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not in wishlist'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Product removed from wishlist'
+    });
+  } catch (error) {
+    console.error('Remove from wishlist error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to remove product from wishlist'
+    });
+  }
+};
+
+// Recently viewed management for authenticated customers (limit to 3 products)
+const getRecentlyViewed = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const RecentlyViewed = require('../models/RecentlyViewed.model');
+    
+    const recentlyViewed = await RecentlyViewed.findAll(user_id, 3); // Limit to 3 products
+    
+    res.json({
+      success: true,
+      data: recentlyViewed,
+      message: 'Recently viewed products retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get recently viewed error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch recently viewed products'
+    });
+  }
+};
+
+const addToRecentlyViewed = async (req, res) => {
+  try {
+    const user_id = req.user.id;
+    const { product_id } = req.body;
+    
+    const RecentlyViewed = require('../models/RecentlyViewed.model');
+    await RecentlyViewed.add(user_id, product_id);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Product added to recently viewed'
+    });
+  } catch (error) {
+    console.error('Add to recently viewed error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to add product to recently viewed'
+    });
+  }
+};
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -639,7 +760,12 @@ module.exports = {
   deleteAddress,
   getAddressById,
   // Category management
-  getCategories
-  // Add more exports here as you add more methods
-  // getSettings
+  getCategories,
+  // Wishlist management
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist,
+  // Recently viewed management
+  getRecentlyViewed,
+  addToRecentlyViewed
 };
