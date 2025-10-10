@@ -28,3 +28,8 @@ const testConnection = async () => {
 testConnection();
 
 module.exports = pool;
+
+// db = vahohytv_zarafet_db
+// password = QTp^.!xVq%rX
+// user = vahohytv_root
+
