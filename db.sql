@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Oct 09, 2025 at 01:49 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Host: 127.0.0.1
+-- Generation Time: Oct 12, 2025 at 02:08 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -44,9 +44,9 @@ CREATE TABLE `addresses` (
 --
 
 INSERT INTO `addresses` (`id`, `user_id`, `label`, `line1`, `line2`, `city_value_id`, `postal_code`, `phone`, `is_default`) VALUES
-(3, 5, 'HOME', '123 Main Street', 'Apt 4B', NULL, '12345', '+1234567890', 1),
-(8, 5, 'Apartment', '123 Complex Ave', 'Unit 4B', 26, '11111', '+1111111111', 0),
-(11, 6, 'asdfa', '2342', '234', 26, '23423', '234234234', 0);
+(3, 5, 'HOME', '123 Main Street', 'Apt 4B', NULL, '12345', '+1234567890', 0),
+(11, 6, 'asdfa', '2342', '234', 26, '23423', '234234234', 0),
+(12, 5, 'Testing address', 'asdfasd', 'asdfasd', 26, '23423', '093847823423', 1);
 
 -- --------------------------------------------------------
 
@@ -86,11 +86,11 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `code`, `name`, `description`, `image_url`, `parent_id`, `sort_order`, `status`, `created_at`, `updated_at`, `created_by`) VALUES
-(6, 'CAT-00006', 'Abayas', 'Traditional Islamic garments for women', 'http://localhost:3000/uploads/categories/category-1760008344333-460014214.png', NULL, 2, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:12:24', 1),
-(7, 'CAT-00007', 'babies', 'Clothing and accessories for infants and babies', 'http://localhost:3000/uploads/categories/category-1760008353056-6592573.png', NULL, 3, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:12:33', 1),
-(8, 'CAT-00008', 'children', 'Clothing and accessories for children', 'http://localhost:3000/uploads/categories/category-1760008363487-209003718.png', NULL, 4, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:12:43', 1),
-(9, 'CAT-00009', 'Dresses', 'Various styles of dresses for women', 'http://localhost:3000/uploads/categories/category-1760008390238-618347433.png', NULL, 5, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:13:10', 1),
-(10, 'CAT-00010', 'women', 'General category for women\'s apparel and accessories', 'http://localhost:3000/uploads/categories/category-1760008380851-577969868.png', NULL, 6, 'Active', '2025-10-08 22:07:30', '2025-10-09 16:13:00', 1);
+(6, 'CAT-00006', 'Abayas', 'Traditional Islamic garments for women', 'http://localhost:3000/uploads/categories/category-1760212975097-502653228.png', NULL, 2, 'Active', '2025-10-08 22:07:30', '2025-10-12 01:02:55', 1),
+(7, 'CAT-00007', 'babies', 'Clothing and accessories for infants and babies', 'http://localhost:3000/uploads/categories/category-1760212982143-303527305.png', NULL, 3, 'Active', '2025-10-08 22:07:30', '2025-10-12 01:03:02', 1),
+(8, 'CAT-00008', 'children', 'Clothing and accessories for children', 'http://localhost:3000/uploads/categories/category-1760212992056-889152549.png', NULL, 4, 'Active', '2025-10-08 22:07:30', '2025-10-12 01:03:12', 1),
+(9, 'CAT-00009', 'Dresses', 'Various styles of dresses for women', 'http://localhost:3000/uploads/categories/category-1760212999146-864432269.png', NULL, 5, 'Active', '2025-10-08 22:07:30', '2025-10-12 01:03:19', 1),
+(10, 'CAT-00010', 'women', 'General category for women\'s apparel and accessories', 'http://localhost:3000/uploads/categories/category-1760213006638-717340176.png', NULL, 6, 'Active', '2025-10-08 22:07:30', '2025-10-12 01:03:26', 1);
 
 -- --------------------------------------------------------
 
@@ -141,7 +141,8 @@ CREATE TABLE `lookup_headers` (
 
 INSERT INTO `lookup_headers` (`id`, `code`, `name`, `description`, `category`, `type`, `status`, `created_at`) VALUES
 (7, 'LH-00007', 'City', 'city', NULL, 'Custom', 'Active', '2025-09-26 01:51:18'),
-(8, 'LH-00008', 'productCategory', 'Product Category', NULL, 'Custom', 'Active', '2025-09-28 23:24:34');
+(8, 'LH-00008', 'productCategory', 'Product Category', NULL, 'Custom', 'Active', '2025-09-28 23:24:34'),
+(20, NULL, 'Order Status', 'Order status values', NULL, 'Custom', 'Active', '2025-10-12 04:57:51');
 
 -- --------------------------------------------------------
 
@@ -172,7 +173,8 @@ INSERT INTO `lookup_values` (`id`, `code`, `header_id`, `value`, `description`, 
 (5, 'LV-00005', 8, 'women', 'WOMEN ', 'Active', 1, NULL, '2025-09-28 23:26:39', 1),
 (6, 'LV-00006', 8, 'babies', 'babies', 'Active', 1, NULL, '2025-09-28 23:26:56', 1),
 (7, 'LV-00007', 8, 'children', 'children', 'Active', 1, NULL, '2025-09-28 23:27:20', 1),
-(26, 'LV-00026', 7, 'asdfad', 'asdfasd', 'Active', 1, NULL, '2025-10-02 04:47:36', 1);
+(26, 'LV-00026', 7, 'asdfad', 'asdfasd', 'Active', 1, NULL, '2025-10-02 04:47:36', 1),
+(27, NULL, 20, 'Pending', 'Order is pending', 'Active', 1, NULL, '2025-10-12 04:57:51', NULL);
 
 -- --------------------------------------------------------
 
@@ -190,6 +192,26 @@ CREATE TABLE `orders` (
   `tax` decimal(12,2) DEFAULT 0.00,
   `shipping` decimal(12,2) DEFAULT 0.00,
   `total` decimal(12,2) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `payment_id` int(11) DEFAULT NULL,
+  `payment_status` enum('pending','paid','failed','refunded') DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `order_addresses`
+--
+
+CREATE TABLE `order_addresses` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `label` varchar(50) DEFAULT NULL,
+  `line1` varchar(150) NOT NULL,
+  `line2` varchar(150) DEFAULT NULL,
+  `city` varchar(100) DEFAULT NULL,
+  `postal_code` varchar(20) DEFAULT NULL,
+  `phone` varchar(30) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -222,6 +244,36 @@ CREATE TABLE `order_status_history` (
   `changed_by` int(11) DEFAULT NULL,
   `changed_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payments`
+--
+
+CREATE TABLE `payments` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) DEFAULT NULL,
+  `stripe_payment_intent_id` varchar(255) NOT NULL,
+  `stripe_charge_id` varchar(255) DEFAULT NULL,
+  `amount` decimal(12,2) NOT NULL,
+  `currency` varchar(3) DEFAULT 'usd',
+  `status` enum('pending','succeeded','failed','cancelled') DEFAULT 'pending',
+  `payment_method` varchar(50) DEFAULT NULL,
+  `payment_method_details` text DEFAULT NULL,
+  `metadata` text DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payments`
+--
+
+INSERT INTO `payments` (`id`, `order_id`, `stripe_payment_intent_id`, `stripe_charge_id`, `amount`, `currency`, `status`, `payment_method`, `payment_method_details`, `metadata`, `created_at`, `updated_at`) VALUES
+(1, NULL, 'pi_3SHCDGD3H6qI9jyC1O6ryNr0', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 04:28:35', '2025-10-12 04:28:35'),
+(2, NULL, 'pi_3SHCZ5D3H6qI9jyC2eEKBGcq', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 04:51:08', '2025-10-12 04:51:08'),
+(3, NULL, 'pi_3SHClkD3H6qI9jyC2g9yneZg', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 05:04:14', '2025-10-12 05:04:14');
 
 -- --------------------------------------------------------
 
@@ -281,7 +333,8 @@ INSERT INTO `products` (`id`, `code`, `sku`, `name`, `description`, `category_va
 (16, 'PRD-00016', 'BSA-ZK6EFBXR', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-08 23:09:12', 60.00, 50.00, 16.67),
 (17, 'PRD-00017', 'BSA-M1L63XBK', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:11', '2025-10-08 23:09:19', 60.00, 50.00, 16.67),
 (19, 'PRD-00019', 'A-2WIMT3N0', 'Updated Test Product', '3333333333333333333333333333333', 7, 25.00, 234, 'Active', 'Active', '2025-10-02', '2025-10-02 01:30:18', '2025-10-08 23:00:45', 10.00, 23.00, NULL),
-(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 23, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-08 23:12:27', 2344.00, 234.00, 90.02);
+(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 23, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-08 23:12:27', 2344.00, 234.00, 90.02),
+(21, 'PRD-00021', 'TP-NHUQ4CUZ', 'Testing product', 'dts', 6, 12.00, 10, 'Active', 'Active', '2025-10-11', '2025-10-11 18:52:25', '2025-10-11 18:52:25', 123.00, 12.00, 90.24);
 
 -- --------------------------------------------------------
 
@@ -376,7 +429,11 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `order`) VALUES
 (213, 20, 'http://localhost:3000/uploads/products/20/mgib3aan-ccd5bea86a39c0f5.jpg', 1),
 (214, 20, 'http://localhost:3000/uploads/products/20/mgib3aar-d5bf4a50b8eb7a4f.jpg', 2),
 (215, 20, 'http://localhost:3000/uploads/products/20/mgib3aat-9ea9b38a2fa45630.jpg', 3),
-(216, 20, 'http://localhost:3000/uploads/products/20/mgib3aav-f13369f26cdc27c6.jpg', 4);
+(216, 20, 'http://localhost:3000/uploads/products/20/mgib3aav-f13369f26cdc27c6.jpg', 4),
+(217, 21, 'http://localhost:3000/uploads/products/21/mgmc4fwf-97d0782a0dd9027c.jpg', 1),
+(218, 21, 'http://localhost:3000/uploads/products/21/mgmc4fwl-3b9c32b3e573b29b.jpg', 2),
+(219, 21, 'http://localhost:3000/uploads/products/21/mgmc4fwn-8c4f6835250810af.jpg', 3),
+(220, 21, 'http://localhost:3000/uploads/products/21/mgmc4fwp-7c1b764a4d95f9f0.jpg', 4);
 
 -- --------------------------------------------------------
 
@@ -407,7 +464,8 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock
 (49, 15, 'BLACK-SILK-ABAYA-......-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
 (50, 4, 'TESTING-S-Black', 0.00, 10, 'S', 'Black', '#000000', ''),
 (51, 2, 'TESTING-PRODUCT-S-Black', 0.00, 23, 'S', 'Black', '#000000', ''),
-(52, 20, 'ASDFASD-M-sdfgs', 34.00, 34, 'M', 'sdfgs', '#000000', '');
+(52, 20, 'ASDFASD-M-sdfgs', 34.00, 34, 'M', 'sdfgs', '#000000', ''),
+(53, 21, 'TESTING-PRODUCT-S-Red', 0.00, 10, 'S', 'Red', '#f50f0f', '');
 
 -- --------------------------------------------------------
 
@@ -427,8 +485,8 @@ CREATE TABLE `recently_viewed` (
 --
 
 INSERT INTO `recently_viewed` (`id`, `user_id`, `product_id`, `viewed_at`) VALUES
-(3, 5, 20, '2025-10-09 16:48:30'),
-(5, 5, 19, '2025-10-09 16:48:48');
+(1, 5, 20, '2025-10-11 18:57:40'),
+(2, 5, 4, '2025-10-11 18:58:57');
 
 -- --------------------------------------------------------
 
@@ -506,10 +564,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `code`, `name`, `email`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-09 15:36:20', '2025-09-23 23:51:29', '2025-10-09 15:36:20'),
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-11 18:47:54', '2025-09-23 23:51:29', '2025-10-11 18:47:54'),
 (2, 'USR-00002', 'Test User', 'test@example.com', '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
 (3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
-(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-09 15:45:44', '2025-10-03 22:51:42', '2025-10-09 15:45:44'),
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-12 01:38:07', '2025-10-03 22:51:42', '2025-10-12 01:38:07'),
 (6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51');
 
 -- --------------------------------------------------------
@@ -530,7 +588,7 @@ CREATE TABLE `wishlists` (
 --
 
 INSERT INTO `wishlists` (`id`, `user_id`, `product_id`, `created_at`) VALUES
-(1, 5, 20, '2025-10-09 16:38:49');
+(1, 5, 20, '2025-10-11 00:06:52');
 
 --
 -- Indexes for dumped tables
@@ -598,7 +656,15 @@ ALTER TABLE `orders`
   ADD KEY `user_id` (`user_id`),
   ADD KEY `status_value_id` (`status_value_id`),
   ADD KEY `payment_method_value_id` (`payment_method_value_id`),
-  ADD KEY `idx_orders_created` (`created_at`);
+  ADD KEY `idx_orders_created` (`created_at`),
+  ADD KEY `fk_orders_payment_id` (`payment_id`);
+
+--
+-- Indexes for table `order_addresses`
+--
+ALTER TABLE `order_addresses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_order_id` (`order_id`);
 
 --
 -- Indexes for table `order_items`
@@ -618,6 +684,14 @@ ALTER TABLE `order_status_history`
   ADD KEY `from_status_value_id` (`from_status_value_id`),
   ADD KEY `to_status_value_id` (`to_status_value_id`),
   ADD KEY `changed_by` (`changed_by`);
+
+--
+-- Indexes for table `payments`
+--
+ALTER TABLE `payments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_stripe_payment_intent` (`stripe_payment_intent_id`),
+  ADD KEY `idx_order_id` (`order_id`);
 
 --
 -- Indexes for table `permissions`
@@ -707,7 +781,7 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `applied_discounts`
@@ -725,31 +799,43 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `lookup_headers`
 --
 ALTER TABLE `lookup_headers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `lookup_values`
 --
 ALTER TABLE `lookup_values`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `order_addresses`
+--
+ALTER TABLE `order_addresses`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -761,25 +847,25 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=217;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=221;
 
 --
 -- AUTO_INCREMENT for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `recently_viewed`
 --
 ALTER TABLE `recently_viewed`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -791,7 +877,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipments`
 --
 ALTER TABLE `shipments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -849,9 +935,16 @@ ALTER TABLE `lookup_values`
 -- Constraints for table `orders`
 --
 ALTER TABLE `orders`
+  ADD CONSTRAINT `fk_orders_payment_id` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`status_value_id`) REFERENCES `lookup_values` (`id`),
   ADD CONSTRAINT `orders_ibfk_3` FOREIGN KEY (`payment_method_value_id`) REFERENCES `lookup_values` (`id`);
+
+--
+-- Constraints for table `order_addresses`
+--
+ALTER TABLE `order_addresses`
+  ADD CONSTRAINT `fk_order_addresses_order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `order_items`
@@ -869,6 +962,12 @@ ALTER TABLE `order_status_history`
   ADD CONSTRAINT `order_status_history_ibfk_2` FOREIGN KEY (`from_status_value_id`) REFERENCES `lookup_values` (`id`),
   ADD CONSTRAINT `order_status_history_ibfk_3` FOREIGN KEY (`to_status_value_id`) REFERENCES `lookup_values` (`id`),
   ADD CONSTRAINT `order_status_history_ibfk_4` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`);
+
+--
+-- Constraints for table `payments`
+--
+ALTER TABLE `payments`
+  ADD CONSTRAINT `fk_payments_order_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `products`

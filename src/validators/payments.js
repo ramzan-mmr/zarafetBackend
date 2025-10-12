@@ -1,12 +1,13 @@
 const Joi = require('joi');
-const { paginationQuery, positiveInt, money } = require('./common');
+const { positiveInt, money } = require('./common');
 
-exports.listQuery = paginationQuery.keys({
-  status_value_id: positiveInt,
-  payment_method_value_id: positiveInt
+exports.createPaymentIntent = Joi.object({
+  amount: Joi.number().min(0.01).required(),
+  currency: Joi.string().length(3).default('usd'),
+  metadata: Joi.object().default({})
 });
 
-exports.place = Joi.object({
+exports.processPayment = Joi.object({
   cart: Joi.object({
     items: Joi.array().items(Joi.object({
       id: Joi.string().required(),
@@ -70,6 +71,6 @@ exports.place = Joi.object({
   }).optional() // Made optional since backend calculates everything
 });
 
-exports.statusUpdate = Joi.object({
-  to_status_value_id: positiveInt.required()
+exports.getPayment = Joi.object({
+  id: positiveInt.required()
 });
