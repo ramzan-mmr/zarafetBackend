@@ -196,8 +196,8 @@ app.use('/dashboard', dashboardRoutes);
 app.use('/me', wishlistRoutes);
 app.use('/categories', categoriesRoutes);
 
-// 404 handler
-app.use('/*', (req, res) => {
+// 404 handler - catch all routes that don't match any defined routes
+app.use((req, res) => {
   res.status(404).json({
     error: {
       code: 'NOT_FOUND',
