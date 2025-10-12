@@ -2,8 +2,13 @@ const stripe = require('stripe');
 const config = require('./env');
 
 // Initialize Stripe with secret key from environment
-const stripeInstance = stripe(config.stripe.secretKey);
+let stripeInstance = null;
 
-console.log('Stripe initialized successfully');
+if (config.stripe.secretKey) {
+  stripeInstance = stripe(config.stripe.secretKey);
+  console.log('Stripe initialized successfully');
+} else {
+  console.warn('Stripe secret key not found. Stripe functionality will be disabled.');
+}
 
 module.exports = stripeInstance;
