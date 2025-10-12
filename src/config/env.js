@@ -23,12 +23,12 @@ module.exports = {
     env: process.env.NODE_ENV || 'development'  //development or production
   },
 
-  // CORS
+  // CORS - Express 5 compatible
   cors: {
-    origin: '*', // Allow all origins for development
+    origin: '*', // Allow all origins
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+    exposedHeaders: ['Content-Length', 'X-JSON']
   },
 
   // Rate Limiting
@@ -41,5 +41,18 @@ module.exports = {
   storage: {
     uploadsDir: process.env.UPLOADS_DIR || 'uploads',
     baseUrl: process.env.BASE_URL || 'http://localhost:3000'
+  },
+
+  // Stripe Configuration
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY,
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
+  },
+
+  // Tax and Shipping Configuration
+  pricing: {
+    taxRate: parseFloat(process.env.TAX_RATE) || 0.10, // 10% default
+    defaultShippingCost: parseFloat(process.env.DEFAULT_SHIPPING_COST) || 5.00,
+    freeShippingThreshold: parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 100.00
   }
 };
