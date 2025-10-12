@@ -197,7 +197,7 @@ app.use('/me', wishlistRoutes);
 app.use('/categories', categoriesRoutes);
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use('/*', (req, res) => {
   res.status(404).json({
     error: {
       code: 'NOT_FOUND',
