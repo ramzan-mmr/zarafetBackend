@@ -130,14 +130,30 @@ class Order {
         }
       }
       
-      // Create shipment if provided
+      // Create shipment if provided and method_value_id exists
       if (shipment && (shipment.method_value_id || shipment.scheduled_date)) {
         console.log('🚚 Creating shipment record...');
-        await connection.execute(
-          'INSERT INTO shipments (order_id, method_value_id, scheduled_date) VALUES (?, ?, ?)',
-          [orderId, shipment.method_value_id, shipment.scheduled_date]
-        );
-        console.log('✅ Shipment record created');
+        try {
+          // Check if method_value_id exists in lookup_values
+          const [methodCheck] = await connection.execute(
+            'SELECT id FROM lookup_values WHERE id = ? AND status = "Active"',
+            [shipment.method_value_id]
+          );
+          
+          if (methodCheck.length === 0) {
+            console.warn('⚠️ Shipping method not found, using default Regular Shipment (ID 28)');
+            shipment.method_value_id = 28; // Default to Regular Shipment
+          }
+          
+          await connection.execute(
+            'INSERT INTO shipments (order_id, method_value_id, scheduled_date, cost) VALUES (?, ?, ?, ?)',
+            [orderId, shipment.method_value_id, shipment.scheduled_date, shipment.cost || 0]
+          );
+          console.log('✅ Shipment record created');
+        } catch (error) {
+          console.warn('⚠️ Shipment creation failed:', error.message);
+          console.log('📦 Continuing without shipment record...');
+        }
       }
       
       // Create order address snapshot if provided
@@ -188,7 +204,10 @@ class Order {
   }
   
   static async getProductWithVariant(productId, variantId) {
+    console.log(`🔍 getProductWithVariant called: productId=${productId}, variantId=${variantId}`);
+    
     if (variantId) {
+      console.log(`🔍 Searching for product ${productId} with variant ${variantId}`);
       const [rows] = await db.execute(
         `SELECT p.*, pv.stock as variant_stock, pv.extra_price as variant_extra_price
          FROM products p 
@@ -196,9 +215,12 @@ class Order {
          WHERE p.id = ? AND pv.id = ?`,
         [productId, variantId]
       );
+      console.log(`🔍 Query result:`, rows);
       return rows[0] || null;
     } else {
+      console.log(`🔍 Searching for product ${productId} without variant`);
       const [rows] = await db.execute('SELECT * FROM products WHERE id = ?', [productId]);
+      console.log(`🔍 Query result:`, rows);
       return rows[0] || null;
     }
   }
@@ -206,9 +228,19 @@ class Order {
   static async findAll(filters = {}, pagination = {}) {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
-    const allowedColumns = ['status_value_id', 'payment_method_value_id'];
+    const allowedColumns = ['status_value_id', 'payment_method_value_id', 'user_id'];
     const { whereClause, values } = buildWhereClause(filters, allowedColumns);
-    const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['created_at', 'total']);
+    
+    // Custom sorting: completed orders at bottom, others on top
+    const customOrderClause = `
+      ORDER BY 
+        CASE 
+          WHEN lv1.value = 'Completed' OR lv1.value = 'Delivered' THEN 1 
+          ELSE 0 
+        END,
+        o.created_at DESC
+    `;
+    
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
     const query = `
@@ -218,14 +250,23 @@ class Order {
              lv1.value as status_name,
              lv2.value as payment_method_name,
              p.stripe_payment_intent_id,
-             p.status as payment_status
+             p.status as payment_status,
+             (SELECT pi.image_url 
+              FROM product_images pi 
+              WHERE pi.product_id = (
+                SELECT oi.product_id 
+                FROM order_items oi 
+                WHERE oi.order_id = o.id 
+                LIMIT 1
+              ) 
+              LIMIT 1) as product_image
       FROM orders o 
       LEFT JOIN users u ON o.user_id = u.id
       LEFT JOIN lookup_values lv1 ON o.status_value_id = lv1.id
       LEFT JOIN lookup_values lv2 ON o.payment_method_value_id = lv2.id
       LEFT JOIN payments p ON o.payment_id = p.id
       ${whereClause} 
-      ${orderClause} 
+      ${customOrderClause} 
       ${paginationClause}
     `;
     
@@ -291,7 +332,7 @@ class Order {
   
   static async count(filters = {}) {
     const { buildWhereClause } = require('../utils/sql');
-    const allowedColumns = ['status_value_id', 'payment_method_value_id'];
+    const allowedColumns = ['status_value_id', 'payment_method_value_id', 'user_id'];
     const { whereClause, values } = buildWhereClause(filters, allowedColumns);
     
     const [rows] = await db.execute(
