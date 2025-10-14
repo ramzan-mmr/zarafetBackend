@@ -30,38 +30,12 @@ const getMetrics = async (req, res) => {
     );
     const products_sold = productsRows[0].products_sold;
     
-    // Get previous period data for deltas
-    const [prevRevenueRows] = await db.execute(
-      'SELECT COALESCE(SUM(total), 0) as prev_revenue FROM orders WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)'
-    );
-    const prev_revenue = prevRevenueRows[0].prev_revenue;
-    
-    const [prevOrdersRows] = await db.execute(
-      'SELECT COUNT(*) as prev_orders FROM orders WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)'
-    );
-    const prev_orders = prevOrdersRows[0].prev_orders;
-    
-    const [prevCustomersRows] = await db.execute(
-      `SELECT COUNT(*) as prev_customers 
-       FROM users u 
-       JOIN roles r ON u.role_id = r.id 
-       WHERE r.name = 'Customer' AND u.created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)`
-    );
-    const prev_customers = prevCustomersRows[0].prev_customers;
-    
-    // Calculate deltas
-    const delta_revenue_pct = prev_revenue > 0 ? ((total_revenue - prev_revenue) / prev_revenue) * 100 : 0;
-    const delta_orders_pct = prev_orders > 0 ? ((total_orders - prev_orders) / prev_orders) * 100 : 0;
-    const delta_customers_pct = prev_customers > 0 ? ((total_customers - prev_customers) / prev_customers) * 100 : 0;
     
     res.json(responses.ok({
       total_revenue,
       total_orders,
       total_customers,
-      products_sold,
-      delta_orders_pct: Math.round(delta_orders_pct * 100) / 100,
-      delta_revenue_pct: Math.round(delta_revenue_pct * 100) / 100,
-      delta_customers_pct: Math.round(delta_customers_pct * 100) / 100
+      products_sold
     }));
   } catch (error) {
     console.error('Get dashboard metrics error:', error);

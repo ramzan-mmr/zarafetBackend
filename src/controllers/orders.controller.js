@@ -23,6 +23,39 @@ const list = async (req, res) => {
   }
 };
 
+const getMyOrders = async (req, res) => {
+  try {
+    const { page, limit } = req.pagination;
+    const user_id = req.user.id;
+    
+    // Filter orders for current user only
+    const filters = { user_id };
+    const orders = await Order.findAll(filters, { page, limit });
+    const total = await Order.count(filters);
+    
+    res.json({
+      success: true,
+      data: {
+        orders,
+        pagination: {
+          page,
+          limit,
+          total
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get my orders error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to fetch your orders'
+      }
+    });
+  }
+};
+
 const getById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -221,6 +254,7 @@ const getHistory = async (req, res) => {
 
 module.exports = {
   list,
+  getMyOrders,
   getById,
   place,
   updateStatus,
