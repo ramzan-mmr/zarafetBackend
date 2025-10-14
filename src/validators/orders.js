@@ -3,7 +3,15 @@ const { paginationQuery, positiveInt, money } = require('./common');
 
 exports.listQuery = paginationQuery.keys({
   status_value_id: positiveInt,
-  payment_method_value_id: positiveInt
+  status: Joi.string().valid('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled').allow(''),
+  payment_method_value_id: positiveInt,
+  paymentMethod: Joi.string().allow(''),
+  category: Joi.string().allow(''),
+  searchTerm: Joi.string().allow(''),
+  dateFrom: Joi.string().allow(''),
+  dateTo: Joi.string().allow(''),
+  amountMin: Joi.string().allow(''),
+  amountMax: Joi.string().allow('')
 });
 
 exports.place = Joi.object({

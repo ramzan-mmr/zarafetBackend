@@ -4,13 +4,49 @@ const OrderAddress = require('../models/OrderAddress.model');
 const StripeService = require('../services/stripe.service');
 const responses = require('../utils/responses');
 const config = require('../config/env');
+const db = require('../config/db');
 
 const list = async (req, res) => {
   try {
     const { page, limit, ...filters } = req.pagination;
     
+    // Clean up empty string filters
+    Object.keys(filters).forEach(key => {
+      if (filters[key] === '' || filters[key] === null || filters[key] === undefined) {
+        delete filters[key];
+      }
+    });
+    
+    // Handle status filter - convert status name to status_value_id
+    if (filters.status && typeof filters.status === 'string') {
+      const [statusRows] = await db.execute(
+        'SELECT id FROM lookup_values WHERE header_id = (SELECT id FROM lookup_headers WHERE name = "Order Status") AND value = ?',
+        [filters.status]
+      );
+      if (statusRows[0]) {
+        filters.status_value_id = statusRows[0].id;
+        delete filters.status;
+      }
+    }
+    
+    // Handle category filter - convert category name to category_value_id
+    if (filters.category && typeof filters.category === 'string') {
+      const [categoryRows] = await db.execute(
+        'SELECT id FROM categories WHERE name = ?',
+        [filters.category]
+      );
+      if (categoryRows[0]) {
+        filters.category_value_id = categoryRows[0].id;
+        delete filters.category;
+      }
+    }
+    
+    console.log('🔍 Orders list request:', { page, limit, filters });
+    
     const orders = await Order.findAll(filters, { page, limit, ...req.query });
     const total = await Order.count(filters);
+    
+    console.log('📊 Orders found:', orders.length, 'Total:', total);
     
     res.json(responses.ok(orders, {
       page,

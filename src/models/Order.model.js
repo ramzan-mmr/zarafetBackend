@@ -229,7 +229,35 @@ class Order {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
     const allowedColumns = ['status_value_id', 'payment_method_value_id', 'user_id'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    let { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    
+    // Initialize whereClause if empty
+    if (!whereClause || whereClause.trim() === '') {
+      whereClause = ' WHERE 1=1';
+    }
+    
+    // Handle category filtering with a subquery
+    if (filters.category_value_id) {
+      const categoryFilter = ` AND o.id IN (
+        SELECT DISTINCT oi.order_id 
+        FROM order_items oi 
+        JOIN products p ON oi.product_id = p.id 
+        WHERE p.category_value_id = ?
+      )`;
+      whereClause += categoryFilter;
+      values.push(filters.category_value_id);
+    }
+    
+    // Handle payment method filtering using payments table
+    if (filters.payment_method_filter) {
+      const paymentMethodFilter = ` AND o.id IN (
+        SELECT DISTINCT p.order_id 
+        FROM payments p 
+        WHERE p.payment_method = ?
+      )`;
+      whereClause += paymentMethodFilter;
+      values.push(filters.payment_method_filter);
+    }
     
     // Custom sorting: completed orders at bottom, others on top
     const customOrderClause = `
@@ -251,6 +279,22 @@ class Order {
              lv2.value as payment_method_name,
              p.stripe_payment_intent_id,
              p.status as payment_status,
+             p.payment_method as payment_method_type,
+             oa.line1 as shipping_address_line1,
+             oa.city as shipping_address_city,
+             oa.postal_code as shipping_address_postal_code,
+             (SELECT c.name 
+              FROM categories c 
+              WHERE c.id = (
+                SELECT p2.category_value_id 
+                FROM products p2 
+                WHERE p2.id = (
+                  SELECT oi.product_id 
+                  FROM order_items oi 
+                  WHERE oi.order_id = o.id 
+                  LIMIT 1
+                )
+              )) as category_name,
              (SELECT pi.image_url 
               FROM product_images pi 
               WHERE pi.product_id = (
@@ -265,6 +309,7 @@ class Order {
       LEFT JOIN lookup_values lv1 ON o.status_value_id = lv1.id
       LEFT JOIN lookup_values lv2 ON o.payment_method_value_id = lv2.id
       LEFT JOIN payments p ON o.payment_id = p.id
+      LEFT JOIN order_addresses oa ON o.id = oa.order_id
       ${whereClause} 
       ${customOrderClause} 
       ${paginationClause}
@@ -333,7 +378,35 @@ class Order {
   static async count(filters = {}) {
     const { buildWhereClause } = require('../utils/sql');
     const allowedColumns = ['status_value_id', 'payment_method_value_id', 'user_id'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    let { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    
+    // Initialize whereClause if empty
+    if (!whereClause || whereClause.trim() === '') {
+      whereClause = ' WHERE 1=1';
+    }
+    
+    // Handle category filtering with a subquery
+    if (filters.category_value_id) {
+      const categoryFilter = ` AND o.id IN (
+        SELECT DISTINCT oi.order_id 
+        FROM order_items oi 
+        JOIN products p ON oi.product_id = p.id 
+        WHERE p.category_value_id = ?
+      )`;
+      whereClause += categoryFilter;
+      values.push(filters.category_value_id);
+    }
+    
+    // Handle payment method filtering using payments table
+    if (filters.payment_method_filter) {
+      const paymentMethodFilter = ` AND o.id IN (
+        SELECT DISTINCT p.order_id 
+        FROM payments p 
+        WHERE p.payment_method = ?
+      )`;
+      whereClause += paymentMethodFilter;
+      values.push(filters.payment_method_filter);
+    }
     
     const [rows] = await db.execute(
       `SELECT COUNT(*) as total FROM orders o ${whereClause}`,
