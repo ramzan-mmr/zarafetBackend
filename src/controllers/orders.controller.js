@@ -2,6 +2,8 @@ const Order = require('../models/Order.model');
 const Payment = require('../models/Payment.model');
 const OrderAddress = require('../models/OrderAddress.model');
 const StripeService = require('../services/stripe.service');
+const EmailService = require('../services/email.service');
+const User = require('../models/User.model');
 const responses = require('../utils/responses');
 const config = require('../config/env');
 const db = require('../config/db');
@@ -227,6 +229,43 @@ const place = async (req, res) => {
     // Create order
     const order = await Order.create(orderData);
     
+    // Send order confirmation email
+    try {
+      const user = await User.findById(user_id);
+      if (user && user.email) {
+        // Get order details with items for email
+        const orderWithItems = await Order.findById(order.id);
+        
+        const emailData = {
+          userEmail: user.email,
+          userName: user.name,
+          orderData: {
+            order: orderWithItems,
+            items: orderWithItems.items || [],
+            totals: {
+              subtotal: expectedSubtotal,
+              tax: expectedTax,
+              shipping: expectedShipping,
+              total: expectedTotal
+            },
+            address: address
+          }
+        };
+        
+        const emailResult = await EmailService.sendOrderConfirmation(emailData);
+        if (emailResult.success) {
+          console.log('✅ Order confirmation email sent successfully');
+        } else {
+          console.error('❌ Failed to send order confirmation email:', emailResult.error);
+        }
+      } else {
+        console.warn('⚠️ User email not found, skipping order confirmation email');
+      }
+    } catch (emailError) {
+      console.error('❌ Error sending order confirmation email:', emailError);
+      // Don't fail the order creation if email fails
+    }
+    
     res.status(201).json(responses.created({
       order,
       payment: {
@@ -264,6 +303,41 @@ const updateStatus = async (req, res) => {
     }
     
     const order = await Order.updateStatus(id, to_status_value_id, req.user.id);
+    
+    // Send order status update email
+    try {
+      const user = await User.findById(existingOrder.user_id);
+      if (user && user.email) {
+        // Get the new status name
+        const [statusRows] = await db.execute(
+          'SELECT value FROM lookup_values WHERE id = ?',
+          [to_status_value_id]
+        );
+        const newStatus = statusRows[0]?.value || 'Updated';
+        
+        const emailData = {
+          userEmail: user.email,
+          userName: user.name,
+          orderData: {
+            order: order
+          },
+          newStatus: newStatus
+        };
+        
+        const emailResult = await EmailService.sendOrderStatusUpdate(emailData);
+        if (emailResult.success) {
+          console.log('✅ Order status update email sent successfully');
+        } else {
+          console.error('❌ Failed to send order status update email:', emailResult.error);
+        }
+      } else {
+        console.warn('⚠️ User email not found, skipping order status update email');
+      }
+    } catch (emailError) {
+      console.error('❌ Error sending order status update email:', emailError);
+      // Don't fail the status update if email fails
+    }
+    
     res.json(responses.ok(order));
   } catch (error) {
     console.error('Update order status error:', error);

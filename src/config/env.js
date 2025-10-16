@@ -55,5 +55,11 @@ module.exports = {
     taxRate: parseFloat(process.env.TAX_RATE) || 0.10, // 10% default
     defaultShippingCost: parseFloat(process.env.DEFAULT_SHIPPING_COST) || 5.00,
     freeShippingThreshold: parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 100.00
+  },
+
+  // SMTP Configuration
+  smtp: {
+    email: process.env.SMTP_EMAIL,
+    password: process.env.SMTP_PASSWORD
   }
 };
