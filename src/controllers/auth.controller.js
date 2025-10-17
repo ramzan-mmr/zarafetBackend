@@ -17,7 +17,8 @@ const register = async (req, res) => {
       name,
       email,
       password,
-      role_id: 3 // Customer role
+      role_id: 3, // Customer role
+      phone: null // Add phone field to prevent undefined error
     };
     
     const user = await User.create(userData);
@@ -47,7 +48,6 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password);
     // Find user
     const user = await User.findByEmail(email);
     if (!user) {

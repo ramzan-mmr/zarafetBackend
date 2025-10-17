@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 13, 2025 at 09:43 PM
+-- Generation Time: Oct 17, 2025 at 09:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -116,7 +116,12 @@ INSERT INTO `customer_profiles` (`user_id`, `total_orders`, `total_spend`, `poin
 (2, 0, 0.00, 0, NULL, '2025-10-02', NULL),
 (3, 0, 0.00, 0, NULL, '2025-10-02', NULL),
 (5, 0, 0.00, 0, NULL, '2025-10-03', NULL),
-(6, 0, 0.00, 0, NULL, '2025-10-07', NULL);
+(6, 0, 0.00, 0, NULL, '2025-10-07', NULL),
+(7, 0, 0.00, 0, NULL, '2025-10-17', NULL),
+(8, 0, 0.00, 0, NULL, '2025-10-17', NULL),
+(10, 0, 0.00, 0, NULL, '2025-10-18', NULL),
+(11, 0, 0.00, 0, NULL, '2025-10-18', NULL),
+(12, 0, 0.00, 0, NULL, '2025-10-18', NULL);
 
 -- --------------------------------------------------------
 
@@ -141,7 +146,7 @@ CREATE TABLE `lookup_headers` (
 
 INSERT INTO `lookup_headers` (`id`, `code`, `name`, `description`, `category`, `type`, `status`, `created_at`) VALUES
 (7, 'LH-00007', 'City', 'city', NULL, 'Custom', 'Active', '2025-09-26 01:51:18'),
-(8, 'LH-00008', 'productCategory', 'Product Category', NULL, 'Custom', 'Active', '2025-09-28 23:24:34'),
+(8, 'LH-00008', 'Product Category', 'Product Category', NULL, 'Custom', 'Active', '2025-09-28 23:24:34'),
 (20, 'LH-00009', 'Order Status', 'Order status values', NULL, 'Custom', 'Active', '2025-10-12 04:57:51');
 
 -- --------------------------------------------------------
@@ -174,7 +179,13 @@ INSERT INTO `lookup_values` (`id`, `code`, `header_id`, `value`, `description`, 
 (6, 'LV-00006', 8, 'babies', 'babies', 'Active', 1, NULL, '2025-09-28 23:26:56', 1),
 (7, 'LV-00007', 8, 'children', 'children', 'Active', 1, NULL, '2025-09-28 23:27:20', 1),
 (26, 'LV-00026', 7, 'asdfad', 'asdfasd', 'Active', 1, NULL, '2025-10-02 04:47:36', 1),
-(27, 'LV-00027', 20, 'Pending', 'Order is pending', 'Active', 1, NULL, '2025-10-12 04:57:51', 1);
+(27, 'LV-00027', 20, 'Pending', 'Order is pending', 'Active', 1, NULL, '2025-10-12 04:57:51', 1),
+(28, 'LV-00028', 20, 'Processing', 'Order is being processed', 'Active', 2, NULL, '2025-10-17 23:00:03', 1),
+(29, 'LV-00029', 20, 'Shipped', 'Order has been shipped', 'Active', 3, NULL, '2025-10-17 23:00:03', 1),
+(30, 'LV-00030', 20, 'Delivered', 'Order has been delivered', 'Active', 4, NULL, '2025-10-17 23:00:03', 1),
+(31, 'LV-00031', 20, 'Cancelled', 'Order has been cancelled', 'Active', 5, NULL, '2025-10-17 23:00:03', 1),
+(32, 'LV-00032', 20, 'Refunded', 'Order has been refunded', 'Active', 6, NULL, '2025-10-17 23:00:03', 1),
+(33, 'LV-00033', 20, 'Returned', 'Order has been returned', 'Active', 7, NULL, '2025-10-17 23:00:03', 1);
 
 -- --------------------------------------------------------
 
@@ -208,8 +219,9 @@ INSERT INTO `orders` (`id`, `code`, `user_id`, `status_value_id`, `payment_metho
 (6, 'ORD-00006', 5, 27, NULL, 0.00, 1.20, 5.00, 18.20, '2025-10-13 22:56:21', 8, 'paid'),
 (7, 'ORD-00007', 5, 27, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:53:23', 9, 'paid'),
 (8, 'ORD-00008', 5, 27, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:54:13', 10, 'paid'),
-(9, 'ORD-00009', 5, 27, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:56:54', 11, 'paid'),
-(10, 'ORD-00010', 5, 27, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:58:47', 12, 'paid');
+(9, 'ORD-00009', 5, 30, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:56:54', 11, 'paid'),
+(10, 'ORD-00010', 5, 28, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:58:47', 12, 'paid'),
+(11, 'ORD-00011', 5, 30, NULL, 12.00, 1.20, 5.00, 18.20, '2025-10-17 22:38:54', 13, 'paid');
 
 -- --------------------------------------------------------
 
@@ -241,7 +253,8 @@ INSERT INTO `order_addresses` (`id`, `order_id`, `label`, `line1`, `line2`, `cit
 (5, 7, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-13 23:53:23'),
 (6, 8, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-13 23:54:13'),
 (7, 9, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-13 23:56:54'),
-(8, 10, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-13 23:58:47');
+(8, 10, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-13 23:58:47'),
+(9, 11, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-17 22:38:54');
 
 -- --------------------------------------------------------
 
@@ -270,7 +283,8 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `quanti
 (7, 7, 19, 39, 1, 25.00),
 (8, 8, 19, 39, 1, 25.00),
 (9, 9, 19, 39, 1, 25.00),
-(10, 10, 19, 39, 1, 25.00);
+(10, 10, 19, 39, 1, 25.00),
+(11, 11, 21, 55, 1, 12.00);
 
 -- --------------------------------------------------------
 
@@ -284,6 +298,7 @@ CREATE TABLE `order_status_history` (
   `from_status_value_id` int(11) DEFAULT NULL,
   `to_status_value_id` int(11) NOT NULL,
   `changed_by` int(11) DEFAULT NULL,
+  `reason` text DEFAULT NULL,
   `changed_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -291,15 +306,53 @@ CREATE TABLE `order_status_history` (
 -- Dumping data for table `order_status_history`
 --
 
-INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `to_status_value_id`, `changed_by`, `changed_at`) VALUES
-(1, 3, NULL, 27, 5, '2025-10-13 17:25:25'),
-(2, 4, NULL, 27, 5, '2025-10-13 18:05:10'),
-(3, 5, NULL, 27, 5, '2025-10-13 22:55:21'),
-(4, 6, NULL, 27, 5, '2025-10-13 22:56:21'),
-(5, 7, NULL, 27, 5, '2025-10-13 23:53:23'),
-(6, 8, NULL, 27, 5, '2025-10-13 23:54:13'),
-(7, 9, NULL, 27, 5, '2025-10-13 23:56:54'),
-(8, 10, NULL, 27, 5, '2025-10-13 23:58:47');
+INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `to_status_value_id`, `changed_by`, `reason`, `changed_at`) VALUES
+(1, 3, NULL, 27, 5, NULL, '2025-10-13 17:25:25'),
+(2, 4, NULL, 27, 5, NULL, '2025-10-13 18:05:10'),
+(3, 5, NULL, 27, 5, NULL, '2025-10-13 22:55:21'),
+(4, 6, NULL, 27, 5, NULL, '2025-10-13 22:56:21'),
+(5, 7, NULL, 27, 5, NULL, '2025-10-13 23:53:23'),
+(6, 8, NULL, 27, 5, NULL, '2025-10-13 23:54:13'),
+(7, 9, NULL, 27, 5, NULL, '2025-10-13 23:56:54'),
+(8, 10, NULL, 27, 5, NULL, '2025-10-13 23:58:47'),
+(9, 11, NULL, 27, 5, NULL, '2025-10-17 22:38:54'),
+(10, 11, 27, 3, 1, NULL, '2025-10-17 22:46:51'),
+(11, 11, 3, 27, 1, NULL, '2025-10-17 22:55:30'),
+(12, 11, 27, 28, 1, NULL, '2025-10-17 23:01:59'),
+(13, 11, 28, 29, 1, NULL, '2025-10-17 23:02:30'),
+(14, 11, 29, 30, 1, NULL, '2025-10-17 23:02:44'),
+(15, 10, 27, 28, 1, '', '2025-10-17 23:15:31'),
+(16, 9, 27, 30, 1, '', '2025-10-17 23:25:51');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `otp_verifications`
+--
+
+CREATE TABLE `otp_verifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `otp_code` varchar(6) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `is_used` tinyint(1) DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `otp_verifications`
+--
+
+INSERT INTO `otp_verifications` (`id`, `user_id`, `email`, `otp_code`, `expires_at`, `is_used`, `created_at`) VALUES
+(1, 1, 'test@example.com', '321580', '2025-10-17 23:54:56', 0, '2025-10-17 23:44:56'),
+(2, 9, 'debug@example.com', '775667', '2025-10-18 00:04:52', 0, '2025-10-17 23:54:52'),
+(3, 10, 'customer@example.com', '640198', '2025-10-18 00:15:33', 0, '2025-10-18 00:05:33'),
+(4, 11, 'customer2@example.com', '191392', '2025-10-18 00:17:14', 0, '2025-10-18 00:07:14'),
+(5, 12, 'testotp@example.com', '968696', '2025-10-18 00:32:01', 0, '2025-10-18 00:22:01'),
+(6, 12, 'testotp@example.com', '773224', '2025-10-18 00:37:01', 0, '2025-10-18 00:27:01'),
+(7, 7, 'mianmuhammadramzan99@gmail.com', '347309', '2025-10-18 00:37:32', 0, '2025-10-18 00:27:32'),
+(8, 8, 'ramzan8664@gmail.com', '623719', '2025-10-18 00:41:59', 1, '2025-10-18 00:31:59');
 
 -- --------------------------------------------------------
 
@@ -338,7 +391,8 @@ INSERT INTO `payments` (`id`, `order_id`, `stripe_payment_intent_id`, `stripe_ch
 (9, NULL, 'pi_3SHqs2D3H6qI9jyC2wDdwDMv', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:53:23', '2025-10-13 23:53:23'),
 (10, NULL, 'pi_3SHqsqD3H6qI9jyC0Rgzn8qo', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:54:13', '2025-10-13 23:54:13'),
 (11, NULL, 'pi_3SHqvRD3H6qI9jyC2g3qRJUd', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:56:54', '2025-10-13 23:56:54'),
-(12, NULL, 'pi_3SHqxGD3H6qI9jyC19oyBJyj', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:58:47', '2025-10-13 23:58:47');
+(12, NULL, 'pi_3SHqxGD3H6qI9jyC19oyBJyj', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:58:47', '2025-10-13 23:58:47'),
+(13, NULL, 'pi_3SJHc9D3H6qI9jyC2BiCoc3s', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-17 22:38:54', '2025-10-17 22:38:54');
 
 -- --------------------------------------------------------
 
@@ -530,7 +584,7 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock
 (50, 4, 'TESTING-S-Black', 0.00, 10, 'S', 'Black', '#000000', ''),
 (51, 2, 'TESTING-PRODUCT-S-Black', 0.00, 23, 'S', 'Black', '#000000', ''),
 (52, 20, 'ASDFASD-M-sdfgs', 34.00, 34, 'M', 'sdfgs', '#000000', ''),
-(55, 21, 'TESTING-PRODUCT-S-Red', 0.00, 100, 'S', 'Red', '#f50f0f', '');
+(55, 21, 'TESTING-PRODUCT-S-Red', 0.00, 99, 'S', 'Red', '#f50f0f', '');
 
 -- --------------------------------------------------------
 
@@ -617,6 +671,8 @@ CREATE TABLE `users` (
   `code` varchar(20) DEFAULT NULL,
   `name` varchar(120) NOT NULL,
   `email` varchar(150) NOT NULL,
+  `email_verified` tinyint(1) DEFAULT 0,
+  `email_verified_at` datetime DEFAULT NULL,
   `password_hash` varchar(255) NOT NULL,
   `phone` varchar(30) DEFAULT NULL,
   `status` enum('Active','Inactive') DEFAULT 'Active',
@@ -630,12 +686,18 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `code`, `name`, `email`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-14 00:32:40', '2025-09-23 23:51:29', '2025-10-14 00:32:40'),
-(2, 'USR-00002', 'Test User', 'test@example.com', '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
-(3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
-(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-13 23:51:58', '2025-10-03 22:51:42', '2025-10-13 23:51:58'),
-(6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51');
+INSERT INTO `users` (`id`, `code`, `name`, `email`, `email_verified`, `email_verified_at`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan9239@gmail.com', 0, NULL, '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-17 22:46:22', '2025-09-23 23:51:29', '2025-10-17 23:36:04'),
+(2, 'USR-00002', 'Test User', 'test@example.com', 0, NULL, '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
+(3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', 0, NULL, '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', 0, NULL, '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-17 22:38:16', '2025-10-03 22:51:42', '2025-10-17 22:38:16'),
+(6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', 0, NULL, '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51'),
+(7, 'USR-00007', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 0, NULL, '$2a$12$FtrcO9bsoQ4iISLrbp5IneeFWQIvws.F8D..rnAce9HWohwcX5fRy', NULL, 'Active', 4, '2025-10-18 00:01:43', '2025-10-17 23:36:31', '2025-10-18 00:01:43'),
+(8, 'USR-00008', 'ramzan', 'ramzan8664@gmail.com', 1, '2025-10-18 00:32:20', '$2a$12$ECrq/2BHBplxxIMvMF8lzOEhWZaQUX6UTPOlFKULGegcQQg404Jte', NULL, 'Active', 4, '2025-10-18 00:39:54', '2025-10-17 23:46:25', '2025-10-18 00:39:54'),
+(9, 'USR-00009', 'Debug User', 'debug@example.com', 0, NULL, '$2a$12$epfxSR1/J9ceJT9BHgMmi./L5ueiImhmi/eZ7tane3qIQMLDNAK0S', NULL, 'Active', 3, NULL, '2025-10-17 23:54:52', '2025-10-17 23:54:52'),
+(10, 'USR-00010', 'Test Customer', 'customer@example.com', 0, NULL, '$2a$12$jqf4DQoOqdbs1kE9n8MBy.SGkv6A0pPXsTRjKkHBhlfkCgwf0/9Ee', NULL, 'Active', 4, NULL, '2025-10-18 00:05:33', '2025-10-18 00:05:33'),
+(11, 'USR-00011', 'Test Customer 2', 'customer2@example.com', 1, '2025-10-18 00:07:17', '$2a$12$nhmHuTfrfRxVS5aR/3M6TeOS.3uYXqEbsGB6s/LyuxNiYDso1ec4y', NULL, 'Active', 4, '2025-10-18 00:07:17', '2025-10-18 00:07:14', '2025-10-18 00:07:17'),
+(12, 'USR-00012', 'Test User OTP', 'testotp@example.com', 1, '2025-10-18 00:40:08', '$2a$12$38Zi1eRDj/nFYp7NclHq3OLUTZOfq93JQsLwspHvm4NyCTdMRD4fW', NULL, 'Active', 4, NULL, '2025-10-18 00:22:01', '2025-10-18 00:40:08');
 
 -- --------------------------------------------------------
 
@@ -750,7 +812,18 @@ ALTER TABLE `order_status_history`
   ADD KEY `order_id` (`order_id`),
   ADD KEY `from_status_value_id` (`from_status_value_id`),
   ADD KEY `to_status_value_id` (`to_status_value_id`),
-  ADD KEY `changed_by` (`changed_by`);
+  ADD KEY `changed_by` (`changed_by`),
+  ADD KEY `idx_reason` (`reason`(100));
+
+--
+-- Indexes for table `otp_verifications`
+--
+ALTER TABLE `otp_verifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `email` (`email`),
+  ADD KEY `otp_code` (`otp_code`),
+  ADD KEY `expires_at` (`expires_at`);
 
 --
 -- Indexes for table `payments`
@@ -872,37 +945,43 @@ ALTER TABLE `lookup_headers`
 -- AUTO_INCREMENT for table `lookup_values`
 --
 ALTER TABLE `lookup_values`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `order_addresses`
 --
 ALTER TABLE `order_addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `otp_verifications`
+--
+ALTER TABLE `otp_verifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -944,13 +1023,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipments`
 --
 ALTER TABLE `shipments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `wishlists`

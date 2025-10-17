@@ -6,9 +6,10 @@ console.log(config.smtp);
 // Create transporter instance
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: 'business113.web-hosting.com',
+    service: 'gmail',
+    host: 'smtp.gmail.com',
     port: 465,
-    secure: true,
+    secure: true, // true for 465, false for other ports
     auth: {
       user: config.smtp.email,
       pass: config.smtp.password
@@ -21,6 +22,11 @@ const createTransporter = () => {
 
 // Send basic email function
 const sendEmail = async ({ to, subject, text, html, attachments = [] }) => {
+  console.log('Sending email to:', to);
+  console.log('Subject:', subject);
+  console.log('Text:', text);
+  console.log('HTML:', html);
+  console.log('Attachments:', attachments);
   try {
     const transporter = createTransporter();
     const message = {
@@ -48,10 +54,6 @@ const sendOrderConfirmation = async ({ userEmail, userName, orderData }) => {
   const subject = `Order Confirmation - Order #${order.code}`;
 
   const text = `
-Dear ${userName},
-
-Thank you for your order! We have received your order and it is being processed.
-
 Order Details:
 - Order Number: ${order.code}
 - Order Date: ${new Date(order.created_at).toLocaleDateString()}
@@ -64,13 +66,6 @@ Shipping Address:
 ${address.line1}
 ${address.line2 ? address.line2 + '\n' : ''}${address.city}, ${address.postal_code}
 Phone: ${address.phone}
-
-We will send you another email when your order ships.
-
-Thank you for choosing Zarafet!
-
-Best regards,
-Zarafet Team
     `;
 
   const html = `
@@ -96,8 +91,7 @@ Zarafet Team
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎉 Order Confirmation</h1>
-            <p>Thank you for your order, ${userName}!</p>
+            <h1>Order Confirmation</h1>
         </div>
         
         <div class="order-details">
@@ -136,9 +130,6 @@ Zarafet Team
         </div>
         
         <div class="footer">
-            <p>We will send you another email when your order ships.</p>
-            <p>Thank you for choosing Zarafet!</p>
-            <p><strong>Zarafet Team</strong></p>
         </div>
     </div>
 </body>
@@ -160,20 +151,9 @@ const sendOrderStatusUpdate = async ({ userEmail, userName, orderData, newStatus
   const subject = `Order Update - Order #${order.code}`;
 
   const text = `
-Dear ${userName},
-
-Your order status has been updated.
-
 Order Details:
 - Order Number: ${order.code}
 - New Status: ${newStatus}
-
-We will keep you updated on any further changes to your order.
-
-Thank you for choosing Zarafet!
-
-Best regards,
-Zarafet Team
     `;
 
   const html = `
@@ -198,16 +178,12 @@ Zarafet Team
         </div>
         
         <div class="status-update">
-            <h2>Hello ${userName}!</h2>
-            <p>Your order status has been updated:</p>
+            <h2>Order Status Update</h2>
             <p><strong>Order Number:</strong> ${order.code}</p>
             <p><strong>New Status:</strong> ${newStatus}</p>
         </div>
         
         <div class="footer">
-            <p>We will keep you updated on any further changes to your order.</p>
-            <p>Thank you for choosing Zarafet!</p>
-            <p><strong>Zarafet Team</strong></p>
         </div>
     </div>
 </body>
@@ -222,9 +198,83 @@ Zarafet Team
   });
 };
 
+// Send OTP verification email
+const sendOTPVerificationEmail = async (user, otpCode) => {
+  try {
+    const subject = 'Verify Your Email - Zarafet';
+
+    const text = `
+Dear ${user.name},
+
+Welcome to Zarafet! Please verify your email address to complete your registration.
+
+Your verification code is: ${otpCode}
+
+This code will expire in 10 minutes.
+
+If you didn't create an account with Zarafet, please ignore this email.
+
+Best regards,
+Zarafet Team
+    `;
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Email Verification - Zarafet</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #e9ecef; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
+        .otp-code { background: #e3f2fd; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0; font-size: 24px; font-weight: bold; letter-spacing: 3px; color: #1976d2; }
+        .warning { background: #fff3cd; padding: 15px; border-radius: 4px; margin: 15px 0; border-left: 4px solid #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Welcome to Zarafet!</h2>
+        </div>
+        <div class="content">
+            <p>Dear ${user.name},</p>
+            <p>Please verify your email address to complete your registration.</p>
+            
+            <div class="otp-code">${otpCode}</div>
+            
+            <div class="warning">
+                <strong>Important:</strong> This code will expire in 10 minutes.
+            </div>
+            
+            <p>If you didn't create an account with Zarafet, please ignore this email.</p>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>Zarafet Team</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    return await sendEmail({
+      to: user.email,
+      subject: subject,
+      text: text,
+      html: html
+    });
+  } catch (error) {
+    console.error('❌ Failed to send OTP verification email:', error.message);
+    throw error;
+  }
+};
+
 // Export all functions as an object
 module.exports = {
   sendEmail,
   sendOrderConfirmation,
-  sendOrderStatusUpdate
+  sendOrderStatusUpdate,
+  sendOTPVerificationEmail
 };

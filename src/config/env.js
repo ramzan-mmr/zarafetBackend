@@ -52,7 +52,7 @@ module.exports = {
 
   // Tax and Shipping Configuration
   pricing: {
-    taxRate: parseFloat(process.env.TAX_RATE) || 0.10, // 10% default
+    taxRate: parseFloat(process.env.TAX_RATE) || 0.00, // 0% default
     defaultShippingCost: parseFloat(process.env.DEFAULT_SHIPPING_COST) || 5.00,
     freeShippingThreshold: parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 100.00
   },

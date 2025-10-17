@@ -415,7 +415,7 @@ class Order {
     return rows[0].total;
   }
   
-  static async updateStatus(id, to_status_value_id, changed_by) {
+  static async updateStatus(id, to_status_value_id, changed_by, reason = null) {
     const connection = await db.getConnection();
     await connection.beginTransaction();
     
@@ -438,10 +438,10 @@ class Order {
         [to_status_value_id, id]
       );
       
-      // Add to history
+      // Add to history with reason
       await connection.execute(
-        'INSERT INTO order_status_history (order_id, from_status_value_id, to_status_value_id, changed_by) VALUES (?, ?, ?, ?)',
-        [id, from_status_value_id, to_status_value_id, changed_by]
+        'INSERT INTO order_status_history (order_id, from_status_value_id, to_status_value_id, changed_by, reason) VALUES (?, ?, ?, ?, ?)',
+        [id, from_status_value_id, to_status_value_id, changed_by, reason]
       );
       
       await connection.commit();
@@ -460,7 +460,8 @@ class Order {
       `SELECT osh.*, 
               u.name as changed_by_name,
               lv1.value as from_status_name,
-              lv2.value as to_status_name
+              lv2.value as to_status_name,
+              osh.reason
        FROM order_status_history osh 
        LEFT JOIN users u ON osh.changed_by = u.id
        LEFT JOIN lookup_values lv1 ON osh.from_status_value_id = lv1.id

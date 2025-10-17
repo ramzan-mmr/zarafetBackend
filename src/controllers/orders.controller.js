@@ -295,14 +295,14 @@ const place = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { to_status_value_id } = req.body;
+    const { to_status_value_id, reason } = req.body;
     
     const existingOrder = await Order.findById(id);
     if (!existingOrder) {
       return res.status(404).json(responses.notFound('Order'));
     }
     
-    const order = await Order.updateStatus(id, to_status_value_id, req.user.id);
+    const order = await Order.updateStatus(id, to_status_value_id, req.user.id, reason);
     
     // Send order status update email
     try {

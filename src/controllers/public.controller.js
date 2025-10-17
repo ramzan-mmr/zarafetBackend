@@ -5,8 +5,10 @@ const Customer = require('../models/Customer.model');
 const Address = require('../models/Address.model');
 const Category = require('../models/Category.model');
 const PublicModule = require('../models/public.module');
+const OTP = require('../models/OTP.model');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
+const { sendOTPVerificationEmail } = require('../services/email.service');
 
 /**
  * Public controller for website APIs (no authentication required)
@@ -166,7 +168,7 @@ const getProducts = async (req, res) => {
 const customerSignup = async (req, res) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
-    
+    console.log(name, email, password, confirmPassword);
     // Validate password confirmation
     if (password !== confirmPassword) {
       return res.status(400).json({
@@ -209,9 +211,13 @@ const customerSignup = async (req, res) => {
     };
     
     const user = await User.create(userData);
-    
+    console.log(user);
     // Create customer profile
     await Customer.createProfile(user.id);
+    
+    // Create and send OTP for email verification
+    const otpData = await OTP.create(user.id, email);
+    await sendOTPVerificationEmail(user, otpData.otpCode);
     
     // Generate token
     const token = jwt.generateToken({
@@ -228,10 +234,12 @@ const customerSignup = async (req, res) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role_name
-        }
+          role: user.role_name,
+          email_verified: false
+        },
+        otpExpiresAt: otpData.expiresAt
       },
-      message: 'Customer registered successfully'
+      message: 'Customer registered successfully. Please check your email for verification code.'
     });
   } catch (error) {
     console.error('Customer signup error:', error);
@@ -246,7 +254,8 @@ const customerSignup = async (req, res) => {
 const customerLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+    console.log(email, password);
+
     // Find user
     const user = await User.findByEmail(email);
     if (!user) {
@@ -281,6 +290,21 @@ const customerLogin = async (req, res) => {
       });
     }
     
+    // Check if email is verified
+    if (!user.email_verified) {
+      // Send OTP email for unverified user trying to login
+      const otpData = await OTP.create(user.id, email);
+      await sendOTPVerificationEmail(user, otpData.otpCode);
+      
+      return res.status(401).json({
+        success: false,
+        message: 'Please check your email for the verification code to continue',
+        needsVerification: true,
+        email: user.email,
+        otpExpiresAt: otpData.expiresAt
+      });
+    }
+    
     // Update last login
     await User.updateLastLogin(user.id);
     
@@ -299,7 +323,8 @@ const customerLogin = async (req, res) => {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role_name
+          role: user.role_name,
+          email_verified: user.email_verified
         }
       },
       message: 'Login successful'
@@ -743,6 +768,159 @@ const addToRecentlyViewed = async (req, res) => {
   }
 };
 
+// OTP verification for customers
+const sendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+    
+    // Check if user exists and is a customer
+    const user = await User.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    if (user.role_name !== 'Customer') {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid user type'
+      });
+    }
+    
+    // Create and send OTP
+    const otpData = await OTP.create(user.id, email);
+    await sendOTPVerificationEmail(user, otpData.otpCode);
+    
+    res.json({
+      success: true,
+      message: 'OTP sent to your email',
+      otpExpiresAt: otpData.expiresAt
+    });
+  } catch (error) {
+    console.error('Send OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send OTP'
+    });
+  }
+};
+
+const verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and OTP are required'
+      });
+    }
+    
+    // Verify OTP
+    const isValid = await OTP.verify(email, otp);
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP'
+      });
+    }
+    
+    // Get user data first
+    const user = await User.findByEmail(email);
+    
+    // Update user email verification status
+    await User.update(user.id, { 
+      email_verified: true, 
+      email_verified_at: new Date() 
+    });
+    
+    // Get updated user data
+    const updatedUser = await User.findByEmail(email);
+    
+    // Generate token
+    const token = jwt.generateToken({
+      id: updatedUser.id,
+      email: updatedUser.email,
+      role: updatedUser.role_name
+    });
+    
+    res.json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: updatedUser.id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          role: updatedUser.role_name,
+          email_verified: true
+        }
+      },
+      message: 'Email verified successfully'
+    });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to verify OTP'
+    });
+  }
+};
+
+const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+    
+    // Check if user exists and is a customer
+    const user = await User.findByEmail(email);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    if (user.role_name !== 'Customer') {
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid user type'
+      });
+    }
+    
+    // Create and send new OTP
+    const otpData = await OTP.create(user.id, email);
+    await sendOTPVerificationEmail(user, otpData.otpCode);
+    
+    res.json({
+      success: true,
+      message: 'New OTP sent to your email',
+      otpExpiresAt: otpData.expiresAt
+    });
+  } catch (error) {
+    console.error('Resend OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to resend OTP'
+    });
+  }
+};
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -767,5 +945,9 @@ module.exports = {
   removeFromWishlist,
   // Recently viewed management
   getRecentlyViewed,
-  addToRecentlyViewed
+  addToRecentlyViewed,
+  // OTP verification for customers
+  sendOTP,
+  verifyOTP,
+  resendOTP
 };

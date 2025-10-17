@@ -79,5 +79,6 @@ exports.place = Joi.object({
 });
 
 exports.statusUpdate = Joi.object({
-  to_status_value_id: positiveInt.required()
+  to_status_value_id: positiveInt.required(),
+  reason: Joi.string().max(500).allow('').optional()
 });

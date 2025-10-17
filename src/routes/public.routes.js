@@ -366,6 +366,109 @@ router.post('/auth/signup', validateBody(customerSignup), publicCtrl.customerSig
  */
 router.post('/auth/login', validateBody(customerLogin), publicCtrl.customerLogin);
 
+// OTP verification routes for customers
+/**
+ * @swagger
+ * /public/otp/send:
+ *   post:
+ *     summary: Send OTP for email verification
+ *     tags: [Public APIs]
+ *     description: Send OTP to customer's email for verification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "customer@example.com"
+ *     responses:
+ *       200:
+ *         description: OTP sent successfully
+ *       400:
+ *         description: Email is required
+ *       404:
+ *         description: User not found
+ *       403:
+ *         description: Invalid user type
+ *       500:
+ *         description: Failed to send OTP
+ */
+router.post('/otp/send', publicCtrl.sendOTP);
+
+/**
+ * @swagger
+ * /public/otp/verify:
+ *   post:
+ *     summary: Verify OTP code
+ *     tags: [Public APIs]
+ *     description: Verify OTP code and mark email as verified
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - otp
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "customer@example.com"
+ *               otp:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *       400:
+ *         description: Invalid or expired OTP
+ *       500:
+ *         description: Failed to verify OTP
+ */
+router.post('/otp/verify', publicCtrl.verifyOTP);
+
+/**
+ * @swagger
+ * /public/otp/resend:
+ *   post:
+ *     summary: Resend OTP code
+ *     tags: [Public APIs]
+ *     description: Resend OTP code to customer's email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "customer@example.com"
+ *     responses:
+ *       200:
+ *         description: New OTP sent successfully
+ *       400:
+ *         description: Email is required
+ *       404:
+ *         description: User not found
+ *       403:
+ *         description: Invalid user type
+ *       500:
+ *         description: Failed to resend OTP
+ */
+router.post('/otp/resend', publicCtrl.resendOTP);
+
 /**
  * @swagger
  * /public/addresses:
