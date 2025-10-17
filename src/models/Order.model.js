@@ -47,7 +47,7 @@ class Order {
           throw new Error(`Insufficient stock for product: ${product.name}`);
         }
         
-        const unitPrice = product.price + (product.variant_extra_price || 0);
+        const unitPrice = parseFloat(product.price) + parseFloat(product.variant_extra_price || 0);
         const itemTotal = unitPrice * item.quantity;
         subtotal += itemTotal;
         

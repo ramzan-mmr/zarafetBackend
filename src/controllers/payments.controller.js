@@ -1,7 +1,9 @@
 const Payment = require('../models/Payment.model');
 const Order = require('../models/Order.model');
 const OrderAddress = require('../models/OrderAddress.model');
+const User = require('../models/User.model');
 const StripeService = require('../services/stripe.service');
+const EmailService = require('../services/email.service');
 const responses = require('../utils/responses');
 const config = require('../config/env');
 
@@ -205,6 +207,51 @@ const process = async (req, res) => {
     console.log('🛒 Creating order...');
     const order = await Order.create(orderData);
     console.log('✅ Order created successfully:', order.id);
+    
+    // Send order confirmation email
+    try {
+      const user = await User.findById(user_id);
+      if (user && user.email) {
+        console.log('📧 Sending order confirmation email...');
+        
+        // Get order details with items for email
+        const orderWithItems = await Order.findById(order.id);
+        
+        const emailData = {
+          userEmail: user.email,
+          userName: user.name,
+          orderData: {
+            order: orderWithItems,
+            items: orderWithItems.items || [],
+            totals: {
+              subtotal: expectedSubtotal,
+              tax: expectedTax,
+              shipping: expectedShipping,
+              total: expectedTotal
+            },
+            address: {
+              line1: address.line1,
+              line2: address.line2,
+              city: address.city,
+              postal_code: address.postalCode,
+              phone: address.phone
+            }
+          }
+        };
+        
+        const emailResult = await EmailService.sendOrderConfirmation(emailData);
+        if (emailResult.success) {
+          console.log('✅ Order confirmation email sent successfully');
+        } else {
+          console.error('❌ Failed to send order confirmation email:', emailResult.error);
+        }
+      } else {
+        console.warn('⚠️ User email not found, skipping order confirmation email');
+      }
+    } catch (emailError) {
+      console.error('❌ Error sending order confirmation email:', emailError);
+      // Don't fail the order creation if email fails
+    }
     
     console.log('🎉 Payment process completed successfully!');
     console.log('📤 Sending response to frontend...');

@@ -1,48 +1,53 @@
 const nodemailer = require('nodemailer');
 const config = require('../config/env');
 
-class EmailService {
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: 'mail.privateemail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: config.smtp.email,
-        pass: config.smtp.password
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-  }
+console.log(config.smtp);
 
-  async sendEmail({ to, subject, text, html, attachments = [] }) {
-    try {
-      const message = {
-        from: `Zarafet <${config.smtp.email}>`,
-        to: to,
-        subject: subject,
-        text: text,
-        html: html || `<p>${text}</p>`,
-        attachments: attachments
-      };
-
-      const result = await this.transporter.sendMail(message);
-      console.log('✅ Email sent successfully:', result.messageId);
-      return { success: true, messageId: result.messageId };
-    } catch (error) {
-      console.error('❌ Email sending failed:', error);
-      return { success: false, error: error.message };
+// Create transporter instance
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: 'business113.web-hosting.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: config.smtp.email,
+      pass: config.smtp.password
+    },
+    tls: {
+      rejectUnauthorized: false
     }
+  });
+};
+
+// Send basic email function
+const sendEmail = async ({ to, subject, text, html, attachments = [] }) => {
+  try {
+    const transporter = createTransporter();
+    const message = {
+      from: `Zarafet <${config.smtp.email}>`,
+      to: to,
+      subject: subject,
+      text: text,
+      html: html || `<p>${text}</p>`,
+      attachments: attachments
+    };
+
+    const result = await transporter.sendMail(message);
+    console.log('✅ Email sent successfully:', result.messageId);
+    return { success: true, messageId: result.messageId };
+  } catch (error) {
+    console.error('❌ Email sending failed:', error);
+    return { success: false, error: error.message };
   }
+};
 
-  async sendOrderConfirmation({ userEmail, userName, orderData }) {
-    const { order, items, totals, address } = orderData;
+// Send order confirmation email function
+const sendOrderConfirmation = async ({ userEmail, userName, orderData }) => {
+  const { order, items, totals, address } = orderData;
 
-    const subject = `Order Confirmation - Order #${order.code}`;
+  const subject = `Order Confirmation - Order #${order.code}`;
 
-    const text = `
+  const text = `
 Dear ${userName},
 
 Thank you for your order! We have received your order and it is being processed.
@@ -53,7 +58,7 @@ Order Details:
 - Total Amount: $${totals.total.toFixed(2)}
 
 Items Ordered:
-${items.map(item => `- ${item.product_name} (${item.variant_name || 'Standard'}) x ${item.quantity} - $${(item.unit_price * item.quantity).toFixed(2)}`).join('\n')}
+${items.map(item => `- ${item.product_name} (${item.variant_name || 'Standard'}) x ${item.quantity} - $${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}`).join('\n')}
 
 Shipping Address:
 ${address.line1}
@@ -68,7 +73,7 @@ Best regards,
 Zarafet Team
     `;
 
-    const html = `
+  const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -108,7 +113,7 @@ Zarafet Team
                 <div class="item">
                     <strong>${item.product_name}</strong>
                     ${item.variant_name ? `<br><small>Variant: ${item.variant_name}</small>` : ''}
-                    <br>Quantity: ${item.quantity} × $${item.unit_price.toFixed(2)} = $${(item.unit_price * item.quantity).toFixed(2)}
+                    <br>Quantity: ${item.quantity} × $${parseFloat(item.unit_price).toFixed(2)} = $${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}
                 </div>
             `).join('')}
             
@@ -140,20 +145,21 @@ Zarafet Team
 </html>
     `;
 
-    return await this.sendEmail({
-      to: userEmail,
-      subject: subject,
-      text: text,
-      html: html
-    });
-  }
+  return await sendEmail({
+    to: userEmail,
+    subject: subject,
+    text: text,
+    html: html
+  });
+};
 
-  async sendOrderStatusUpdate({ userEmail, userName, orderData, newStatus }) {
-    const { order } = orderData;
+// Send order status update email function
+const sendOrderStatusUpdate = async ({ userEmail, userName, orderData, newStatus }) => {
+  const { order } = orderData;
 
-    const subject = `Order Update - Order #${order.code}`;
+  const subject = `Order Update - Order #${order.code}`;
 
-    const text = `
+  const text = `
 Dear ${userName},
 
 Your order status has been updated.
@@ -170,7 +176,7 @@ Best regards,
 Zarafet Team
     `;
 
-    const html = `
+  const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -208,13 +214,17 @@ Zarafet Team
 </html>
     `;
 
-    return await this.sendEmail({
-      to: userEmail,
-      subject: subject,
-      text: text,
-      html: html
-    });
-  }
-}
+  return await sendEmail({
+    to: userEmail,
+    subject: subject,
+    text: text,
+    html: html
+  });
+};
 
-module.exports = new EmailService();
+// Export all functions as an object
+module.exports = {
+  sendEmail,
+  sendOrderConfirmation,
+  sendOrderStatusUpdate
+};
