@@ -47,13 +47,13 @@ app.use('/uploads', express.static('uploads'));
 // }));
 
 // Health check endpoint
-// app.get('/health', (req, res) => {
-//   res.json({ 
-//     status: 'OK', 
-//     timestamp: new Date().toISOString(),
-//     environment: config.server.env
-//   });
-// });
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    environment: config.server.env
+  });
+});
 
 // Test email functions (called directly, not as API endpoints)
 // const testEmailFunction = async () => {
