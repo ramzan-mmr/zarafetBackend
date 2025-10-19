@@ -8,7 +8,7 @@ const PublicModule = require('../models/public.module');
 const OTP = require('../models/OTP.model');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
-const { sendOTPVerificationEmail, sendContactEmail } = require('../services/email.service');
+const { sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail } = require('../services/email.service');
 
 /**
  * Public controller for website APIs (no authentication required)
@@ -256,22 +256,23 @@ const customerLogin = async (req, res) => {
     const { email, password } = req.body;
     console.log(email, password);
 
-    // Find user
-    const user = await User.findByEmail(email);
-    if (!user) {
+    // Find CUSTOMER user specifically using user_type
+    const [users] = await db.execute(`
+      SELECT u.*, r.name as role_name, r.level as role_level 
+      FROM users u 
+      LEFT JOIN roles r ON u.role_id = r.id 
+      WHERE u.email = ? AND u.status = 'Active' AND u.user_type = 'customer'
+    `, [email]);
+    
+    if (users.length === 0) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
       });
     }
     
-    // Check if user is a customer
-    if (user.role_name !== 'Customer') {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
-      });
-    }
+    // Use the customer user
+    const user = users[0];
     
     // Check password
     const isValidPassword = await User.verifyPassword(password, user.password_hash);
@@ -921,6 +922,116 @@ const resendOTP = async (req, res) => {
   }
 };
 
+// Forgot password for customers ONLY (public endpoint)
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+    
+    // Find CUSTOMER user specifically using user_type
+    const [users] = await db.execute(`
+      SELECT u.*, r.name as role_name, r.level as role_level 
+      FROM users u 
+      LEFT JOIN roles r ON u.role_id = r.id 
+      WHERE u.email = ? AND u.status = 'Active' AND u.user_type = 'customer'
+    `, [email]);
+    
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Customer account not found'
+      });
+    }
+    
+    // Use the customer user
+    const user = users[0];
+    
+    // Create and send password reset OTP
+    const otpData = await OTP.create(user.id, email);
+    await sendPasswordResetEmail(user, otpData.otpCode);
+    
+    res.json({
+      success: true,
+      message: 'Password reset code sent to your email',
+      otpExpiresAt: otpData.expiresAt
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send password reset code'
+    });
+  }
+};
+
+// Reset password for customers ONLY (public endpoint)
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, OTP, and new password are required'
+      });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
+      });
+    }
+    
+    // Verify OTP
+    const isValid = await OTP.verify(email, otp);
+    if (!isValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP'
+      });
+    }
+    
+    // Find CUSTOMER user specifically using user_type
+    const [users] = await db.execute(`
+      SELECT u.*, r.name as role_name, r.level as role_level 
+      FROM users u 
+      LEFT JOIN roles r ON u.role_id = r.id 
+      WHERE u.email = ? AND u.status = 'Active' AND u.user_type = 'customer'
+    `, [email]);
+    
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Customer account not found'
+      });
+    }
+    
+    // Use the customer user
+    const user = users[0];
+    
+    // Update password
+    await User.updatePassword(user.id, newPassword);
+    
+    res.json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reset password'
+    });
+  }
+};
+
 // Submit contact form
 const submitContactForm = async (req, res) => {
   try {
@@ -986,6 +1097,9 @@ module.exports = {
   sendOTP,
   verifyOTP,
   resendOTP,
+  // Password reset for customers
+  forgotPassword,
+  resetPassword,
   // Contact form
   submitContactForm
 };

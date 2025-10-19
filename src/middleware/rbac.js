@@ -7,8 +7,6 @@ const checkRole = (allowedRoles) => {
     }
     
     const userRole = req.user.role;
-    console.log(userRole);
-    console.log(allowedRoles);
 
     if (userRole === 'Super_Admin') {
       return next();

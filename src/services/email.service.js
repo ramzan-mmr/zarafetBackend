@@ -270,6 +270,79 @@ Zarafet Team
   }
 };
 
+// Send password reset OTP email
+const sendPasswordResetEmail = async (user, otpCode) => {
+  try {
+    const subject = 'Password Reset - Zarafet';
+
+    const text = `
+Dear ${user.name},
+
+You requested to reset your password. Please use the following code to reset your password:
+
+Your reset code is: ${otpCode}
+
+This code will expire in 10 minutes.
+
+If you didn't request a password reset, please ignore this email.
+
+Best regards,
+Zarafet Team
+    `;
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Password Reset - Zarafet</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: #fff; padding: 30px; border: 1px solid #e9ecef; }
+        .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 14px; color: #666; }
+        .otp-code { background: #fff3cd; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0; font-size: 24px; font-weight: bold; letter-spacing: 3px; color: #856404; }
+        .warning { background: #f8d7da; padding: 15px; border-radius: 4px; margin: 15px 0; border-left: 4px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Password Reset Request</h2>
+        </div>
+        <div class="content">
+            <p>Dear ${user.name},</p>
+            <p>You requested to reset your password. Please use the following code to reset your password:</p>
+            
+            <div class="otp-code">${otpCode}</div>
+            
+            <div class="warning">
+                <strong>Important:</strong> This code will expire in 10 minutes.
+            </div>
+            
+            <p>If you didn't request a password reset, please ignore this email.</p>
+        </div>
+        <div class="footer">
+            <p>Best regards,<br>Zarafet Team</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    return await sendEmail({
+      to: user.email,
+      subject: subject,
+      text: text,
+      html: html
+    });
+  } catch (error) {
+    console.error('❌ Failed to send password reset email:', error.message);
+    throw error;
+  }
+};
+
 // Send contact form email function
 const sendContactEmail = async ({ firstName, lastName, email, phone, orderNumber, subject, message }) => {
   try {
@@ -372,5 +445,6 @@ module.exports = {
   sendOrderConfirmation,
   sendOrderStatusUpdate,
   sendOTPVerificationEmail,
+  sendPasswordResetEmail,
   sendContactEmail
 };

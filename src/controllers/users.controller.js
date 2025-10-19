@@ -43,7 +43,7 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   try {
-    const { name, email, password, role_id, status, phone } = req.body;
+    const { name, email, password, role_id, status, phone, user_type = 'admin' } = req.body;
     
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -57,7 +57,8 @@ const create = async (req, res) => {
       password,
       role_id,
       status,
-      phone
+      phone,
+      user_type
     };
     
     const user = await User.create(userData);

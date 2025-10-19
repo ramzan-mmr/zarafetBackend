@@ -4,15 +4,15 @@ const { generateCode } = require('../utils/sql');
 
 class User {
   static async create(userData) {
-    const { name, email, password, role_id, status = 'Active', phone } = userData;
+    const { name, email, password, role_id, status = 'Active', phone, user_type = 'admin' } = userData;
     
     // Hash password
     const password_hash = await bcrypt.hash(password, 12);
     
     const [result] = await db.execute(
-      `INSERT INTO users (name, email, password_hash, role_id, status, phone) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, email, password_hash, role_id, status, phone]
+      `INSERT INTO users (name, email, password_hash, role_id, status, phone, user_type) 
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [name, email, password_hash, role_id, status, phone, user_type]
     );
     
     // Generate code and update
@@ -165,6 +165,15 @@ class User {
   
   static async verifyPassword(plainPassword, hashedPassword) {
     return bcrypt.compare(plainPassword, hashedPassword);
+  }
+  
+  static async updatePassword(id, newPassword) {
+    const password_hash = await bcrypt.hash(newPassword, 12);
+    await db.execute(
+      'UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [password_hash, id]
+    );
+    return true;
   }
 }
 

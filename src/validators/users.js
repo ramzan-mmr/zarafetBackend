@@ -12,7 +12,8 @@ exports.create = Joi.object({
   password: Joi.string().min(8).max(64).required(),
   role_id: positiveInt.required(),
   status: Joi.string().valid('Active', 'Inactive').default('Active'),
-  phone: Joi.string().max(30).allow(null, '')
+  phone: Joi.string().max(30).allow(null, ''),
+  user_type: Joi.string().valid('admin', 'customer').default('admin')
 });
 
 exports.update = Joi.object({
@@ -21,5 +22,6 @@ exports.update = Joi.object({
   password: Joi.string().min(8).max(64),
   role_id: positiveInt,
   status: Joi.string().valid('Active', 'Inactive'),
-  phone: Joi.string().max(30).allow(null, '')
+  phone: Joi.string().max(30).allow(null, ''),
+  user_type: Joi.string().valid('admin', 'customer')
 });

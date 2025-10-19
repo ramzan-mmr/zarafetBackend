@@ -22,6 +22,9 @@ router.post('/auth/login', validateBody(customerLogin), publicCtrl.customerLogin
 router.post('/otp/send', publicCtrl.sendOTP);
 router.post('/otp/verify', publicCtrl.verifyOTP);
 router.post('/otp/resend', publicCtrl.resendOTP);
+// Password reset routes for customers
+router.post('/auth/forgot-password', publicCtrl.forgotPassword);
+router.post('/auth/reset-password', publicCtrl.resetPassword);
 router.get('/addresses', verifyJWT, publicCtrl.getAddresses);
 router.post('/addresses', verifyJWT, validateBody(addressCreate), publicCtrl.createAddress);
 router.get('/addresses/:id', verifyJWT, validateParams(idParam), publicCtrl.getAddressById);
