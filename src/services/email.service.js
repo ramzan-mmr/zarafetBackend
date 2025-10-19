@@ -6,8 +6,8 @@ console.log(config.smtp);
 // Create transporter instance
 const createTransporter = () => {
   return nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
+    // service: 'gmail',
+    host: 'smtpout.secureserver.net',
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
@@ -22,11 +22,11 @@ const createTransporter = () => {
 
 // Send basic email function
 const sendEmail = async ({ to, subject, text, html, attachments = [] }) => {
-  console.log('Sending email to:', to);
-  console.log('Subject:', subject);
-  console.log('Text:', text);
-  console.log('HTML:', html);
-  console.log('Attachments:', attachments);
+  // console.log('Sending email to:', to);
+  // console.log('Subject:', subject);
+  // console.log('Text:', text);
+  // console.log('HTML:', html);
+  // console.log('Attachments:', attachments);
   try {
     const transporter = createTransporter();
     const message = {
@@ -113,7 +113,6 @@ Phone: ${address.phone}
             
             <div class="order-summary">
                 <p><strong>Subtotal:</strong> $${totals.subtotal.toFixed(2)}</p>
-                <p><strong>Tax:</strong> $${totals.tax.toFixed(2)}</p>
                 <p><strong>Shipping:</strong> $${totals.shipping.toFixed(2)}</p>
                 <p class="total"><strong>Total:</strong> $${totals.total.toFixed(2)}</p>
             </div>
@@ -271,10 +270,107 @@ Zarafet Team
   }
 };
 
+// Send contact form email function
+const sendContactEmail = async ({ firstName, lastName, email, phone, orderNumber, subject, message }) => {
+  try {
+    const fullName = `${firstName} ${lastName}`;
+    const subjectLine = `Contact Form: ${subject} - ${fullName}`;
+
+    const text = `
+Contact Form Submission:
+
+Name: ${fullName}
+Email: ${email}
+Phone: ${phone || 'Not provided'}
+Order Number: ${orderNumber || 'Not provided'}
+Subject: ${subject}
+
+Message:
+${message}
+
+---
+This message was sent from the Zarafet contact form.
+    `;
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form Submission</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
+        .contact-details { background-color: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .message-box { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        .label { font-weight: bold; color: #2c3e50; }
+        .value { color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 New Contact Form Submission</h1>
+            <p>Someone has contacted you through the Zarafet website</p>
+        </div>
+        
+        <div class="contact-details">
+            <h2>Contact Information</h2>
+            <div style="margin-bottom: 10px;">
+                <span class="label">Name:</span> 
+                <span class="value">${fullName}</span>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <span class="label">Email:</span> 
+                <span class="value">${email}</span>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <span class="label">Phone:</span> 
+                <span class="value">${phone || 'Not provided'}</span>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <span class="label">Order Number:</span> 
+                <span class="value">${orderNumber || 'Not provided'}</span>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <span class="label">Subject:</span> 
+                <span class="value">${subject}</span>
+            </div>
+        </div>
+        
+        <div class="message-box">
+            <h3>Message:</h3>
+            <p style="white-space: pre-wrap; margin: 0;">${message}</p>
+        </div>
+        
+        <div class="footer">
+            <p>This message was sent from the Zarafet contact form at ${new Date().toLocaleString()}</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    return await sendEmail({
+      to: config.smtp.email, // Send to your business email
+      subject: subjectLine,
+      text: text,
+      html: html
+    });
+  } catch (error) {
+    console.error('❌ Failed to send contact email:', error.message);
+    throw error;
+  }
+};
+
 // Export all functions as an object
 module.exports = {
   sendEmail,
   sendOrderConfirmation,
   sendOrderStatusUpdate,
-  sendOTPVerificationEmail
+  sendOTPVerificationEmail,
+  sendContactEmail
 };

@@ -6,7 +6,8 @@ const validateBody = (schema) => (req, res, next) => {
     abortEarly: false, 
     stripUnknown: true 
   });
-  
+
+  console.log(error);
   if (error) {
     const details = error.details.map(d => ({
       path: d.path.join('.'),

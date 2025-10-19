@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 17, 2025 at 09:42 PM
+-- Generation Time: Oct 19, 2025 at 05:47 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -46,7 +46,8 @@ CREATE TABLE `addresses` (
 INSERT INTO `addresses` (`id`, `user_id`, `label`, `line1`, `line2`, `city_value_id`, `postal_code`, `phone`, `is_default`) VALUES
 (3, 5, 'HOME', '123 Main Street', 'Apt 4B', NULL, '12345', '+1234567890', 0),
 (11, 6, 'asdfa', '2342', '234', 26, '23423', '234234234', 0),
-(12, 5, 'Testing address', 'asdfasd', 'asdfasd', 26, '23423', '093847823423', 1);
+(12, 5, 'Testing address', 'asdfasd', 'asdfasd', 26, '23423', '093847823423', 1),
+(13, 8, 'tesetign ', '23423', '234234', 26, '123123', '0398384723', 1);
 
 -- --------------------------------------------------------
 
@@ -185,7 +186,7 @@ INSERT INTO `lookup_values` (`id`, `code`, `header_id`, `value`, `description`, 
 (30, 'LV-00030', 20, 'Delivered', 'Order has been delivered', 'Active', 4, NULL, '2025-10-17 23:00:03', 1),
 (31, 'LV-00031', 20, 'Cancelled', 'Order has been cancelled', 'Active', 5, NULL, '2025-10-17 23:00:03', 1),
 (32, 'LV-00032', 20, 'Refunded', 'Order has been refunded', 'Active', 6, NULL, '2025-10-17 23:00:03', 1),
-(33, 'LV-00033', 20, 'Returned', 'Order has been returned', 'Active', 7, NULL, '2025-10-17 23:00:03', 1);
+(33, 'LV-00033', 20, 'Returned', 'Order has been returned', 'Inactive', 7, NULL, '2025-10-17 23:00:03', 1);
 
 -- --------------------------------------------------------
 
@@ -221,7 +222,14 @@ INSERT INTO `orders` (`id`, `code`, `user_id`, `status_value_id`, `payment_metho
 (8, 'ORD-00008', 5, 27, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:54:13', 10, 'paid'),
 (9, 'ORD-00009', 5, 30, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:56:54', 11, 'paid'),
 (10, 'ORD-00010', 5, 28, NULL, 0.00, 2.30, 5.00, 30.30, '2025-10-13 23:58:47', 12, 'paid'),
-(11, 'ORD-00011', 5, 30, NULL, 12.00, 1.20, 5.00, 18.20, '2025-10-17 22:38:54', 13, 'paid');
+(11, 'ORD-00011', 5, 30, NULL, 12.00, 1.20, 5.00, 18.20, '2025-10-17 22:38:54', 13, 'paid'),
+(12, 'ORD-00012', 5, 27, NULL, 49.00, 4.70, 5.00, 56.70, '2025-10-19 01:54:44', 14, 'paid'),
+(13, 'ORD-00013', 5, 27, NULL, 12.00, 1.20, 5.00, 18.20, '2025-10-19 02:02:09', 15, 'paid'),
+(14, 'ORD-00014', 5, 30, NULL, 12.00, 1.20, 5.00, 18.20, '2025-10-19 02:03:41', 16, 'paid'),
+(15, 'ORD-00015', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 18:49:48', 17, 'paid'),
+(16, 'ORD-00016', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 18:49:52', 18, 'paid'),
+(17, 'ORD-00017', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 19:20:01', 19, 'paid'),
+(18, 'ORD-00018', 5, 27, NULL, 548.00, 54.80, 0.00, 548.00, '2025-10-19 20:38:20', 20, 'paid');
 
 -- --------------------------------------------------------
 
@@ -254,7 +262,14 @@ INSERT INTO `order_addresses` (`id`, `order_id`, `label`, `line1`, `line2`, `cit
 (6, 8, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-13 23:54:13'),
 (7, 9, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-13 23:56:54'),
 (8, 10, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-13 23:58:47'),
-(9, 11, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-17 22:38:54');
+(9, 11, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-17 22:38:54'),
+(10, 12, 'tesetign ', '23423', '234234', 'asdfad', '123123', '0398384723', '2025-10-19 01:54:44'),
+(11, 13, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 02:02:09'),
+(12, 14, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 02:03:41'),
+(13, 15, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 18:49:48'),
+(14, 16, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 18:49:52'),
+(15, 17, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 19:20:01'),
+(16, 18, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 20:38:20');
 
 -- --------------------------------------------------------
 
@@ -284,7 +299,16 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `quanti
 (8, 8, 19, 39, 1, 25.00),
 (9, 9, 19, 39, 1, 25.00),
 (10, 10, 19, 39, 1, 25.00),
-(11, 11, 21, 55, 1, 12.00);
+(11, 11, 21, 55, 1, 12.00),
+(12, 12, 21, 55, 2, 12.00),
+(13, 12, 19, 39, 1, 25.00),
+(14, 13, 21, 55, 1, 12.00),
+(15, 14, 21, 55, 1, 12.00),
+(16, 15, 21, 55, 1, 12.00),
+(17, 16, 21, 55, 1, 12.00),
+(18, 17, 21, 55, 1, 12.00),
+(19, 18, 21, 55, 1, 12.00),
+(20, 18, 20, 56, 2, 268.00);
 
 -- --------------------------------------------------------
 
@@ -322,7 +346,15 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `t
 (13, 11, 28, 29, 1, NULL, '2025-10-17 23:02:30'),
 (14, 11, 29, 30, 1, NULL, '2025-10-17 23:02:44'),
 (15, 10, 27, 28, 1, '', '2025-10-17 23:15:31'),
-(16, 9, 27, 30, 1, '', '2025-10-17 23:25:51');
+(16, 9, 27, 30, 1, '', '2025-10-17 23:25:51'),
+(17, 12, NULL, 27, 5, NULL, '2025-10-19 01:54:44'),
+(18, 13, NULL, 27, 5, NULL, '2025-10-19 02:02:09'),
+(19, 14, NULL, 27, 5, NULL, '2025-10-19 02:03:41'),
+(20, 14, 27, 30, 1, 'asdfasdfasdf', '2025-10-19 02:08:53'),
+(21, 15, NULL, 27, 5, NULL, '2025-10-19 18:49:48'),
+(22, 16, NULL, 27, 5, NULL, '2025-10-19 18:49:52'),
+(23, 17, NULL, 27, 5, NULL, '2025-10-19 19:20:01'),
+(24, 18, NULL, 27, 5, NULL, '2025-10-19 20:38:20');
 
 -- --------------------------------------------------------
 
@@ -352,7 +384,9 @@ INSERT INTO `otp_verifications` (`id`, `user_id`, `email`, `otp_code`, `expires_
 (5, 12, 'testotp@example.com', '968696', '2025-10-18 00:32:01', 0, '2025-10-18 00:22:01'),
 (6, 12, 'testotp@example.com', '773224', '2025-10-18 00:37:01', 0, '2025-10-18 00:27:01'),
 (7, 7, 'mianmuhammadramzan99@gmail.com', '347309', '2025-10-18 00:37:32', 0, '2025-10-18 00:27:32'),
-(8, 8, 'ramzan8664@gmail.com', '623719', '2025-10-18 00:41:59', 1, '2025-10-18 00:31:59');
+(8, 8, 'ramzan8664@gmail.com', '623719', '2025-10-18 00:41:59', 1, '2025-10-18 00:31:59'),
+(9, 5, 'jani@gmail.com', '128147', '2025-10-19 02:06:36', 0, '2025-10-19 01:56:36'),
+(10, 5, 'mianmuhammadramzan99@gmail.com', '815347', '2025-10-19 02:09:55', 1, '2025-10-19 01:59:55');
 
 -- --------------------------------------------------------
 
@@ -392,7 +426,14 @@ INSERT INTO `payments` (`id`, `order_id`, `stripe_payment_intent_id`, `stripe_ch
 (10, NULL, 'pi_3SHqsqD3H6qI9jyC0Rgzn8qo', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:54:13', '2025-10-13 23:54:13'),
 (11, NULL, 'pi_3SHqvRD3H6qI9jyC2g3qRJUd', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:56:54', '2025-10-13 23:56:54'),
 (12, NULL, 'pi_3SHqxGD3H6qI9jyC19oyBJyj', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:58:47', '2025-10-13 23:58:47'),
-(13, NULL, 'pi_3SJHc9D3H6qI9jyC2BiCoc3s', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-17 22:38:54', '2025-10-17 22:38:54');
+(13, NULL, 'pi_3SJHc9D3H6qI9jyC2BiCoc3s', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-17 22:38:54', '2025-10-17 22:38:54'),
+(14, NULL, 'pi_3SJh9ED3H6qI9jyC0Mt8teNz', NULL, 56.70, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":47,\"tax\":4.7,\"shipping\":5}', '2025-10-19 01:54:44', '2025-10-19 01:54:44'),
+(15, NULL, 'pi_3SJhGPD3H6qI9jyC23N2Drnu', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdfa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-19 02:02:09', '2025-10-19 02:02:09'),
+(16, NULL, 'pi_3SJhHsD3H6qI9jyC2Zc0MExm', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-19 02:03:41', '2025-10-19 02:03:41'),
+(17, NULL, 'pi_3SJwzYD3H6qI9jyC1DBbxoVK', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:48', '2025-10-19 18:49:48'),
+(18, NULL, 'pi_3SJwzcD3H6qI9jyC28JprF9u', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:52', '2025-10-19 18:49:52'),
+(19, NULL, 'pi_3SJxSnD3H6qI9jyC2540NX8g', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfsd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 19:20:01', '2025-10-19 19:20:01'),
+(20, NULL, 'pi_3SJygaD3H6qI9jyC00k6Zcf0', NULL, 548.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"1234\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":548,\"tax\":0,\"shipping\":0}', '2025-10-19 20:38:20', '2025-10-19 20:38:20');
 
 -- --------------------------------------------------------
 
@@ -452,7 +493,7 @@ INSERT INTO `products` (`id`, `code`, `sku`, `name`, `description`, `category_va
 (16, 'PRD-00016', 'BSA-ZK6EFBXR', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-08 23:09:12', 60.00, 50.00, 16.67),
 (17, 'PRD-00017', 'BSA-M1L63XBK', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:11', '2025-10-08 23:09:19', 60.00, 50.00, 16.67),
 (19, 'PRD-00019', 'A-2WIMT3N0', 'Updated Test Product', '3333333333333333333333333333333', 7, 25.00, 234, 'Active', 'Active', '2025-10-02', '2025-10-02 01:30:18', '2025-10-08 23:00:45', 10.00, 23.00, NULL),
-(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 23, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-08 23:12:27', 2344.00, 234.00, 90.02),
+(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 90, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-19 20:11:51', 2344.00, 234.00, 90.02),
 (21, 'PRD-00021', 'TP-NHUQ4CUZ', 'Testing product', 'dts', 6, 12.00, 100, 'Active', 'Active', '2025-10-11', '2025-10-11 18:52:25', '2025-10-13 22:59:29', 123.00, 12.00, 90.24);
 
 -- --------------------------------------------------------
@@ -540,10 +581,6 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `order`) VALUES
 (210, 5, 'http://localhost:3000/uploads/products/5/mgib181r-7329ba6d6ec78d8b.jpg', 2),
 (211, 5, 'http://localhost:3000/uploads/products/5/mgib181t-831b0018a82397e7.jpg', 3),
 (212, 5, 'http://localhost:3000/uploads/products/5/mgib181v-8405810053d8fa64.jpg', 4),
-(213, 20, 'http://localhost:3000/uploads/products/20/mgib3aan-ccd5bea86a39c0f5.jpg', 1),
-(214, 20, 'http://localhost:3000/uploads/products/20/mgib3aar-d5bf4a50b8eb7a4f.jpg', 2),
-(215, 20, 'http://localhost:3000/uploads/products/20/mgib3aat-9ea9b38a2fa45630.jpg', 3),
-(216, 20, 'http://localhost:3000/uploads/products/20/mgib3aav-f13369f26cdc27c6.jpg', 4),
 (225, 21, 'http://localhost:3000/uploads/products/21/mgmc4fwf-97d0782a0dd9027c.jpg', 1),
 (226, 21, 'http://localhost:3000/uploads/products/21/mgmc4fwl-3b9c32b3e573b29b.jpg', 2),
 (227, 21, 'http://localhost:3000/uploads/products/21/mgmc4fwn-8c4f6835250810af.jpg', 3),
@@ -552,7 +589,11 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `order`) VALUES
 (230, 3, 'http://localhost:3000/uploads/products/3/mg7u19d2-ee1882a2d373325e.jpg', 2),
 (231, 3, 'http://localhost:3000/uploads/products/3/mg7u19d3-f9f6f5d7d425ebdb.jpg', 3),
 (232, 3, 'http://localhost:3000/uploads/products/3/mg7u19d4-f6f39610a330f938.jpg', 4),
-(233, 3, 'http://localhost:3000/uploads/products/3/mg7u19d4-8e4276062dd3d3d0.jpg', 5);
+(233, 3, 'http://localhost:3000/uploads/products/3/mg7u19d4-8e4276062dd3d3d0.jpg', 5),
+(234, 20, 'http://localhost:3000/uploads/products/20/mgib3aan-ccd5bea86a39c0f5.jpg', 1),
+(235, 20, 'http://localhost:3000/uploads/products/20/mgib3aar-d5bf4a50b8eb7a4f.jpg', 2),
+(236, 20, 'http://localhost:3000/uploads/products/20/mgib3aat-9ea9b38a2fa45630.jpg', 3),
+(237, 20, 'http://localhost:3000/uploads/products/20/mgib3aav-f13369f26cdc27c6.jpg', 4);
 
 -- --------------------------------------------------------
 
@@ -577,14 +618,16 @@ CREATE TABLE `product_variants` (
 --
 
 INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock`, `size`, `color_name`, `color_code`, `color_image`) VALUES
-(39, 19, 'ASDFASDFAS-S-asdfasd', 0.00, 773, 'S', 'asdfasd', '#000000', ''),
+(39, 19, 'ASDFASDFAS-S-asdfasd', 0.00, 772, 'S', 'asdfasd', '#000000', ''),
 (40, 19, 'ASDFASDFAS-M-Blue', 25.00, 23, 'M', 'Blue', '#087fba', ''),
 (45, 13, 'BLACK-SILK-ABAYA-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
 (49, 15, 'BLACK-SILK-ABAYA-......-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
 (50, 4, 'TESTING-S-Black', 0.00, 10, 'S', 'Black', '#000000', ''),
 (51, 2, 'TESTING-PRODUCT-S-Black', 0.00, 23, 'S', 'Black', '#000000', ''),
-(52, 20, 'ASDFASD-M-sdfgs', 34.00, 34, 'M', 'sdfgs', '#000000', ''),
-(55, 21, 'TESTING-PRODUCT-S-Red', 0.00, 99, 'S', 'Red', '#f50f0f', '');
+(55, 21, 'TESTING-PRODUCT-S-Red', 0.00, 91, 'S', 'Red', '#f50f0f', ''),
+(56, 20, 'ASDFASD-M-sdfgs', 34.00, 28, 'M', 'sdfgs', '#000000', ''),
+(57, 20, 'ASDFASD-S-asdfasd', 0.00, 29, 'S', 'asdfasd', '#683c3c', ''),
+(58, 20, 'ASDFASD-L-asdfads', 0.00, 30, 'L', 'asdfads', '#0d8bc9', '');
 
 -- --------------------------------------------------------
 
@@ -604,10 +647,15 @@ CREATE TABLE `recently_viewed` (
 --
 
 INSERT INTO `recently_viewed` (`id`, `user_id`, `product_id`, `viewed_at`) VALUES
-(1, 5, 20, '2025-10-11 18:57:40'),
 (2, 5, 4, '2025-10-11 18:58:57'),
-(3, 5, 21, '2025-10-13 23:52:07'),
-(4, 5, 19, '2025-10-13 23:52:45');
+(6, 8, 19, '2025-10-19 01:45:11'),
+(7, 8, 21, '2025-10-19 01:45:21'),
+(15, 5, 14, '2025-10-19 19:58:27'),
+(16, 5, 13, '2025-10-19 19:58:31'),
+(17, 5, 11, '2025-10-19 19:58:35'),
+(25, 5, 21, '2025-10-19 20:07:06'),
+(28, 5, 19, '2025-10-19 20:10:00'),
+(39, 5, 20, '2025-10-19 20:33:52');
 
 -- --------------------------------------------------------
 
@@ -660,6 +708,19 @@ CREATE TABLE `shipments` (
   `cost` decimal(10,2) DEFAULT 0.00
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `shipments`
+--
+
+INSERT INTO `shipments` (`id`, `order_id`, `method_value_id`, `scheduled_date`, `cost`) VALUES
+(12, 12, 28, NULL, 5.00),
+(13, 13, 28, NULL, 5.00),
+(14, 14, 28, NULL, 5.00),
+(15, 15, 28, NULL, 5.00),
+(16, 16, 28, NULL, 5.00),
+(17, 17, 28, NULL, 5.00),
+(18, 18, 28, NULL, 5.00);
+
 -- --------------------------------------------------------
 
 --
@@ -687,12 +748,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `code`, `name`, `email`, `email_verified`, `email_verified_at`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan9239@gmail.com', 0, NULL, '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-17 22:46:22', '2025-09-23 23:51:29', '2025-10-17 23:36:04'),
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzansfasd99@gmail.com', 0, NULL, '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-19 01:38:35', '2025-09-23 23:51:29', '2025-10-19 01:59:41'),
 (2, 'USR-00002', 'Test User', 'test@example.com', 0, NULL, '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
 (3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', 0, NULL, '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
-(5, 'USR-00005', 'Mian Muhammad Ramzan', 'jani@gmail.com', 0, NULL, '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-17 22:38:16', '2025-10-03 22:51:42', '2025-10-17 22:38:16'),
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-19 02:00:13', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-19 02:01:45', '2025-10-03 22:51:42', '2025-10-19 02:01:45'),
 (6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', 0, NULL, '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51'),
-(7, 'USR-00007', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 0, NULL, '$2a$12$FtrcO9bsoQ4iISLrbp5IneeFWQIvws.F8D..rnAce9HWohwcX5fRy', NULL, 'Active', 4, '2025-10-18 00:01:43', '2025-10-17 23:36:31', '2025-10-18 00:01:43'),
+(7, 'USR-00007', 'Mian Muhammad Ramzan', 'mianmuhammadramzan9232349@gmail.com', 0, NULL, '$2a$12$FtrcO9bsoQ4iISLrbp5IneeFWQIvws.F8D..rnAce9HWohwcX5fRy', NULL, 'Active', 4, '2025-10-18 00:01:43', '2025-10-17 23:36:31', '2025-10-19 01:38:17'),
 (8, 'USR-00008', 'ramzan', 'ramzan8664@gmail.com', 1, '2025-10-18 00:32:20', '$2a$12$ECrq/2BHBplxxIMvMF8lzOEhWZaQUX6UTPOlFKULGegcQQg404Jte', NULL, 'Active', 4, '2025-10-18 00:39:54', '2025-10-17 23:46:25', '2025-10-18 00:39:54'),
 (9, 'USR-00009', 'Debug User', 'debug@example.com', 0, NULL, '$2a$12$epfxSR1/J9ceJT9BHgMmi./L5ueiImhmi/eZ7tane3qIQMLDNAK0S', NULL, 'Active', 3, NULL, '2025-10-17 23:54:52', '2025-10-17 23:54:52'),
 (10, 'USR-00010', 'Test Customer', 'customer@example.com', 0, NULL, '$2a$12$jqf4DQoOqdbs1kE9n8MBy.SGkv6A0pPXsTRjKkHBhlfkCgwf0/9Ee', NULL, 'Active', 4, NULL, '2025-10-18 00:05:33', '2025-10-18 00:05:33'),
@@ -711,13 +772,6 @@ CREATE TABLE `wishlists` (
   `product_id` int(11) NOT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `wishlists`
---
-
-INSERT INTO `wishlists` (`id`, `user_id`, `product_id`, `created_at`) VALUES
-(1, 5, 20, '2025-10-11 00:06:52');
 
 --
 -- Indexes for dumped tables
@@ -921,7 +975,7 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `applied_discounts`
@@ -951,37 +1005,37 @@ ALTER TABLE `lookup_values`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `order_addresses`
 --
 ALTER TABLE `order_addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `otp_verifications`
 --
 ALTER TABLE `otp_verifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -999,19 +1053,19 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=234;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=238;
 
 --
 -- AUTO_INCREMENT for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
 -- AUTO_INCREMENT for table `recently_viewed`
 --
 ALTER TABLE `recently_viewed`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1023,7 +1077,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipments`
 --
 ALTER TABLE `shipments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -1035,7 +1089,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `wishlists`
 --
 ALTER TABLE `wishlists`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables

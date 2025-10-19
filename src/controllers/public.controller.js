@@ -8,7 +8,7 @@ const PublicModule = require('../models/public.module');
 const OTP = require('../models/OTP.model');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
-const { sendOTPVerificationEmail } = require('../services/email.service');
+const { sendOTPVerificationEmail, sendContactEmail } = require('../services/email.service');
 
 /**
  * Public controller for website APIs (no authentication required)
@@ -921,6 +921,42 @@ const resendOTP = async (req, res) => {
   }
 };
 
+// Submit contact form
+const submitContactForm = async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, orderNumber, subject, message } = req.body;
+
+    // Send contact email
+    const result = await sendContactEmail({
+      firstName,
+      lastName,
+      email,
+      phone,
+      orderNumber,
+      subject,
+      message
+    });
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: 'Your message has been sent successfully! We will get back to you soon.'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to send message. Please try again later.'
+      });
+    }
+  } catch (error) {
+    console.error('Contact form error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error. Please try again later.'
+    });
+  }
+};
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -949,5 +985,7 @@ module.exports = {
   // OTP verification for customers
   sendOTP,
   verifyOTP,
-  resendOTP
+  resendOTP,
+  // Contact form
+  submitContactForm
 };

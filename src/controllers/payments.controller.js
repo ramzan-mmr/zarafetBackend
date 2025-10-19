@@ -86,12 +86,11 @@ const process = async (req, res) => {
 
     console.log(`📊 Cart calculation: Subtotal=${expectedSubtotal}, Items=${orderItems.length}`);
 
-    // Backend calculates tax and shipping using environment variables
+    // Backend calculates shipping using environment variables
     console.log('🧮 Calculating totals...');
-    const taxRate = config.pricing.taxRate; // Get tax rate from environment
-    const expectedTax = expectedSubtotal * taxRate;
+    const expectedTax = 0; // No tax
     
-    console.log(`💰 Tax calculation: Rate=${taxRate}, Tax=${expectedTax}`);
+    console.log(`💰 Tax calculation: Tax=${expectedTax}`);
     
     // Calculate shipping cost (can be enhanced with free shipping logic)
     let expectedShipping = shipping.cost; // Use frontend shipping cost

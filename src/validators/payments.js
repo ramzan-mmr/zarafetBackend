@@ -48,7 +48,7 @@ exports.processPayment = Joi.object({
       id: positiveInt.required(),
       price: Joi.string().required(),
       title: Joi.string().required(),
-      deliveryDate: Joi.string().required()
+      deliveryDate: Joi.string().allow('').optional()
     }).required(),
     cost: Joi.number().min(0).required()
   }).required(),

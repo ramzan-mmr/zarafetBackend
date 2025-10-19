@@ -143,9 +143,8 @@ const place = async (req, res) => {
       });
     }
 
-    // Backend calculates tax and shipping using environment variables
-    const taxRate = config.pricing.taxRate; // Get tax rate from environment
-    const expectedTax = expectedSubtotal * taxRate;
+    // Backend calculates shipping using environment variables
+    const expectedTax = 0; // No tax
     
     // Calculate shipping cost (can be enhanced with free shipping logic)
     let expectedShipping = shipping.cost; // Use frontend shipping cost
