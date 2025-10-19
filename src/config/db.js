@@ -1,4 +1,6 @@
 const mysql = require('mysql2/promise');
+const fs = require('fs');
+const path = require('path');
 const config = require('./env');
 
 // Create connection pool
@@ -12,6 +14,18 @@ const pool = mysql.createPool({
   charset: 'utf8mb4'
 });
 
+// Logging function to write to log.txt
+const logToFile = (message) => {
+  try {
+    const logPath = path.join(__dirname, 'log.txt');
+    const timestamp = new Date().toISOString();
+    const logEntry = `[${timestamp}] ${message}\n`;
+    fs.appendFileSync(logPath, logEntry);
+  } catch (logError) {
+    console.error('Failed to write to log file:', logError.message);
+  }
+};
+
 // Test connection
 const testConnection = async () => {
   try {
@@ -19,7 +33,9 @@ const testConnection = async () => {
     console.log('✅ Database connected successfully');
     connection.release();
   } catch (error) {
-    console.error('❌ Database connection failed:', error.message);
+    const errorMessage = `❌ Database connection failed: ${error.message}`;
+    console.error(errorMessage);
+    logToFile(error);
     process.exit(1);
   }
 };

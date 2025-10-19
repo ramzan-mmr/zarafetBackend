@@ -26,10 +26,10 @@ module.exports = {
   // CORS - Express 5 compatible
   cors: {
     origin: '*', // Allow all origins
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers'],
-    exposedHeaders: ['Content-Length', 'X-JSON']
+    // credentials: true,
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+    // allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers'],
+    // exposedHeaders: ['Content-Length', 'X-JSON']
   },
 
   // Rate Limiting
