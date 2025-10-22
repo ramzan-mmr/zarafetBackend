@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 19, 2025 at 05:47 PM
+-- Generation Time: Oct 22, 2025 at 10:28 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -122,7 +122,7 @@ INSERT INTO `customer_profiles` (`user_id`, `total_orders`, `total_spend`, `poin
 (8, 0, 0.00, 0, NULL, '2025-10-17', NULL),
 (10, 0, 0.00, 0, NULL, '2025-10-18', NULL),
 (11, 0, 0.00, 0, NULL, '2025-10-18', NULL),
-(12, 0, 0.00, 0, NULL, '2025-10-18', NULL);
+(15, 0, 0.00, 0, NULL, '2025-10-22', NULL);
 
 -- --------------------------------------------------------
 
@@ -229,7 +229,7 @@ INSERT INTO `orders` (`id`, `code`, `user_id`, `status_value_id`, `payment_metho
 (15, 'ORD-00015', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 18:49:48', 17, 'paid'),
 (16, 'ORD-00016', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 18:49:52', 18, 'paid'),
 (17, 'ORD-00017', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 19:20:01', 19, 'paid'),
-(18, 'ORD-00018', 5, 27, NULL, 548.00, 54.80, 0.00, 548.00, '2025-10-19 20:38:20', 20, 'paid');
+(18, 'ORD-00018', 5, 30, NULL, 548.00, 54.80, 0.00, 548.00, '2025-10-19 20:38:20', 20, 'paid');
 
 -- --------------------------------------------------------
 
@@ -354,7 +354,8 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `t
 (21, 15, NULL, 27, 5, NULL, '2025-10-19 18:49:48'),
 (22, 16, NULL, 27, 5, NULL, '2025-10-19 18:49:52'),
 (23, 17, NULL, 27, 5, NULL, '2025-10-19 19:20:01'),
-(24, 18, NULL, 27, 5, NULL, '2025-10-19 20:38:20');
+(24, 18, NULL, 27, 5, NULL, '2025-10-19 20:38:20'),
+(25, 18, 27, 30, 1, '', '2025-10-22 23:57:42');
 
 -- --------------------------------------------------------
 
@@ -386,7 +387,45 @@ INSERT INTO `otp_verifications` (`id`, `user_id`, `email`, `otp_code`, `expires_
 (7, 7, 'mianmuhammadramzan99@gmail.com', '347309', '2025-10-18 00:37:32', 0, '2025-10-18 00:27:32'),
 (8, 8, 'ramzan8664@gmail.com', '623719', '2025-10-18 00:41:59', 1, '2025-10-18 00:31:59'),
 (9, 5, 'jani@gmail.com', '128147', '2025-10-19 02:06:36', 0, '2025-10-19 01:56:36'),
-(10, 5, 'mianmuhammadramzan99@gmail.com', '815347', '2025-10-19 02:09:55', 1, '2025-10-19 01:59:55');
+(10, 5, 'mianmuhammadramzan99@gmail.com', '815347', '2025-10-19 02:09:55', 1, '2025-10-19 01:59:55'),
+(11, 3, 'ramzan@gmail.com', '367091', '2025-10-19 22:19:56', 0, '2025-10-19 22:09:56'),
+(12, 1, 'mianmuhammadramzan99@gmail.com', '312505', '2025-10-19 22:23:32', 0, '2025-10-19 22:13:32'),
+(13, 1, 'mianmuhammadramzan99@gmail.com', '948706', '2025-10-19 22:26:35', 1, '2025-10-19 22:16:35'),
+(14, 1, 'mianmuhammadramzan99@gmail.com', '570724', '2025-10-19 22:26:41', 0, '2025-10-19 22:16:41'),
+(15, 1, 'mianmuhammadramzan99@gmail.com', '155719', '2025-10-19 22:26:45', 0, '2025-10-19 22:16:45'),
+(16, 1, 'mianmuhammadramzan99@gmail.com', '846397', '2025-10-19 22:26:46', 0, '2025-10-19 22:16:46'),
+(17, 1, 'mianmuhammadramzan99@gmail.com', '140371', '2025-10-19 22:44:32', 1, '2025-10-19 22:34:32'),
+(18, 1, 'mianmuhammadramzan99@gmail.com', '829868', '2025-10-19 22:46:28', 1, '2025-10-19 22:36:28'),
+(19, 1, 'mianmuhammadramzan99@gmail.com', '359895', '2025-10-19 22:47:41', 1, '2025-10-19 22:37:41'),
+(20, 1, 'mianmuhammadramzan99@gmail.com', '183370', '2025-10-19 22:52:46', 0, '2025-10-19 22:42:46'),
+(21, 5, 'mianmuhammadramzan99@gmail.com', '674127', '2025-10-19 23:00:02', 1, '2025-10-19 22:50:02'),
+(22, 5, 'mianmuhammadramzan99@gmail.com', '894055', '2025-10-19 23:01:24', 0, '2025-10-19 22:51:24'),
+(23, 5, 'mianmuhammadramzan99@gmail.com', '331286', '2025-10-19 23:04:00', 0, '2025-10-19 22:54:00'),
+(24, 1, 'mianmuhammadramzan99@gmail.com', '807386', '2025-10-19 23:04:47', 0, '2025-10-19 22:54:47'),
+(25, 1, 'mianmuhammadramzan99@gmail.com', '186293', '2025-10-19 23:05:27', 0, '2025-10-19 22:55:27'),
+(26, 1, 'mianmuhammadramzan99@gmail.com', '349931', '2025-10-19 23:06:28', 0, '2025-10-19 22:56:28'),
+(27, 1, 'mianmuhammadramzan99@gmail.com', '496212', '2025-10-19 23:07:07', 0, '2025-10-19 22:57:07'),
+(28, 1, 'mianmuhammadramzan99@gmail.com', '227782', '2025-10-19 23:07:45', 0, '2025-10-19 22:57:45'),
+(29, 1, 'mianmuhammadramzan99@gmail.com', '432347', '2025-10-19 23:09:43', 0, '2025-10-19 22:59:43'),
+(30, 1, 'mianmuhammadramzan99@gmail.com', '961358', '2025-10-19 23:10:11', 0, '2025-10-19 23:00:11'),
+(31, 1, 'mianmuhammadramzan99@gmail.com', '811103', '2025-10-19 23:12:27', 1, '2025-10-19 23:02:27'),
+(32, 1, 'mianmuhammadramzan99@gmail.com', '635243', '2025-10-19 23:15:20', 1, '2025-10-19 23:05:20'),
+(33, 1, 'mianmuhammadramzan99@gmail.com', '227013', '2025-10-19 23:16:52', 1, '2025-10-19 23:06:52'),
+(34, 1, 'mianmuhammadramzan99@gmail.com', '902024', '2025-10-19 23:19:02', 1, '2025-10-19 23:09:02'),
+(35, 5, 'mianmuhammadramzan99@gmail.com', '307866', '2025-10-19 23:20:38', 1, '2025-10-19 23:10:38'),
+(36, 14, 'enablecoding@gmail.com', '168197', '2025-10-22 21:46:27', 1, '2025-10-22 21:36:27'),
+(37, 15, 'enablecoding@gmail.com', '178951', '2025-10-22 21:57:34', 1, '2025-10-22 21:47:34'),
+(38, 15, 'enablecoding@gmail.com', '876665', '2025-10-22 21:59:15', 1, '2025-10-22 21:49:15'),
+(39, 15, 'enablecoding@gmail.com', '350165', '2025-10-22 22:01:43', 0, '2025-10-22 21:51:43'),
+(40, 5, 'mianmuhammadramzan99@gmail.com', '246472', '2025-10-22 22:51:52', 0, '2025-10-22 22:41:52'),
+(41, 5, 'mianmuhammadramzan99@gmail.com', '373312', '2025-10-22 23:03:21', 0, '2025-10-22 22:53:21'),
+(42, 5, 'mianmuhammadramzan99@gmail.com', '417686', '2025-10-22 23:08:40', 0, '2025-10-22 22:58:40'),
+(43, 5, 'mianmuhammadramzan99@gmail.com', '428104', '2025-10-22 23:10:12', 0, '2025-10-22 23:00:12'),
+(44, 5, 'mianmuhammadramzan99@gmail.com', '673429', '2025-10-22 23:10:27', 1, '2025-10-22 23:00:27'),
+(45, 15, 'enablecoding@gmail.com', '902851', '2025-10-22 23:11:51', 0, '2025-10-22 23:01:51'),
+(46, 15, 'enablecoding@gmail.com', '930802', '2025-10-22 23:15:52', 1, '2025-10-22 23:05:52'),
+(47, 15, 'enablecoding@gmail.com', '452197', '2025-10-22 23:16:17', 0, '2025-10-22 23:06:17'),
+(48, 1, 'mianmuhammadramzan99@gmail.com', '829073', '2025-10-23 00:06:01', 1, '2025-10-22 23:56:01');
 
 -- --------------------------------------------------------
 
@@ -660,6 +699,24 @@ INSERT INTO `recently_viewed` (`id`, `user_id`, `product_id`, `viewed_at`) VALUE
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `rating` tinyint(4) NOT NULL CHECK (`rating` >= 1 and `rating` <= 5),
+  `comment` text DEFAULT NULL,
+  `status` enum('Active','Inactive') DEFAULT 'Active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `roles`
 --
 
@@ -738,6 +795,7 @@ CREATE TABLE `users` (
   `phone` varchar(30) DEFAULT NULL,
   `status` enum('Active','Inactive') DEFAULT 'Active',
   `role_id` int(11) NOT NULL,
+  `user_type` enum('admin','customer') NOT NULL DEFAULT 'customer',
   `last_login_at` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -747,18 +805,19 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `code`, `name`, `email`, `email_verified`, `email_verified_at`, `password_hash`, `phone`, `status`, `role_id`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzansfasd99@gmail.com', 0, NULL, '$2a$12$C3bCmrWuEyLoPHlSNoDHAOehqrSe7TVVGeu.BFSRCZPa/.87Y7iwm', '03048108665', 'Active', 1, '2025-10-19 01:38:35', '2025-09-23 23:51:29', '2025-10-19 01:59:41'),
-(2, 'USR-00002', 'Test User', 'test@example.com', 0, NULL, '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
-(3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', 0, NULL, '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
-(5, 'USR-00005', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-19 02:00:13', '$2a$12$P89iVMo8cbmRb8ytJXvpvuYqzTdLBlHBoT.5CuYFGcC0z/UV7/qBy', NULL, 'Active', 4, '2025-10-19 02:01:45', '2025-10-03 22:51:42', '2025-10-19 02:01:45'),
-(6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', 0, NULL, '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51'),
-(7, 'USR-00007', 'Mian Muhammad Ramzan', 'mianmuhammadramzan9232349@gmail.com', 0, NULL, '$2a$12$FtrcO9bsoQ4iISLrbp5IneeFWQIvws.F8D..rnAce9HWohwcX5fRy', NULL, 'Active', 4, '2025-10-18 00:01:43', '2025-10-17 23:36:31', '2025-10-19 01:38:17'),
-(8, 'USR-00008', 'ramzan', 'ramzan8664@gmail.com', 1, '2025-10-18 00:32:20', '$2a$12$ECrq/2BHBplxxIMvMF8lzOEhWZaQUX6UTPOlFKULGegcQQg404Jte', NULL, 'Active', 4, '2025-10-18 00:39:54', '2025-10-17 23:46:25', '2025-10-18 00:39:54'),
-(9, 'USR-00009', 'Debug User', 'debug@example.com', 0, NULL, '$2a$12$epfxSR1/J9ceJT9BHgMmi./L5ueiImhmi/eZ7tane3qIQMLDNAK0S', NULL, 'Active', 3, NULL, '2025-10-17 23:54:52', '2025-10-17 23:54:52'),
-(10, 'USR-00010', 'Test Customer', 'customer@example.com', 0, NULL, '$2a$12$jqf4DQoOqdbs1kE9n8MBy.SGkv6A0pPXsTRjKkHBhlfkCgwf0/9Ee', NULL, 'Active', 4, NULL, '2025-10-18 00:05:33', '2025-10-18 00:05:33'),
-(11, 'USR-00011', 'Test Customer 2', 'customer2@example.com', 1, '2025-10-18 00:07:17', '$2a$12$nhmHuTfrfRxVS5aR/3M6TeOS.3uYXqEbsGB6s/LyuxNiYDso1ec4y', NULL, 'Active', 4, '2025-10-18 00:07:17', '2025-10-18 00:07:14', '2025-10-18 00:07:17'),
-(12, 'USR-00012', 'Test User OTP', 'testotp@example.com', 1, '2025-10-18 00:40:08', '$2a$12$38Zi1eRDj/nFYp7NclHq3OLUTZOfq93JQsLwspHvm4NyCTdMRD4fW', NULL, 'Active', 4, NULL, '2025-10-18 00:22:01', '2025-10-18 00:40:08');
+INSERT INTO `users` (`id`, `code`, `name`, `email`, `email_verified`, `email_verified_at`, `password_hash`, `phone`, `status`, `role_id`, `user_type`, `last_login_at`, `created_at`, `updated_at`) VALUES
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-22 23:56:40', '$2a$12$6FojvXHP3T9jmXqhwvLV7OxgrSJ1Fj4XjoDpMKg5NujBpbSU2HuSy', '03048108665', 'Active', 1, 'admin', '2025-10-22 23:57:11', '2025-09-23 23:51:29', '2025-10-22 23:57:11'),
+(2, 'USR-00002', 'Test User', 'test@example.com', 0, NULL, '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, 'customer', '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
+(3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', 0, NULL, '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, 'customer', '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-22 23:00:57', '$2a$12$U1bCbE.cUDOdDlW6rbeJJOmMZI0C/7toknsd7kqy.dZVqrP7.sFR.', NULL, 'Active', 4, 'customer', '2025-10-22 23:55:04', '2025-10-03 22:51:42', '2025-10-22 23:55:04'),
+(6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', 0, NULL, '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, 'customer', NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51'),
+(7, 'USR-00007', 'Mian Muhammad Ramzan', 'mianmuhammadramzan9232349@gmail.com', 0, NULL, '$2a$12$FtrcO9bsoQ4iISLrbp5IneeFWQIvws.F8D..rnAce9HWohwcX5fRy', NULL, 'Active', 4, 'customer', '2025-10-18 00:01:43', '2025-10-17 23:36:31', '2025-10-19 01:38:17'),
+(8, 'USR-00008', 'ramzan', 'ramzan8664@gmail.com', 1, '2025-10-18 00:32:20', '$2a$12$ECrq/2BHBplxxIMvMF8lzOEhWZaQUX6UTPOlFKULGegcQQg404Jte', NULL, 'Active', 4, 'customer', '2025-10-18 00:39:54', '2025-10-17 23:46:25', '2025-10-18 00:39:54'),
+(9, 'USR-00009', 'Debug User', 'debug@example.com', 0, NULL, '$2a$12$epfxSR1/J9ceJT9BHgMmi./L5ueiImhmi/eZ7tane3qIQMLDNAK0S', NULL, 'Active', 3, 'admin', NULL, '2025-10-17 23:54:52', '2025-10-19 22:47:02'),
+(10, 'USR-00010', 'Test Customer', 'customer@example.com', 0, NULL, '$2a$12$jqf4DQoOqdbs1kE9n8MBy.SGkv6A0pPXsTRjKkHBhlfkCgwf0/9Ee', NULL, 'Active', 4, 'customer', NULL, '2025-10-18 00:05:33', '2025-10-18 00:05:33'),
+(11, 'USR-00011', 'Test Customer 2', 'customer2@example.com', 1, '2025-10-18 00:07:17', '$2a$12$nhmHuTfrfRxVS5aR/3M6TeOS.3uYXqEbsGB6s/LyuxNiYDso1ec4y', NULL, 'Active', 4, 'customer', '2025-10-18 00:07:17', '2025-10-18 00:07:14', '2025-10-18 00:07:17'),
+(13, 'USR-00013', 'Zarafeet', 'info@zarafet.uk', 0, NULL, '$2a$12$3PFJ0in2wOk7HcqQn0dJLOQ9bFJkVYZWCb8yQgHWuX6Zd14XF9uSS', '03048000000', 'Active', 2, 'admin', '2025-10-19 23:24:40', '2025-10-19 23:23:42', '2025-10-19 23:24:40'),
+(15, 'USR-00015', 'Mian razman', 'enablecoding@gmail.com', 1, '2025-10-22 23:06:32', '$2a$12$z/bSERxMHNG6259gBdPDJe3Eh.wwtlcoI.Ev32kBVnfa4Xp7d13Gu', NULL, 'Active', 4, 'customer', '2025-10-22 23:06:50', '2025-10-22 21:47:34', '2025-10-22 23:06:50');
 
 -- --------------------------------------------------------
 
@@ -928,6 +987,17 @@ ALTER TABLE `recently_viewed`
   ADD KEY `product_id` (`product_id`);
 
 --
+-- Indexes for table `reviews`
+--
+ALTER TABLE `reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_user_product_order` (`user_id`,`product_id`,`order_id`),
+  ADD KEY `idx_product_id` (`product_id`),
+  ADD KEY `idx_user_id` (`user_id`),
+  ADD KEY `idx_order_id` (`order_id`),
+  ADD KEY `idx_status` (`status`);
+
+--
 -- Indexes for table `roles`
 --
 ALTER TABLE `roles`
@@ -955,9 +1025,11 @@ ALTER TABLE `shipments`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
   ADD UNIQUE KEY `code` (`code`),
-  ADD KEY `role_id` (`role_id`);
+  ADD KEY `role_id` (`role_id`),
+  ADD KEY `email` (`email`) USING BTREE,
+  ADD KEY `idx_user_type` (`user_type`),
+  ADD KEY `idx_email_user_type` (`email`,`user_type`);
 
 --
 -- Indexes for table `wishlists`
@@ -1023,13 +1095,13 @@ ALTER TABLE `order_items`
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `otp_verifications`
 --
 ALTER TABLE `otp_verifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `payments`
@@ -1068,6 +1140,12 @@ ALTER TABLE `recently_viewed`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
+-- AUTO_INCREMENT for table `reviews`
+--
+ALTER TABLE `reviews`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
@@ -1083,7 +1161,7 @@ ALTER TABLE `shipments`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `wishlists`
@@ -1193,6 +1271,14 @@ ALTER TABLE `product_variants`
 ALTER TABLE `recently_viewed`
   ADD CONSTRAINT `recently_viewed_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `recently_viewed_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `reviews`
+--
+ALTER TABLE `reviews`
+  ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reviews_ibfk_3` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `role_permissions`

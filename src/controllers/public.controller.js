@@ -292,17 +292,21 @@ const customerLogin = async (req, res) => {
     
     // Check if email is verified
     if (!user.email_verified) {
+      console.log('🔍 Backend: User email not verified, sending OTP');
       // Send OTP email for unverified user trying to login
       const otpData = await OTP.create(user.id, email);
       await sendOTPVerificationEmail(user, otpData.otpCode);
       
-      return res.status(200).json({
+      const response = {
         success: false,
         message: 'Please check your email for the verification code to continue',
         needsVerification: true,
         email: user.email,
         otpExpiresAt: otpData.expiresAt
-      });
+      };
+      
+      console.log('🔍 Backend: Sending needsVerification response:', response);
+      return res.status(200).json(response);
     }
     
     // Update last login
@@ -781,20 +785,21 @@ const sendOTP = async (req, res) => {
     }
     
     // Check if user exists and is a customer
-    const user = await User.findByEmail(email);
-    if (!user) {
+    const [users] = await db.execute(`
+      SELECT u.*, r.name as role_name, r.level as role_level 
+      FROM users u 
+      LEFT JOIN roles r ON u.role_id = r.id 
+      WHERE u.email = ? AND u.user_type = 'customer' AND u.status = 'Active'
+    `, [email]);
+    
+    if (users.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'Customer account not found'
       });
     }
     
-    if (user.role_name !== 'Customer') {
-      return res.status(403).json({
-        success: false,
-        message: 'Invalid user type'
-      });
-    }
+    const user = users[0];
     
     // Create and send OTP
     const otpData = await OTP.create(user.id, email);
@@ -834,8 +839,22 @@ const verifyOTP = async (req, res) => {
       });
     }
     
-    // Get user data first
-    const user = await User.findByEmail(email);
+    // Get user data first - ensure it's a customer
+    const [users] = await db.execute(`
+      SELECT u.*, r.name as role_name, r.level as role_level 
+      FROM users u 
+      LEFT JOIN roles r ON u.role_id = r.id 
+      WHERE u.email = ? AND u.user_type = 'customer' AND u.status = 'Active'
+    `, [email]);
+    
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Customer account not found'
+      });
+    }
+    
+    const user = users[0];
     
     // Update user email verification status
     await User.update(user.id, { 
@@ -888,20 +907,21 @@ const resendOTP = async (req, res) => {
     }
     
     // Check if user exists and is a customer
-    const user = await User.findByEmail(email);
-    if (!user) {
+    const [users] = await db.execute(`
+      SELECT u.*, r.name as role_name, r.level as role_level 
+      FROM users u 
+      LEFT JOIN roles r ON u.role_id = r.id 
+      WHERE u.email = ? AND u.user_type = 'customer' AND u.status = 'Active'
+    `, [email]);
+    
+    if (users.length === 0) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'Customer account not found'
       });
     }
     
-    if (user.role_name !== 'Customer') {
-      return res.status(403).json({
-        success: false,
-        message: 'Invalid user type'
-      });
-    }
+    const user = users[0];
     
     // Create and send new OTP
     const otpData = await OTP.create(user.id, email);
@@ -953,7 +973,11 @@ const forgotPassword = async (req, res) => {
     
     // Create and send password reset OTP
     const otpData = await OTP.create(user.id, email);
-    await sendPasswordResetEmail(user, otpData.otpCode);
+    console.log('🔍 Creating OTP for user:', user.id, 'email:', email);
+    console.log('🔍 OTP Data:', otpData);
+    
+    const emailResult = await sendPasswordResetEmail(user, otpData.otpCode);
+    console.log('🔍 Email send result:', emailResult);
     
     res.json({
       success: true,
