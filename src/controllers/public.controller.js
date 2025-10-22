@@ -171,7 +171,7 @@ const customerSignup = async (req, res) => {
     console.log(name, email, password, confirmPassword);
     // Validate password confirmation
     if (password !== confirmPassword) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         message: 'Password and confirm password do not match'
       });
@@ -180,7 +180,7 @@ const customerSignup = async (req, res) => {
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
     if (existingUser) {
-      return res.status(409).json({
+      return res.status(200).json({
         success: false,
         message: 'User with this email already exists'
       });
@@ -207,11 +207,10 @@ const customerSignup = async (req, res) => {
       password,
       role_id: customerRoleId,
       status: 'Active',
-      phone: null // Set phone as null for customers who don't provide it during signup
+      phone: null, // Set phone as null for customers who don't provide it during signup
+      user_type: 'customer'
     };
-    
     const user = await User.create(userData);
-    console.log(user);
     // Create customer profile
     await Customer.createProfile(user.id);
     
@@ -226,7 +225,7 @@ const customerSignup = async (req, res) => {
       role: user.role_name
     });
     
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       data: {
         token,
@@ -265,7 +264,7 @@ const customerLogin = async (req, res) => {
     `, [email]);
     
     if (users.length === 0) {
-      return res.status(401).json({
+      return res.status(200).json({
         success: false,
         message: 'Invalid credentials'
       });
@@ -277,7 +276,7 @@ const customerLogin = async (req, res) => {
     // Check password
     const isValidPassword = await User.verifyPassword(password, user.password_hash);
     if (!isValidPassword) {
-      return res.status(401).json({
+      return res.status(200).json({
         success: false,
         message: 'Invalid credentials'
       });
@@ -285,7 +284,7 @@ const customerLogin = async (req, res) => {
     
     // Check if user is active
     if (user.status !== 'Active') {
-      return res.status(401).json({
+      return res.status(200).json({
         success: false,
         message: 'Account is inactive'
       });
@@ -297,7 +296,7 @@ const customerLogin = async (req, res) => {
       const otpData = await OTP.create(user.id, email);
       await sendOTPVerificationEmail(user, otpData.otpCode);
       
-      return res.status(401).json({
+      return res.status(200).json({
         success: false,
         message: 'Please check your email for the verification code to continue',
         needsVerification: true,
