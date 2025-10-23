@@ -16,7 +16,6 @@ router.get('/',
 );
 // Get current user's orders (for order history)
 router.get('/my-orders',
-  parsePagination,
   ctrl.getMyOrders
 );
 router.get('/:id',

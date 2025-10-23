@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Oct 22, 2025 at 10:28 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost
+-- Generation Time: Oct 23, 2025 at 01:21 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -33,7 +33,7 @@ CREATE TABLE `addresses` (
   `label` varchar(50) DEFAULT 'Home',
   `line1` varchar(150) NOT NULL,
   `line2` varchar(150) DEFAULT NULL,
-  `city_value_id` int(11) DEFAULT NULL,
+  `city` varchar(100) NOT NULL DEFAULT '',
   `postal_code` varchar(20) DEFAULT NULL,
   `phone` varchar(30) DEFAULT NULL,
   `is_default` tinyint(1) DEFAULT 0
@@ -43,11 +43,12 @@ CREATE TABLE `addresses` (
 -- Dumping data for table `addresses`
 --
 
-INSERT INTO `addresses` (`id`, `user_id`, `label`, `line1`, `line2`, `city_value_id`, `postal_code`, `phone`, `is_default`) VALUES
-(3, 5, 'HOME', '123 Main Street', 'Apt 4B', NULL, '12345', '+1234567890', 0),
-(11, 6, 'asdfa', '2342', '234', 26, '23423', '234234234', 0),
-(12, 5, 'Testing address', 'asdfasd', 'asdfasd', 26, '23423', '093847823423', 1),
-(13, 8, 'tesetign ', '23423', '234234', 26, '123123', '0398384723', 1);
+INSERT INTO `addresses` (`id`, `user_id`, `label`, `line1`, `line2`, `city`, `postal_code`, `phone`, `is_default`) VALUES
+(3, 5, 'HOME', '123 Main Street', 'Apt 4B', '', '12345', '+1234567890', 0),
+(11, 6, 'asdfa', '2342', '234', 'asdfad', '23423', '234234234', 0),
+(12, 5, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', 1),
+(13, 8, 'tesetign ', '23423', '234234', 'asdfad', '123123', '0398384723', 1),
+(14, 5, 'alsdkf', '234234', '', '234234', '234234', '03048796763', 0);
 
 -- --------------------------------------------------------
 
@@ -146,7 +147,6 @@ CREATE TABLE `lookup_headers` (
 --
 
 INSERT INTO `lookup_headers` (`id`, `code`, `name`, `description`, `category`, `type`, `status`, `created_at`) VALUES
-(7, 'LH-00007', 'City', 'city', NULL, 'Custom', 'Active', '2025-09-26 01:51:18'),
 (8, 'LH-00008', 'Product Category', 'Product Category', NULL, 'Custom', 'Active', '2025-09-28 23:24:34'),
 (20, 'LH-00009', 'Order Status', 'Order status values', NULL, 'Custom', 'Active', '2025-10-12 04:57:51');
 
@@ -179,7 +179,6 @@ INSERT INTO `lookup_values` (`id`, `code`, `header_id`, `value`, `description`, 
 (5, 'LV-00005', 8, 'women', 'WOMEN ', 'Active', 1, NULL, '2025-09-28 23:26:39', 1),
 (6, 'LV-00006', 8, 'babies', 'babies', 'Active', 1, NULL, '2025-09-28 23:26:56', 1),
 (7, 'LV-00007', 8, 'children', 'children', 'Active', 1, NULL, '2025-09-28 23:27:20', 1),
-(26, 'LV-00026', 7, 'asdfad', 'asdfasd', 'Active', 1, NULL, '2025-10-02 04:47:36', 1),
 (27, 'LV-00027', 20, 'Pending', 'Order is pending', 'Active', 1, NULL, '2025-10-12 04:57:51', 1),
 (28, 'LV-00028', 20, 'Processing', 'Order is being processed', 'Active', 2, NULL, '2025-10-17 23:00:03', 1),
 (29, 'LV-00029', 20, 'Shipped', 'Order has been shipped', 'Active', 3, NULL, '2025-10-17 23:00:03', 1),
@@ -229,7 +228,8 @@ INSERT INTO `orders` (`id`, `code`, `user_id`, `status_value_id`, `payment_metho
 (15, 'ORD-00015', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 18:49:48', 17, 'paid'),
 (16, 'ORD-00016', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 18:49:52', 18, 'paid'),
 (17, 'ORD-00017', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 19:20:01', 19, 'paid'),
-(18, 'ORD-00018', 5, 30, NULL, 548.00, 54.80, 0.00, 548.00, '2025-10-19 20:38:20', 20, 'paid');
+(18, 'ORD-00018', 5, 30, NULL, 548.00, 54.80, 0.00, 548.00, '2025-10-19 20:38:20', 20, 'paid'),
+(19, 'ORD-00019', 5, 27, NULL, 268.00, 26.80, 0.00, 268.00, '2025-10-23 13:20:08', 21, 'paid');
 
 -- --------------------------------------------------------
 
@@ -269,7 +269,8 @@ INSERT INTO `order_addresses` (`id`, `order_id`, `label`, `line1`, `line2`, `cit
 (13, 15, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 18:49:48'),
 (14, 16, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 18:49:52'),
 (15, 17, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 19:20:01'),
-(16, 18, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 20:38:20');
+(16, 18, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 20:38:20'),
+(17, 19, 'Testing address', 'asdfasd', 'asdfasd', '', '23423', '093847823423', '2025-10-23 13:20:08');
 
 -- --------------------------------------------------------
 
@@ -308,7 +309,8 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `quanti
 (17, 16, 21, 55, 1, 12.00),
 (18, 17, 21, 55, 1, 12.00),
 (19, 18, 21, 55, 1, 12.00),
-(20, 18, 20, 56, 2, 268.00);
+(20, 18, 20, 56, 2, 268.00),
+(21, 19, 20, 56, 1, 268.00);
 
 -- --------------------------------------------------------
 
@@ -355,7 +357,8 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `t
 (22, 16, NULL, 27, 5, NULL, '2025-10-19 18:49:52'),
 (23, 17, NULL, 27, 5, NULL, '2025-10-19 19:20:01'),
 (24, 18, NULL, 27, 5, NULL, '2025-10-19 20:38:20'),
-(25, 18, 27, 30, 1, '', '2025-10-22 23:57:42');
+(25, 18, 27, 30, 1, '', '2025-10-22 23:57:42'),
+(26, 19, NULL, 27, 5, NULL, '2025-10-23 13:20:08');
 
 -- --------------------------------------------------------
 
@@ -425,7 +428,9 @@ INSERT INTO `otp_verifications` (`id`, `user_id`, `email`, `otp_code`, `expires_
 (45, 15, 'enablecoding@gmail.com', '902851', '2025-10-22 23:11:51', 0, '2025-10-22 23:01:51'),
 (46, 15, 'enablecoding@gmail.com', '930802', '2025-10-22 23:15:52', 1, '2025-10-22 23:05:52'),
 (47, 15, 'enablecoding@gmail.com', '452197', '2025-10-22 23:16:17', 0, '2025-10-22 23:06:17'),
-(48, 1, 'mianmuhammadramzan99@gmail.com', '829073', '2025-10-23 00:06:01', 1, '2025-10-22 23:56:01');
+(48, 1, 'mianmuhammadramzan99@gmail.com', '829073', '2025-10-23 00:06:01', 1, '2025-10-22 23:56:01'),
+(49, 1, 'mianmuhammadramzan99@gmail.com', '391953', '2025-10-23 16:02:41', 0, '2025-10-23 15:52:41'),
+(50, 1, 'mianmuhammadramzan99@gmail.com', '801510', '2025-10-23 16:14:45', 1, '2025-10-23 16:04:45');
 
 -- --------------------------------------------------------
 
@@ -472,7 +477,8 @@ INSERT INTO `payments` (`id`, `order_id`, `stripe_payment_intent_id`, `stripe_ch
 (17, NULL, 'pi_3SJwzYD3H6qI9jyC1DBbxoVK', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:48', '2025-10-19 18:49:48'),
 (18, NULL, 'pi_3SJwzcD3H6qI9jyC28JprF9u', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:52', '2025-10-19 18:49:52'),
 (19, NULL, 'pi_3SJxSnD3H6qI9jyC2540NX8g', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfsd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 19:20:01', '2025-10-19 19:20:01'),
-(20, NULL, 'pi_3SJygaD3H6qI9jyC00k6Zcf0', NULL, 548.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"1234\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":548,\"tax\":0,\"shipping\":0}', '2025-10-19 20:38:20', '2025-10-19 20:38:20');
+(20, NULL, 'pi_3SJygaD3H6qI9jyC00k6Zcf0', NULL, 548.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"1234\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":548,\"tax\":0,\"shipping\":0}', '2025-10-19 20:38:20', '2025-10-19 20:38:20'),
+(21, NULL, 'pi_3SLJkiD3H6qI9jyC19KbJ9Es', NULL, 268.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-23 13:20:08', '2025-10-23 13:20:08');
 
 -- --------------------------------------------------------
 
@@ -664,7 +670,7 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock
 (50, 4, 'TESTING-S-Black', 0.00, 10, 'S', 'Black', '#000000', ''),
 (51, 2, 'TESTING-PRODUCT-S-Black', 0.00, 23, 'S', 'Black', '#000000', ''),
 (55, 21, 'TESTING-PRODUCT-S-Red', 0.00, 91, 'S', 'Red', '#f50f0f', ''),
-(56, 20, 'ASDFASD-M-sdfgs', 34.00, 28, 'M', 'sdfgs', '#000000', ''),
+(56, 20, 'ASDFASD-M-sdfgs', 34.00, 27, 'M', 'sdfgs', '#000000', ''),
 (57, 20, 'ASDFASD-S-asdfasd', 0.00, 29, 'S', 'asdfasd', '#683c3c', ''),
 (58, 20, 'ASDFASD-L-asdfads', 0.00, 30, 'L', 'asdfads', '#0d8bc9', '');
 
@@ -776,7 +782,8 @@ INSERT INTO `shipments` (`id`, `order_id`, `method_value_id`, `scheduled_date`, 
 (15, 15, 28, NULL, 5.00),
 (16, 16, 28, NULL, 5.00),
 (17, 17, 28, NULL, 5.00),
-(18, 18, 28, NULL, 5.00);
+(18, 18, 28, NULL, 5.00),
+(19, 19, 28, NULL, 5.00);
 
 -- --------------------------------------------------------
 
@@ -806,10 +813,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `code`, `name`, `email`, `email_verified`, `email_verified_at`, `password_hash`, `phone`, `status`, `role_id`, `user_type`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-22 23:56:40', '$2a$12$6FojvXHP3T9jmXqhwvLV7OxgrSJ1Fj4XjoDpMKg5NujBpbSU2HuSy', '03048108665', 'Active', 1, 'admin', '2025-10-22 23:57:11', '2025-09-23 23:51:29', '2025-10-22 23:57:11'),
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-23 16:05:25', '$2a$12$eQzn7xNtB.cthdDxzYO6Kuesz4C8f1ADAj8SSZLG0MuR2Npr99v6K', '03048108665', 'Active', 1, 'admin', '2025-10-23 16:05:43', '2025-09-23 23:51:29', '2025-10-23 16:05:43'),
 (2, 'USR-00002', 'Test User', 'test@example.com', 0, NULL, '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, 'customer', '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
 (3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', 0, NULL, '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, 'customer', '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
-(5, 'USR-00005', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-22 23:00:57', '$2a$12$U1bCbE.cUDOdDlW6rbeJJOmMZI0C/7toknsd7kqy.dZVqrP7.sFR.', NULL, 'Active', 4, 'customer', '2025-10-22 23:55:04', '2025-10-03 22:51:42', '2025-10-22 23:55:04'),
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-22 23:00:57', '$2a$12$U1bCbE.cUDOdDlW6rbeJJOmMZI0C/7toknsd7kqy.dZVqrP7.sFR.', NULL, 'Active', 4, 'customer', '2025-10-23 11:47:39', '2025-10-03 22:51:42', '2025-10-23 11:47:39'),
 (6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', 0, NULL, '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, 'customer', NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51'),
 (7, 'USR-00007', 'Mian Muhammad Ramzan', 'mianmuhammadramzan9232349@gmail.com', 0, NULL, '$2a$12$FtrcO9bsoQ4iISLrbp5IneeFWQIvws.F8D..rnAce9HWohwcX5fRy', NULL, 'Active', 4, 'customer', '2025-10-18 00:01:43', '2025-10-17 23:36:31', '2025-10-19 01:38:17'),
 (8, 'USR-00008', 'ramzan', 'ramzan8664@gmail.com', 1, '2025-10-18 00:32:20', '$2a$12$ECrq/2BHBplxxIMvMF8lzOEhWZaQUX6UTPOlFKULGegcQQg404Jte', NULL, 'Active', 4, 'customer', '2025-10-18 00:39:54', '2025-10-17 23:46:25', '2025-10-18 00:39:54'),
@@ -842,7 +849,7 @@ CREATE TABLE `wishlists` (
 ALTER TABLE `addresses`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
-  ADD KEY `city_value_id` (`city_value_id`);
+  ADD KEY `idx_city` (`city`);
 
 --
 -- Indexes for table `applied_discounts`
@@ -1047,7 +1054,7 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `applied_discounts`
@@ -1077,37 +1084,37 @@ ALTER TABLE `lookup_values`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `order_addresses`
 --
 ALTER TABLE `order_addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `otp_verifications`
 --
 ALTER TABLE `otp_verifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -1155,7 +1162,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipments`
 --
 ALTER TABLE `shipments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -1177,8 +1184,7 @@ ALTER TABLE `wishlists`
 -- Constraints for table `addresses`
 --
 ALTER TABLE `addresses`
-  ADD CONSTRAINT `addresses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `addresses_ibfk_2` FOREIGN KEY (`city_value_id`) REFERENCES `lookup_values` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `addresses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `applied_discounts`

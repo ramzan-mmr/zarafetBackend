@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 class Address {
   static async create(addressData) {
-    const { user_id, label, line1, line2, city_value_id, postal_code, phone, is_default } = addressData;
+    const { user_id, label, line1, line2, city, postal_code, phone, is_default } = addressData;
     
     // If this is set as default, unset other defaults
     if (is_default) {
@@ -13,9 +13,9 @@ class Address {
     }
     
     const [result] = await db.execute(
-      `INSERT INTO addresses (user_id, label, line1, line2, city_value_id, postal_code, phone, is_default) 
+      `INSERT INTO addresses (user_id, label, line1, line2, city, postal_code, phone, is_default) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [user_id, label, line1, line2, city_value_id, postal_code, phone, is_default]
+      [user_id, label, line1, line2, city, postal_code, phone, is_default]
     );
     
     return this.findById(result.insertId);
@@ -23,9 +23,8 @@ class Address {
   
   static async findAll(user_id) {
     const [rows] = await db.execute(
-      `SELECT a.*, lv.value as city_name
+      `SELECT a.*, a.city as city_name
        FROM addresses a 
-       LEFT JOIN lookup_values lv ON a.city_value_id = lv.id
        WHERE a.user_id = ? 
        ORDER BY a.is_default DESC, a.id DESC`,
       [user_id]
@@ -35,9 +34,8 @@ class Address {
   
   static async findById(id) {
     const [rows] = await db.execute(
-      `SELECT a.*, lv.value as city_name
+      `SELECT a.*, a.city as city_name
        FROM addresses a 
-       LEFT JOIN lookup_values lv ON a.city_value_id = lv.id
        WHERE a.id = ?`,
       [id]
     );
@@ -84,9 +82,8 @@ class Address {
   
   static async getDefault(user_id) {
     const [rows] = await db.execute(
-      `SELECT a.*, lv.value as city_name
+      `SELECT a.*, a.city as city_name
        FROM addresses a 
-       LEFT JOIN lookup_values lv ON a.city_value_id = lv.id
        WHERE a.user_id = ? AND a.is_default = 1`,
       [user_id]
     );

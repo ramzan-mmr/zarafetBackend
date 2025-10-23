@@ -45,9 +45,8 @@ exports.addressCreate = Joi.object({
   line2: Joi.string().max(150).allow(null, '').messages({
     'string.max': 'Address line 2 must not exceed 150 characters'
   }),
-  city_value_id: Joi.number().integer().positive().allow(null).messages({
-    'number.base': 'City must be a valid number',
-    'number.positive': 'City must be a positive number'
+  city: Joi.string().max(100).allow('').messages({
+    'string.max': 'City must not exceed 100 characters'
   }),
   postal_code: Joi.string().max(20).allow(null, '').messages({
     'string.max': 'Postal code must not exceed 20 characters'
@@ -70,9 +69,8 @@ exports.addressUpdate = Joi.object({
   line2: Joi.string().max(150).allow(null, '').messages({
     'string.max': 'Address line 2 must not exceed 150 characters'
   }),
-  city_value_id: Joi.number().integer().positive().allow(null).messages({
-    'number.base': 'City must be a valid number',
-    'number.positive': 'City must be a positive number'
+  city: Joi.string().max(100).allow('').messages({
+    'string.max': 'City must not exceed 100 characters'
   }),
   postal_code: Joi.string().max(20).allow(null, '').messages({
     'string.max': 'Postal code must not exceed 20 characters'

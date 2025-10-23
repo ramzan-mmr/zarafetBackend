@@ -1091,6 +1091,319 @@ const submitContactForm = async (req, res) => {
   }
 };
 
+// Get order detail by ID (for authenticated users)
+const getOrderDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+    
+    // Get order with items and address details
+    const [orderRows] = await db.execute(`
+      SELECT 
+        o.*,
+        u.name as customer_name,
+        u.email as customer_email,
+        lv1.value as status_name,
+        lv2.value as payment_method_name,
+        p.stripe_payment_intent_id,
+        p.status as payment_status,
+        p.payment_method as payment_method_type,
+        oa.line1 as shipping_address_line1,
+        oa.line2 as shipping_address_line2,
+        oa.city as shipping_address_city,
+        oa.postal_code as shipping_address_postal_code,
+        oa.phone as shipping_address_phone
+      FROM orders o 
+      LEFT JOIN users u ON o.user_id = u.id
+      LEFT JOIN lookup_values lv1 ON o.status_value_id = lv1.id
+      LEFT JOIN lookup_values lv2 ON o.payment_method_value_id = lv2.id
+      LEFT JOIN payments p ON o.payment_id = p.id
+      LEFT JOIN order_addresses oa ON o.id = oa.order_id
+      WHERE o.id = ? AND o.user_id = ?
+    `, [id, user_id]);
+    
+    if (orderRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+    
+    const order = orderRows[0];
+    
+    // Get order items with product details
+    const [itemRows] = await db.execute(`
+      SELECT 
+        oi.*,
+        p.name as product_name,
+        p.sku as product_sku,
+        CONCAT(COALESCE(pv.size, ''), ' ', COALESCE(pv.color_name, '')) as variant_name,
+        pi.image_url as product_image
+      FROM order_items oi
+      LEFT JOIN products p ON oi.product_id = p.id
+      LEFT JOIN product_variants pv ON oi.variant_id = pv.id
+      LEFT JOIN product_images pi ON p.id = pi.product_id
+      WHERE oi.order_id = ?
+      GROUP BY oi.id
+    `, [id]);
+    
+    // Format the response
+    const orderDetail = {
+      ...order,
+      items: itemRows,
+      shipping_address: {
+        line1: order.shipping_address_line1,
+        line2: order.shipping_address_line2,
+        city: order.shipping_address_city,
+        postal_code: order.shipping_address_postal_code,
+        phone: order.shipping_address_phone
+      }
+    };
+    
+    res.json({
+      success: true,
+      data: orderDetail
+    });
+  } catch (error) {
+    console.error('Get order detail error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch order details'
+    });
+  }
+};
+
+// Create a product review
+const createReview = async (req, res) => {
+  try {
+    const { product_id, order_id, rating, comment } = req.body;
+    const user_id = req.user.id;
+
+    // Check if order exists and belongs to user
+    const [orderRows] = await db.execute(
+      `SELECT o.*, lv.value as status_name 
+       FROM orders o 
+       JOIN lookup_values lv ON o.status_value_id = lv.id 
+       WHERE o.id = ? AND o.user_id = ?`,
+      [order_id, user_id]
+    );
+
+    if (orderRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found or does not belong to you'
+      });
+    }
+
+    const order = orderRows[0];
+
+    // Check if order is delivered
+    if (order.status_name.toLowerCase() !== 'delivered') {
+      return res.status(400).json({
+        success: false,
+        message: 'You can only review products from delivered orders'
+      });
+    }
+
+    // Check if product exists in the order
+    const [orderItemRows] = await db.execute(
+      `SELECT * FROM order_items WHERE order_id = ? AND product_id = ?`,
+      [order_id, product_id]
+    );
+
+    if (orderItemRows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product not found in this order'
+      });
+    }
+
+    // Check if review already exists
+    const [existingReview] = await db.execute(
+      `SELECT * FROM reviews WHERE user_id = ? AND product_id = ? AND order_id = ?`,
+      [user_id, product_id, order_id]
+    );
+
+    if (existingReview.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already reviewed this product from this order'
+      });
+    }
+
+    // Create the review
+    const [result] = await db.execute(
+      `INSERT INTO reviews (user_id, product_id, order_id, rating, comment, status, created_at, updated_at) 
+       VALUES (?, ?, ?, ?, ?, 'Active', NOW(), NOW())`,
+      [user_id, product_id, order_id, rating, comment || null]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Review created successfully',
+      data: {
+        id: result.insertId,
+        user_id,
+        product_id,
+        order_id,
+        rating,
+        comment,
+        status: 'Active'
+      }
+    });
+
+  } catch (error) {
+    console.error('Error creating review:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+
+// Update a product review
+const updateReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating, comment } = req.body;
+    const user_id = req.user.id;
+
+    // Check if review exists and belongs to user
+    const [reviewRows] = await db.execute(
+      `SELECT * FROM reviews WHERE id = ? AND user_id = ?`,
+      [id, user_id]
+    );
+
+    if (reviewRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Review not found or does not belong to you'
+      });
+    }
+
+    // Update the review
+    await db.execute(
+      `UPDATE reviews SET rating = ?, comment = ?, updated_at = NOW() WHERE id = ?`,
+      [rating, comment || null, id]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Review updated successfully',
+      data: {
+        id: parseInt(id),
+        rating,
+        comment,
+        updated_at: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating review:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+
+// Delete a product review
+const deleteReview = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.id;
+
+    // Check if review exists and belongs to user
+    const [reviewRows] = await db.execute(
+      `SELECT * FROM reviews WHERE id = ? AND user_id = ?`,
+      [id, user_id]
+    );
+
+    if (reviewRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Review not found or does not belong to you'
+      });
+    }
+
+    // Delete the review
+    await db.execute(
+      `DELETE FROM reviews WHERE id = ?`,
+      [id]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Review deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+
+// Get product reviews
+const getProductReviews = async (req, res) => {
+  try {
+    const { product_id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const offset = (page - 1) * limit;
+
+    // Get reviews with user information
+    const [reviews] = await db.execute(
+      `SELECT r.*, u.name as user_name, u.email as user_email
+       FROM reviews r
+       JOIN users u ON r.user_id = u.id
+       WHERE r.product_id = ? AND r.status = 'Active'
+       ORDER BY r.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [product_id, parseInt(limit), offset]
+    );
+
+    // Get total count and average rating
+    const [statsRows] = await db.execute(
+      `SELECT COUNT(*) as total, AVG(rating) as average_rating 
+       FROM reviews 
+       WHERE product_id = ? AND status = 'Active'`,
+      [product_id]
+    );
+
+    const total = statsRows[0].total;
+    const average_rating = parseFloat(statsRows[0].average_rating) || 0;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        reviews,
+        average_rating: Math.round(average_rating * 10) / 10, // Round to 1 decimal place
+        total_reviews: total,
+        pagination: {
+          current_page: parseInt(page),
+          per_page: parseInt(limit),
+          total,
+          total_pages: Math.ceil(total / limit)
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching product reviews:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -1124,5 +1437,12 @@ module.exports = {
   forgotPassword,
   resetPassword,
   // Contact form
-  submitContactForm
+  submitContactForm,
+  // Order details
+  getOrderDetail,
+  // Review functions
+  createReview,
+  updateReview,
+  deleteReview,
+  getProductReviews
 };

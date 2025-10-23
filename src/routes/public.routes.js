@@ -43,6 +43,13 @@ router.get('/recently-viewed', verifyJWT, publicCtrl.getRecentlyViewed);
 router.post('/recently-viewed', verifyJWT, validateBody(require('joi').object({
   product_id: require('joi').number().integer().positive().required()
 })), publicCtrl.addToRecentlyViewed);
+// Order detail route (require authentication)
+router.get('/orders/:id', verifyJWT, validateParams(idParam), publicCtrl.getOrderDetail);
+// Review routes (require authentication)
+router.post('/reviews', verifyJWT, validateBody(require('../validators/reviews').createReview), publicCtrl.createReview);
+router.put('/reviews/:id', verifyJWT, validateParams(require('../validators/reviews').reviewIdParam), validateBody(require('../validators/reviews').updateReview), publicCtrl.updateReview);
+router.delete('/reviews/:id', verifyJWT, validateParams(require('../validators/reviews').reviewIdParam), publicCtrl.deleteReview);
+router.get('/products/:product_id/reviews', publicCtrl.getProductReviews);
 // Debug endpoint to test database connection
 router.get('/debug-db', async (req, res) => {
   try {
