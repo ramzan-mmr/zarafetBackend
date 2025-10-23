@@ -6,6 +6,7 @@ const { idParam } = require('../validators/common');
 const { publicCategoryQuery } = require('../validators/categories');
 const { contactForm } = require('../validators/contact');
 const publicCtrl = require('../controllers/public.controller');
+const promoCodeCtrl = require('../controllers/promoCode.controller');
 // Lookup routes
 router.post('/lookups/values', publicCtrl.getLookupValues);
 // Product routes
@@ -34,6 +35,10 @@ router.delete('/addresses/:id', verifyJWT, validateParams(idParam), publicCtrl.d
 router.get('/categories', validateQuery(publicCategoryQuery), publicCtrl.getCategories);
 // Contact form route (no authentication required)
 router.post('/contact', validateBody(contactForm), publicCtrl.submitContactForm);
+// Email subscription route (no authentication required)
+router.post('/subscribe', publicCtrl.subscribeEmail);
+// Promo code validation (public route)
+router.post('/validate-promo-code', promoCodeCtrl.validatePromoCode);
 // Wishlist routes (require authentication)
 router.get('/wishlist', verifyJWT, publicCtrl.getWishlist);
 router.post('/wishlist', verifyJWT, validateBody(require('../validators/wishlist').add), publicCtrl.addToWishlist);

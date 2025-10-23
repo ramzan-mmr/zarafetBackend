@@ -10,7 +10,7 @@ const buildWhereClause = (filters, allowedColumns = []) => {
     if (value !== undefined && value !== null && value !== '') {
       if (allowedColumns.length === 0 || allowedColumns.includes(key)) {
         if (key.includes('_id') || key === 'id') {
-          conditions.push(`${key} = ?`);
+          conditions.push(`p.${key} = ?`);
           values.push(value);
         } else if (key === 'search') {
           // Handle search across multiple columns
@@ -42,13 +42,15 @@ const buildWhereClause = (filters, allowedColumns = []) => {
           conditions.push(`total_spend <= ?`);
           values.push(value);
         } else {
-           // Use table alias for product table columns
-          if (key === 'status' || key === 'stock_status' || key === 'category_value_id') {
-            // For categories, use 'c' alias, for products use 'p' alias
-            const alias = key === 'category_value_id' ? 'p' : 'c';
-            conditions.push(`${alias}.${key} = ?`);
+          // Use table alias for product table columns
+          if (key === 'status' || key === 'stock_status') {
+            // These are product table columns, use 'p' alias
+            conditions.push(`p.${key} = ?`);
+          } else if (key === 'category_value_id') {
+            // This is a product table column, use 'p' alias
+            conditions.push(`p.${key} = ?`);
           } else {
-            conditions.push(`${key} = ?`);
+            conditions.push(`p.${key} = ?`);
           }
           values.push(value);
         }

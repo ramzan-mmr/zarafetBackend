@@ -8,7 +8,7 @@ const PublicModule = require('../models/public.module');
 const OTP = require('../models/OTP.model');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
-const { sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail } = require('../services/email.service');
+const { sendEmail, sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail } = require('../services/email.service');
 
 /**
  * Public controller for website APIs (no authentication required)
@@ -1404,6 +1404,79 @@ const getProductReviews = async (req, res) => {
   }
 };
 
+// Email subscription function
+const subscribeEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Validate email
+    if (!email || !email.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please enter a valid email address'
+      });
+    }
+    
+    const cleanEmail = email.trim().toLowerCase();
+    
+    // Send email to info@zarafet.uk
+    const emailSubject = 'New Email Subscription';
+    const emailText = `
+New email subscription from Zarafet website:
+
+Email: ${cleanEmail}
+Date: ${new Date().toLocaleString()}
+IP Address: ${req.ip || req.connection.remoteAddress}
+User Agent: ${req.get('User-Agent') || 'Unknown'}
+
+This email was automatically generated from the website subscription form.
+    `;
+    
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">New Email Subscription</h2>
+        <p>New email subscription from Zarafet website:</p>
+        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
+          <p><strong>Email:</strong> ${cleanEmail}</p>
+          <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+          <p><strong>IP Address:</strong> ${req.ip || req.connection.remoteAddress}</p>
+          <p><strong>User Agent:</strong> ${req.get('User-Agent') || 'Unknown'}</p>
+        </div>
+        <p style="color: #666; font-size: 12px;">This email was automatically generated from the website subscription form.</p>
+      </div>
+    `;
+    
+    // Send email using the existing email service
+    await sendEmail({
+      to: 'info@zarafet.uk',
+      subject: emailSubject,
+      text: emailText,
+      html: emailHtml
+    });
+    
+    res.json({
+      success: true,
+      message: 'Thank you for subscribing! You will receive updates and exclusive deals.'
+    });
+    
+  } catch (error) {
+    console.error('Email subscription error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to subscribe. Please try again later.'
+    });
+  }
+};
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -1438,6 +1511,8 @@ module.exports = {
   resetPassword,
   // Contact form
   submitContactForm,
+  // Email subscription
+  subscribeEmail,
   // Order details
   getOrderDetail,
   // Review functions
