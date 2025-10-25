@@ -69,7 +69,7 @@ const create = async (req, res) => {
       discount_type,
       discount_value,
       status: status || 'active',
-      expiry_date,
+      expiry_date: expiry_date && expiry_date.trim() !== '' ? expiry_date : null,
       description
     });
     
@@ -101,6 +101,11 @@ const update = async (req, res) => {
       if (updateData.discount_type === 'percentage' && updateData.discount_value > 100) {
         return res.status(400).json(responses.badRequest('Percentage discount cannot exceed 100%'));
       }
+    }
+    
+    // Handle empty expiry_date
+    if (updateData.expiry_date !== undefined) {
+      updateData.expiry_date = updateData.expiry_date && updateData.expiry_date.trim() !== '' ? updateData.expiry_date : null;
     }
     
     const success = await PromoCode.update(id, updateData);

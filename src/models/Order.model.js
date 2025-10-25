@@ -229,7 +229,7 @@ class Order {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
 
     const allowedColumns = ['status_value_id', 'payment_method_value_id', 'user_id'];
-    let { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    let { whereClause, values } = buildWhereClause(filters, allowedColumns, 'o');
 
     // Initialize whereClause if empty
     if (!whereClause || whereClause.trim() === '') {
@@ -362,7 +362,7 @@ class Order {
   static async count(filters = {}) {
     const { buildWhereClause } = require('../utils/sql');
     const allowedColumns = ['status_value_id', 'payment_method_value_id', 'user_id'];
-    let { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    let { whereClause, values } = buildWhereClause(filters, allowedColumns, 'o');
 
     // Initialize whereClause if empty
     if (!whereClause || whereClause.trim() === '') {

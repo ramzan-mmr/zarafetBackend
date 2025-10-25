@@ -2,7 +2,7 @@
  * SQL query building helpers
  */
 
-const buildWhereClause = (filters, allowedColumns = []) => {
+const buildWhereClause = (filters, allowedColumns = [], tableAlias = 'p') => {
   const conditions = [];
   const values = [];
   
@@ -10,11 +10,11 @@ const buildWhereClause = (filters, allowedColumns = []) => {
     if (value !== undefined && value !== null && value !== '') {
       if (allowedColumns.length === 0 || allowedColumns.includes(key)) {
         if (key.includes('_id') || key === 'id') {
-          conditions.push(`p.${key} = ?`);
+          conditions.push(`${tableAlias}.${key} = ?`);
           values.push(value);
         } else if (key === 'search') {
           // Handle search across multiple columns
-          conditions.push(`(p.name LIKE ? OR p.description LIKE ? OR p.sku LIKE ?)`);
+          conditions.push(`(${tableAlias}.name LIKE ? OR ${tableAlias}.description LIKE ? OR ${tableAlias}.sku LIKE ?)`);
           const searchTerm = `%${value}%`;
           values.push(searchTerm, searchTerm, searchTerm);
         } else if (key === 'from') {
@@ -24,10 +24,10 @@ const buildWhereClause = (filters, allowedColumns = []) => {
           conditions.push(`created_at <= ?`);
           values.push(value);
         } else if (key === 'minPrice') {
-          conditions.push(`p.price >= ?`);
+          conditions.push(`${tableAlias}.price >= ?`);
           values.push(value);
         } else if (key === 'maxPrice') {
-          conditions.push(`p.price <= ?`);
+          conditions.push(`${tableAlias}.price <= ?`);
           values.push(value);
         } else if (key === 'minOrders') {
           conditions.push(`total_orders >= ?`);
@@ -42,15 +42,13 @@ const buildWhereClause = (filters, allowedColumns = []) => {
           conditions.push(`total_spend <= ?`);
           values.push(value);
         } else {
-          // Use table alias for product table columns
+          // Use table alias for columns
           if (key === 'status' || key === 'stock_status') {
-            // These are product table columns, use 'p' alias
-            conditions.push(`p.${key} = ?`);
+            conditions.push(`${tableAlias}.${key} = ?`);
           } else if (key === 'category_value_id') {
-            // This is a product table column, use 'p' alias
-            conditions.push(`p.${key} = ?`);
+            conditions.push(`${tableAlias}.${key} = ?`);
           } else {
-            conditions.push(`p.${key} = ?`);
+            conditions.push(`${tableAlias}.${key} = ?`);
           }
           values.push(value);
         }

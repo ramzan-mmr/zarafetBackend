@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Oct 23, 2025 at 01:21 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Host: 127.0.0.1
+-- Generation Time: Oct 23, 2025 at 10:18 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -184,7 +184,6 @@ INSERT INTO `lookup_values` (`id`, `code`, `header_id`, `value`, `description`, 
 (29, 'LV-00029', 20, 'Shipped', 'Order has been shipped', 'Active', 3, NULL, '2025-10-17 23:00:03', 1),
 (30, 'LV-00030', 20, 'Delivered', 'Order has been delivered', 'Active', 4, NULL, '2025-10-17 23:00:03', 1),
 (31, 'LV-00031', 20, 'Cancelled', 'Order has been cancelled', 'Active', 5, NULL, '2025-10-17 23:00:03', 1),
-(32, 'LV-00032', 20, 'Refunded', 'Order has been refunded', 'Active', 6, NULL, '2025-10-17 23:00:03', 1),
 (33, 'LV-00033', 20, 'Returned', 'Order has been returned', 'Inactive', 7, NULL, '2025-10-17 23:00:03', 1);
 
 -- --------------------------------------------------------
@@ -229,7 +228,9 @@ INSERT INTO `orders` (`id`, `code`, `user_id`, `status_value_id`, `payment_metho
 (16, 'ORD-00016', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 18:49:52', 18, 'paid'),
 (17, 'ORD-00017', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-19 19:20:01', 19, 'paid'),
 (18, 'ORD-00018', 5, 30, NULL, 548.00, 54.80, 0.00, 548.00, '2025-10-19 20:38:20', 20, 'paid'),
-(19, 'ORD-00019', 5, 27, NULL, 268.00, 26.80, 0.00, 268.00, '2025-10-23 13:20:08', 21, 'paid');
+(19, 'ORD-00019', 5, 27, NULL, 268.00, 26.80, 0.00, 268.00, '2025-10-23 13:20:08', 21, 'paid'),
+(20, 'ORD-00020', 5, 28, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-24 00:03:52', 22, 'paid'),
+(21, 'ORD-00021', 5, 27, NULL, 268.00, 26.80, 0.00, 268.00, '2025-10-24 01:16:18', 23, 'paid');
 
 -- --------------------------------------------------------
 
@@ -270,7 +271,9 @@ INSERT INTO `order_addresses` (`id`, `order_id`, `label`, `line1`, `line2`, `cit
 (14, 16, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 18:49:52'),
 (15, 17, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 19:20:01'),
 (16, 18, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-19 20:38:20'),
-(17, 19, 'Testing address', 'asdfasd', 'asdfasd', '', '23423', '093847823423', '2025-10-23 13:20:08');
+(17, 19, 'Testing address', 'asdfasd', 'asdfasd', '', '23423', '093847823423', '2025-10-23 13:20:08'),
+(18, 20, 'alsdkf', '234234', '', '234234', '234234', '03048796763', '2025-10-24 00:03:52'),
+(19, 21, 'alsdkf', '234234', '', '234234', '234234', '03048796763', '2025-10-24 01:16:18');
 
 -- --------------------------------------------------------
 
@@ -310,7 +313,9 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `quanti
 (18, 17, 21, 55, 1, 12.00),
 (19, 18, 21, 55, 1, 12.00),
 (20, 18, 20, 56, 2, 268.00),
-(21, 19, 20, 56, 1, 268.00);
+(21, 19, 20, 56, 1, 268.00),
+(22, 20, 21, 55, 1, 12.00),
+(23, 21, 20, 56, 1, 268.00);
 
 -- --------------------------------------------------------
 
@@ -358,7 +363,10 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `t
 (23, 17, NULL, 27, 5, NULL, '2025-10-19 19:20:01'),
 (24, 18, NULL, 27, 5, NULL, '2025-10-19 20:38:20'),
 (25, 18, 27, 30, 1, '', '2025-10-22 23:57:42'),
-(26, 19, NULL, 27, 5, NULL, '2025-10-23 13:20:08');
+(26, 19, NULL, 27, 5, NULL, '2025-10-23 13:20:08'),
+(27, 20, NULL, 27, 5, NULL, '2025-10-24 00:03:52'),
+(28, 20, 27, 28, 1, '', '2025-10-24 00:25:21'),
+(29, 21, NULL, 27, 5, NULL, '2025-10-24 01:16:18');
 
 -- --------------------------------------------------------
 
@@ -478,7 +486,9 @@ INSERT INTO `payments` (`id`, `order_id`, `stripe_payment_intent_id`, `stripe_ch
 (18, NULL, 'pi_3SJwzcD3H6qI9jyC28JprF9u', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:52', '2025-10-19 18:49:52'),
 (19, NULL, 'pi_3SJxSnD3H6qI9jyC2540NX8g', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfsd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 19:20:01', '2025-10-19 19:20:01'),
 (20, NULL, 'pi_3SJygaD3H6qI9jyC00k6Zcf0', NULL, 548.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"1234\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":548,\"tax\":0,\"shipping\":0}', '2025-10-19 20:38:20', '2025-10-19 20:38:20'),
-(21, NULL, 'pi_3SLJkiD3H6qI9jyC19KbJ9Es', NULL, 268.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-23 13:20:08', '2025-10-23 13:20:08');
+(21, NULL, 'pi_3SLJkiD3H6qI9jyC19KbJ9Es', NULL, 268.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-23 13:20:08', '2025-10-23 13:20:08'),
+(22, NULL, 'pi_3SLTnfD3H6qI9jyC0ZXEkvky', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdasdfsd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-24 00:03:52', '2025-10-24 00:03:52'),
+(23, NULL, 'pi_3SLUvlD3H6qI9jyC1xk0MfWQ', NULL, 268.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asda\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-24 01:16:18', '2025-10-24 01:16:18');
 
 -- --------------------------------------------------------
 
@@ -669,10 +679,40 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock
 (49, 15, 'BLACK-SILK-ABAYA-......-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
 (50, 4, 'TESTING-S-Black', 0.00, 10, 'S', 'Black', '#000000', ''),
 (51, 2, 'TESTING-PRODUCT-S-Black', 0.00, 23, 'S', 'Black', '#000000', ''),
-(55, 21, 'TESTING-PRODUCT-S-Red', 0.00, 91, 'S', 'Red', '#f50f0f', ''),
-(56, 20, 'ASDFASD-M-sdfgs', 34.00, 27, 'M', 'sdfgs', '#000000', ''),
+(55, 21, 'TESTING-PRODUCT-S-Red', 0.00, 90, 'S', 'Red', '#f50f0f', ''),
+(56, 20, 'ASDFASD-M-sdfgs', 34.00, 26, 'M', 'sdfgs', '#000000', ''),
 (57, 20, 'ASDFASD-S-asdfasd', 0.00, 29, 'S', 'asdfasd', '#683c3c', ''),
 (58, 20, 'ASDFASD-L-asdfads', 0.00, 30, 'L', 'asdfads', '#0d8bc9', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `promo_codes`
+--
+
+CREATE TABLE `promo_codes` (
+  `id` int(11) NOT NULL,
+  `code` varchar(50) NOT NULL,
+  `discount_type` enum('percentage','fixed') NOT NULL,
+  `discount_value` decimal(10,2) NOT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `expiry_date` datetime DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `promo_codes`
+--
+
+INSERT INTO `promo_codes` (`id`, `code`, `discount_type`, `discount_value`, `status`, `expiry_date`, `description`, `created_at`, `updated_at`) VALUES
+(1, 'WELCOME10', 'percentage', 10.00, 'active', NULL, 'Welcome discount - 10% off', '2025-10-23 19:53:26', '2025-10-23 19:53:26'),
+(2, 'SAVE20', 'percentage', 20.00, 'active', NULL, 'Save 20% on your order', '2025-10-23 19:53:26', '2025-10-23 19:53:26'),
+(3, 'FREESHIP', 'fixed', 5.00, 'active', NULL, 'Free shipping discount', '2025-10-23 19:53:26', '2025-10-23 19:53:26'),
+(4, 'NEWUSER', 'percentage', 15.00, 'active', NULL, 'New user discount - 15% off', '2025-10-23 19:53:26', '2025-10-23 19:53:26'),
+(5, 'HOLIDAY25', 'percentage', 25.00, 'inactive', NULL, 'Holiday special - 25% off (expired)', '2025-10-23 19:53:26', '2025-10-23 19:53:26'),
+(6, '23SDAF', 'percentage', 10.00, 'active', '2025-10-25 05:00:00', 'asdfasdf', '2025-10-23 19:58:38', '2025-10-23 19:58:38');
 
 -- --------------------------------------------------------
 
@@ -695,12 +735,12 @@ INSERT INTO `recently_viewed` (`id`, `user_id`, `product_id`, `viewed_at`) VALUE
 (2, 5, 4, '2025-10-11 18:58:57'),
 (6, 8, 19, '2025-10-19 01:45:11'),
 (7, 8, 21, '2025-10-19 01:45:21'),
-(15, 5, 14, '2025-10-19 19:58:27'),
 (16, 5, 13, '2025-10-19 19:58:31'),
 (17, 5, 11, '2025-10-19 19:58:35'),
-(25, 5, 21, '2025-10-19 20:07:06'),
 (28, 5, 19, '2025-10-19 20:10:00'),
-(39, 5, 20, '2025-10-19 20:33:52');
+(45, 5, 14, '2025-10-24 00:03:05'),
+(56, 5, 21, '2025-10-24 00:46:16'),
+(57, 5, 20, '2025-10-24 00:46:40');
 
 -- --------------------------------------------------------
 
@@ -719,6 +759,17 @@ CREATE TABLE `reviews` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reviews`
+--
+
+INSERT INTO `reviews` (`id`, `user_id`, `product_id`, `order_id`, `rating`, `comment`, `status`, `created_at`, `updated_at`) VALUES
+(1, 5, 19, 9, 5, 'asdfasdfasd', 'Active', '2025-10-23 17:13:21', '2025-10-23 17:13:21'),
+(2, 5, 21, 18, 5, 'asdfasdfasd', 'Active', '2025-10-23 17:14:04', '2025-10-23 17:14:04'),
+(3, 5, 20, 18, 5, 'asdfasdfasdf', 'Active', '2025-10-23 17:14:08', '2025-10-23 17:14:08'),
+(4, 5, 21, 14, 5, 'asdfasdfasdfa', 'Active', '2025-10-23 17:14:20', '2025-10-23 17:14:20'),
+(5, 5, 21, 11, 5, 'asdfasdfasd', 'Active', '2025-10-23 17:14:27', '2025-10-23 17:14:27');
 
 -- --------------------------------------------------------
 
@@ -783,7 +834,9 @@ INSERT INTO `shipments` (`id`, `order_id`, `method_value_id`, `scheduled_date`, 
 (16, 16, 28, NULL, 5.00),
 (17, 17, 28, NULL, 5.00),
 (18, 18, 28, NULL, 5.00),
-(19, 19, 28, NULL, 5.00);
+(19, 19, 28, NULL, 5.00),
+(20, 20, 28, NULL, 5.00),
+(21, 21, 28, NULL, 5.00);
 
 -- --------------------------------------------------------
 
@@ -813,7 +866,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `code`, `name`, `email`, `email_verified`, `email_verified_at`, `password_hash`, `phone`, `status`, `role_id`, `user_type`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-23 16:05:25', '$2a$12$eQzn7xNtB.cthdDxzYO6Kuesz4C8f1ADAj8SSZLG0MuR2Npr99v6K', '03048108665', 'Active', 1, 'admin', '2025-10-23 16:05:43', '2025-09-23 23:51:29', '2025-10-23 16:05:43'),
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-23 16:05:25', '$2a$12$eQzn7xNtB.cthdDxzYO6Kuesz4C8f1ADAj8SSZLG0MuR2Npr99v6K', '03048108665', 'Active', 1, 'admin', '2025-10-23 22:05:51', '2025-09-23 23:51:29', '2025-10-23 22:05:51'),
 (2, 'USR-00002', 'Test User', 'test@example.com', 0, NULL, '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, 'customer', '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
 (3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', 0, NULL, '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, 'customer', '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
 (5, 'USR-00005', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-22 23:00:57', '$2a$12$U1bCbE.cUDOdDlW6rbeJJOmMZI0C/7toknsd7kqy.dZVqrP7.sFR.', NULL, 'Active', 4, 'customer', '2025-10-23 11:47:39', '2025-10-03 22:51:42', '2025-10-23 11:47:39'),
@@ -986,6 +1039,16 @@ ALTER TABLE `product_variants`
   ADD KEY `product_id` (`product_id`);
 
 --
+-- Indexes for table `promo_codes`
+--
+ALTER TABLE `promo_codes`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`),
+  ADD KEY `idx_code` (`code`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_expiry_date` (`expiry_date`);
+
+--
 -- Indexes for table `recently_viewed`
 --
 ALTER TABLE `recently_viewed`
@@ -1084,25 +1147,25 @@ ALTER TABLE `lookup_values`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `order_addresses`
 --
 ALTER TABLE `order_addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `otp_verifications`
@@ -1114,7 +1177,7 @@ ALTER TABLE `otp_verifications`
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -1141,16 +1204,22 @@ ALTER TABLE `product_variants`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
 
 --
+-- AUTO_INCREMENT for table `promo_codes`
+--
+ALTER TABLE `promo_codes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `recently_viewed`
 --
 ALTER TABLE `recently_viewed`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -1162,7 +1231,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipments`
 --
 ALTER TABLE `shipments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `users`

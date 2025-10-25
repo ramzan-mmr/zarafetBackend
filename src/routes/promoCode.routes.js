@@ -12,7 +12,7 @@ const createPromoCodeSchema = Joi.object({
   discount_type: Joi.string().valid('percentage', 'fixed').required(),
   discount_value: Joi.number().min(0.01).required(),
   status: Joi.string().valid('active', 'inactive'),
-  expiry_date: Joi.date().iso(),
+  expiry_date: Joi.date().iso().allow(null, ''),
   description: Joi.string().max(255)
 });
 
@@ -21,7 +21,7 @@ const updatePromoCodeSchema = Joi.object({
   discount_type: Joi.string().valid('percentage', 'fixed'),
   discount_value: Joi.number().min(0.01),
   status: Joi.string().valid('active', 'inactive'),
-  expiry_date: Joi.date().iso(),
+  expiry_date: Joi.date().iso().allow(null, ''),
   description: Joi.string().max(255)
 });
 

@@ -33,7 +33,7 @@ class Category {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
     const allowedColumns = ['status', 'parent_id'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    const { whereClause, values } = buildWhereClause(filters, allowedColumns, 'c');
     const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['sort_order', 'name', 'created_at']);
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
