@@ -24,6 +24,9 @@ const promoCodeRoutes = require('./src/routes/promoCode.routes');
 
 const app = express();
 
+// Trust proxy for rate limiting and IP detection
+app.set('trust proxy', true);
+
 // Security middleware with image-friendly configuration
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
