@@ -86,10 +86,23 @@ class Order {
 
       // Create order
       console.log('💾 Creating order record in database...');
+      
+      // Extract promo code information if available
+      const promoCodeId = orderData.promoCode?.promoCodeId || null;
+      const discountAmount = orderData.promoCode?.discountAmount || 0;
+      const promoCodeUsed = orderData.promoCode?.code || null;
+      
+      console.log(`🎟️ Promo code info for database:`, {
+        promoCodeId,
+        discountAmount,
+        promoCodeUsed,
+        total: total
+      });
+      
       const [orderResult] = await connection.execute(
-        `INSERT INTO orders (user_id, status_value_id, payment_method_value_id, subtotal, tax, shipping, total, payment_id, payment_status) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [user_id, status_value_id, payment_method_value_id, subtotal, tax, shipping, total, payment_id, payment_id ? 'paid' : 'pending']
+        `INSERT INTO orders (user_id, status_value_id, payment_method_value_id, subtotal, tax, shipping, total, payment_id, payment_status, promo_code_id, discount_amount, promo_code_used) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [user_id, status_value_id, payment_method_value_id, subtotal, tax, shipping, total, payment_id, payment_id ? 'paid' : 'pending', promoCodeId, discountAmount, promoCodeUsed]
       );
 
       const orderId = orderResult.insertId;

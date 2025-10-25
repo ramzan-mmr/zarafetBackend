@@ -68,7 +68,13 @@ exports.processPayment = Joi.object({
     shipping: Joi.number().min(0).required(),
     tax: Joi.number().min(0).required(),
     total: Joi.number().min(0).required()
-  }).optional() // Made optional since backend calculates everything
+  }).optional(), // Made optional since backend calculates everything
+  promoCode: Joi.object({
+    code: Joi.string().required(),
+    discountAmount: Joi.number().min(0).required(),
+    discountType: Joi.string().valid('percentage', 'fixed').required(),
+    discountValue: Joi.string().required()
+  }).allow(null).optional() // Promo code is optional and can be null
 });
 
 exports.getPayment = Joi.object({

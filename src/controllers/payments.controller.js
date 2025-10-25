@@ -33,9 +33,17 @@ const createIntent = async (req, res) => {
 
 const process = async (req, res) => {
   try {
-    console.log('🚀 Starting payment process...');
-    const { cart, address, shipping, payment, totals } = req.body;
+  //  return console.log('🚀 Starting payment process...', req.body.promoCode);
+    const { cart, address, shipping, payment, totals, promoCode } = req.body;
     const user_id = req.user?.id || 5; // Use dummy user ID for testing
+    
+    // Debug: Log the incoming request data
+    console.log('🔍 DEBUGGING PAYMENT REQUEST:');
+    console.log('   Promo Code received:', promoCode);
+    console.log('   Cart subtotal:', cart.subtotal);
+    console.log('   Shipping cost:', shipping.cost);
+    console.log('   Full request body keys:', Object.keys(req.body));
+    console.log('🚨 PAYMENTS CONTROLLER - PROMO CODE PROCESSING ACTIVE!');
     
     console.log('📦 Request data:', {
       user_id,
@@ -99,7 +107,26 @@ const process = async (req, res) => {
       console.log(`🚚 Free shipping applied! Order exceeds ${config.pricing.freeShippingThreshold}`);
     }
     
-    const expectedTotal = expectedSubtotal + expectedTax + expectedShipping;
+    // Calculate promo code discount
+    let discountAmount = 0;
+    if (promoCode && promoCode.discountAmount) {
+      discountAmount = parseFloat(promoCode.discountAmount);
+      console.log(`🎟️ Promo code applied: ${promoCode.code}, Discount: £${discountAmount}`);
+      console.log(`📊 Order totals before discount: Subtotal=£${expectedSubtotal}, Shipping=£${expectedShipping}, Total=£${expectedSubtotal + expectedTax + expectedShipping}`);
+    }
+    
+    const expectedTotal = expectedSubtotal + expectedTax + expectedShipping - discountAmount;
+    
+    if (promoCode && promoCode.discountAmount) {
+      console.log(`💰 Final order total after discount: £${expectedTotal}`);
+      console.log(`📋 Order data being passed to Order.create():`, {
+        subtotal: expectedSubtotal,
+        tax: expectedTax,
+        shipping: expectedShipping,
+        total: expectedTotal,
+        promoCode: promoCode
+      });
+    }
     
     console.log(`📊 Final totals: Subtotal=${expectedSubtotal}, Tax=${expectedTax}, Shipping=${expectedShipping}, Total=${expectedTotal}`);
 
@@ -186,7 +213,15 @@ const process = async (req, res) => {
       subtotal: expectedSubtotal,
       tax: expectedTax,
       shipping: expectedShipping,
-      total: expectedTotal
+      total: expectedTotal,
+      // Promo code data
+      promoCode: promoCode ? {
+        code: promoCode.code,
+        discountAmount: discountAmount,
+        discountType: promoCode.discountType,
+        discountValue: promoCode.discountValue,
+        promoCodeId: null // Placeholder, will be set if we find the promo code in database
+      } : null
     };
 
     console.log('📦 Order data:', {
@@ -234,7 +269,14 @@ const process = async (req, res) => {
               city: address.city,
               postal_code: address.postalCode,
               phone: address.phone
-            }
+            },
+            // Include promo code information if applied
+            promoCode: promoCode ? {
+              code: promoCode.code,
+              discountAmount: discountAmount,
+              discountType: promoCode.discountType,
+              discountValue: promoCode.discountValue
+            } : null
           }
         };
         
@@ -269,7 +311,14 @@ const process = async (req, res) => {
         tax: expectedTax,
         shipping: expectedShipping,
         total: expectedTotal
-      }
+      },
+      // Include promo code information if applied
+      promoCode: promoCode ? {
+        code: promoCode.code,
+        discountAmount: discountAmount,
+        discountType: promoCode.discountType,
+        discountValue: promoCode.discountValue
+      } : null
     }));
   } catch (error) {
     console.error('❌ Process payment error:', error);

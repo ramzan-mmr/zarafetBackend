@@ -103,8 +103,17 @@ const getById = async (req, res) => {
 
 const place = async (req, res) => {
   try {
-    const { cart, address, shipping, payment, totals } = req.body;
+    const { cart, address, shipping, payment, totals, promoCode } = req.body;
     const user_id = req.user.id;
+    
+    // Debug: Log the incoming request data
+    console.log('🔍 DEBUGGING PAYMENT REQUEST:');
+    console.log('   Promo Code received:', promoCode);
+    console.log('   Cart subtotal:', cart.subtotal);
+    console.log('   Shipping cost:', shipping.cost);
+    console.log('   Full request body keys:', Object.keys(req.body));
+    console.log('🚨 BACKEND CODE UPDATED - PROMO CODE PROCESSING ACTIVE!');
+    console.log('🔄 FORCE RESTART - PROMO CODE LOGIC SHOULD BE WORKING NOW!');
 
     // Validate cart items and calculate expected total
     let expectedSubtotal = 0;
@@ -143,7 +152,26 @@ const place = async (req, res) => {
       expectedShipping = 0; // Free shipping for orders above threshold
     }
     
-    const expectedTotal = expectedSubtotal + expectedTax + expectedShipping;
+    // Calculate promo code discount
+    let discountAmount = 0;
+    if (promoCode && promoCode.discountAmount) {
+      discountAmount = parseFloat(promoCode.discountAmount);
+      console.log(`🎟️ Promo code applied: ${promoCode.code}, Discount: £${discountAmount}`);
+      console.log(`📊 Order totals before discount: Subtotal=£${expectedSubtotal}, Shipping=£${expectedShipping}, Total=£${expectedSubtotal + expectedTax + expectedShipping}`);
+    }
+    
+    const expectedTotal = expectedSubtotal + expectedTax + expectedShipping - discountAmount;
+    
+    if (promoCode && promoCode.discountAmount) {
+      console.log(`💰 Final order total after discount: £${expectedTotal}`);
+      console.log(`📋 Order data being passed to Order.create():`, {
+        subtotal: expectedSubtotal,
+        tax: expectedTax,
+        shipping: expectedShipping,
+        total: expectedTotal,
+        promoCode: promoCode
+      });
+    }
 
     // Remove total validation - backend calculates everything
     // if (Math.abs(expectedTotal - totals.total) > 0.01) {
@@ -213,48 +241,64 @@ const place = async (req, res) => {
       subtotal: expectedSubtotal,
       tax: expectedTax,
       shipping: expectedShipping,
-      total: expectedTotal
+      total: expectedTotal,
+      // Include promo code information if applied
+      promoCode: promoCode ? {
+        code: promoCode.code,
+        discountAmount: discountAmount,
+        discountType: promoCode.discountType,
+        discountValue: promoCode.discountValue,
+        promoCodeId: null // Will be set if we find the promo code in database
+      } : null
     };
 
     // Create order
     const order = await Order.create(orderData);
     
-    // Send order confirmation email
-    try {
-      const user = await User.findById(user_id);
-      if (user && user.email) {
-        // Get order details with items for email
-        const orderWithItems = await Order.findById(order.id);
-        
-        const emailData = {
-          userEmail: user.email,
-          userName: user.name,
-          orderData: {
-            order: orderWithItems,
-            items: orderWithItems.items || [],
-            totals: {
-              subtotal: expectedSubtotal,
-              tax: expectedTax,
-              shipping: expectedShipping,
-              total: expectedTotal
-            },
-            address: address
+    // Send order confirmation email in background (non-blocking)
+    setImmediate(async () => {
+      try {
+        const user = await User.findById(user_id);
+        if (user && user.email) {
+          // Get order details with items for email
+          const orderWithItems = await Order.findById(order.id);
+          
+          const emailData = {
+            userEmail: user.email,
+            userName: user.name,
+            orderData: {
+              order: orderWithItems,
+              items: orderWithItems.items || [],
+              totals: {
+                subtotal: expectedSubtotal,
+                tax: expectedTax,
+                shipping: expectedShipping,
+                total: expectedTotal
+              },
+              address: address,
+              promoCode: promoCode ? {
+                code: promoCode.code,
+                discountAmount: discountAmount,
+                discountType: promoCode.discountType,
+                discountValue: promoCode.discountValue
+              } : null
+            }
+          };
+          
+          const emailResult = await EmailService.sendOrderConfirmation(emailData);
+          if (emailResult.success) {
+            console.log('✅ Order confirmation email sent successfully');
+          } else {
+            console.error('❌ Failed to send order confirmation email:', emailResult.error);
           }
-        };
-        
-        const emailResult = await EmailService.sendOrderConfirmation(emailData);
-        if (emailResult.success) {
-          console.log('✅ Order confirmation email sent successfully');
         } else {
-          console.error('❌ Failed to send order confirmation email:', emailResult.error);
+          console.warn('⚠️ User email not found, skipping order confirmation email');
         }
-      } else {
-        console.warn('⚠️ User email not found, skipping order confirmation email');
+      } catch (emailError) {
+        console.error('❌ Error sending order confirmation email:', emailError);
+        // Email failure doesn't affect the order
       }
-    } catch (emailError) {
-      console.error('❌ Error sending order confirmation email:', emailError);
-      // Don't fail the order creation if email fails
-    }
+    });
     
     res.status(201).json(responses.created({
       order,
@@ -270,7 +314,14 @@ const place = async (req, res) => {
         tax: expectedTax,
         shipping: expectedShipping,
         total: expectedTotal
-      }
+      },
+      // Include promo code information if applied
+      promoCode: promoCode ? {
+        code: promoCode.code,
+        discountAmount: discountAmount,
+        discountType: promoCode.discountType,
+        discountValue: promoCode.discountValue
+      } : null
     }));
   } catch (error) {
     console.error('Place order error:', error);
@@ -294,39 +345,41 @@ const updateStatus = async (req, res) => {
     
     const order = await Order.updateStatus(id, to_status_value_id, req.user.id, reason);
     
-    // Send order status update email
-    try {
-      const user = await User.findById(existingOrder.user_id);
-      if (user && user.email) {
-        // Get the new status name
-        const [statusRows] = await db.execute(
-          'SELECT value FROM lookup_values WHERE id = ?',
-          [to_status_value_id]
-        );
-        const newStatus = statusRows[0]?.value || 'Updated';
-        
-        const emailData = {
-          userEmail: user.email,
-          userName: user.name,
-          orderData: {
-            order: order
-          },
-          newStatus: newStatus
-        };
-        
-        const emailResult = await EmailService.sendOrderStatusUpdate(emailData);
-        if (emailResult.success) {
-          console.log('✅ Order status update email sent successfully');
+    // Send order status update email in background (non-blocking)
+    setImmediate(async () => {
+      try {
+        const user = await User.findById(existingOrder.user_id);
+        if (user && user.email) {
+          // Get the new status name
+          const [statusRows] = await db.execute(
+            'SELECT value FROM lookup_values WHERE id = ?',
+            [to_status_value_id]
+          );
+          const newStatus = statusRows[0]?.value || 'Updated';
+          
+          const emailData = {
+            userEmail: user.email,
+            userName: user.name,
+            orderData: {
+              order: order
+            },
+            newStatus: newStatus
+          };
+          
+          const emailResult = await EmailService.sendOrderStatusUpdate(emailData);
+          if (emailResult.success) {
+            console.log('✅ Order status update email sent successfully');
+          } else {
+            console.error('❌ Failed to send order status update email:', emailResult.error);
+          }
         } else {
-          console.error('❌ Failed to send order status update email:', emailResult.error);
+          console.warn('⚠️ User email not found, skipping order status update email');
         }
-      } else {
-        console.warn('⚠️ User email not found, skipping order status update email');
+      } catch (emailError) {
+        console.error('❌ Error sending order status update email:', emailError);
+        // Email failure doesn't affect the status update
       }
-    } catch (emailError) {
-      console.error('❌ Error sending order status update email:', emailError);
-      // Don't fail the status update if email fails
-    }
+    });
     
     res.json(responses.ok(order));
   } catch (error) {

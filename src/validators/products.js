@@ -20,12 +20,19 @@ const base = {
   stock: Joi.number().integer().min(0).default(0),
   stock_status: Joi.string().valid('Active', 'Low Stock', 'Out of Stock').default('Active'),
   status: Joi.string().valid('Active', 'Inactive').default('Active'),
-  images: Joi.array().items(Joi.string().max(1000000)).default([]),
+  // Fit selection fields
+  fit_required: Joi.alternatives().try(
+    Joi.boolean(),
+    Joi.number().integer().valid(0, 1)
+  ).default(false),
+  default_fit: Joi.string().max(50).allow('', null),
+  fit_options: Joi.string().allow('', null), // JSON string of selected fit options
+  images: Joi.array().items(Joi.string().max(10000000)).default([]), // Increased to 10MB for base64 images
   variants: Joi.array().items(Joi.object({
     size: Joi.string().valid('XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL').allow(null),
     color_name: Joi.string().max(100).allow('', null),
     color_code: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).allow('', null).description('Hex color code like #FF5733'),
-    color_image: Joi.string().max(1000000).allow('', null).description('Optional color swatch image URL or base64 data'),
+    color_image: Joi.string().max(10000000).allow('', null).description('Optional color swatch image URL or base64 data'),
     sku: Joi.string().max(50).allow('', null),
     extra_price: money.default(0),
     stock: Joi.number().integer().min(0).default(0)

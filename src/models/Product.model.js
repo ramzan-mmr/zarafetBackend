@@ -4,7 +4,7 @@ const ImageService = require('../utils/imageService');
 
 class Product {
   static async create(productData) {
-    const { name, description, category_value_id, price, original_price, current_price, stock, stock_status, status, images, variants } = productData;
+    const { name, description, category_value_id, price, original_price, current_price, stock, stock_status, status, images, variants, fit_required, default_fit, fit_options } = productData;
     
     // Validate category_value_id if provided
     if (category_value_id !== undefined && category_value_id !== null) {
@@ -46,9 +46,9 @@ class Product {
     }
     
     const [result] = await db.execute(
-      `INSERT INTO products (sku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [finalSku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status]
+      `INSERT INTO products (sku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status, fit_required, default_fit, fit_options) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [finalSku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status, Boolean(fit_required), default_fit || null, fit_options || null]
     );
     
     const productId = result.insertId;
@@ -168,6 +168,14 @@ class Product {
     const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'price', 'stock', 'date_added', 'created_at', 'total_orders']);
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
+    // Add soft delete filter to exclude inactive products
+    const softDeleteCondition = `p.status != 'Inactive'`;
+    if (whereClause) {
+      whereClause += ` AND ${softDeleteCondition}`;
+    } else {
+      whereClause = `WHERE ${softDeleteCondition}`;
+    }
+    
     const query = `
       SELECT p.*, 
              c.name as category_name
@@ -188,7 +196,7 @@ class Product {
               c.name as category_name
        FROM products p 
        LEFT JOIN categories c ON p.category_value_id = c.id
-       WHERE p.id = ?`,
+       WHERE p.id = ? AND p.status != 'Inactive'`,
       [id]
     );
     
@@ -211,6 +219,24 @@ class Product {
       [id]
     );
     product.variants = variants;
+    
+    // Get fit options if fit is required
+    if (product.fit_required) {
+      try {
+        const [fitOptions] = await db.execute(
+          `SELECT lv.value, lv.description 
+           FROM lookup_values lv 
+           JOIN lookup_headers lh ON lv.header_id = lh.id 
+           WHERE lh.name = 'Product Fit' AND lv.status = 'Active'
+           ORDER BY lv.value`,
+          []
+        );
+        product.available_fits = fitOptions;
+      } catch (error) {
+        console.error('Error fetching fit options:', error);
+        product.available_fits = [];
+      }
+    }
     
     return product;
   }
@@ -278,7 +304,12 @@ class Product {
     Object.entries(productData).forEach(([key, value]) => {
       if (value !== undefined) {
         fields.push(`${key} = ?`);
-        values.push(value);
+        // Convert fit_required from number to boolean if needed
+        if (key === 'fit_required') {
+          values.push(Boolean(value));
+        } else {
+          values.push(value);
+        }
       }
     });
     
@@ -463,8 +494,10 @@ class Product {
       }
     }
     
-    // Delete from database (cascading deletes should handle related records)
-    await db.execute('DELETE FROM products WHERE id = ?', [id]);
+    // Soft delete: Set status to 'Inactive' instead of hard delete
+    // This preserves the product for historical order records while marking it as deleted
+    await db.execute('UPDATE products SET status = ? WHERE id = ?', ['Inactive', id]);
+    console.log(`✅ Product ${id} soft deleted (status set to Inactive)`);
     return true;
   }
   

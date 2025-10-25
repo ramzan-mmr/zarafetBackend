@@ -60,7 +60,14 @@ Order Details:
 - Total Amount: $${totals.total.toFixed(2)}
 
 Items Ordered:
-${items.map(item => `- ${item.product_name} (${item.variant_name || 'Standard'}) x ${item.quantity} - $${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}`).join('\n')}
+${items.map(item => `- ${item.product_name} (${item.variant_name || 'Standard'})${item.selected_fit ? ` - Fit: ${item.selected_fit}` : ''} x ${item.quantity} - $${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}`).join('\n')}
+
+Order Summary:
+- Subtotal: $${totals.subtotal.toFixed(2)}
+- Shipping: $${totals.shipping.toFixed(2)}
+${orderData.promoCode ? `- Discount (${orderData.promoCode.code}): -$${orderData.promoCode.discountAmount.toFixed(2)}` : ''}
+- Total: $${totals.total.toFixed(2)}
+${orderData.promoCode ? `- You saved $${orderData.promoCode.discountAmount.toFixed(2)} with promo code ${orderData.promoCode.code}!` : ''}
 
 Shipping Address:
 ${address.line1}
@@ -107,6 +114,7 @@ Phone: ${address.phone}
                 <div class="item">
                     <strong>${item.product_name}</strong>
                     ${item.variant_name ? `<br><small>Variant: ${item.variant_name}</small>` : ''}
+                    ${item.selected_fit ? `<br><small>Fit: ${item.selected_fit}</small>` : ''}
                     <br>Quantity: ${item.quantity} × $${parseFloat(item.unit_price).toFixed(2)} = $${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}
                 </div>
             `).join('')}
@@ -114,7 +122,17 @@ Phone: ${address.phone}
             <div class="order-summary">
                 <p><strong>Subtotal:</strong> $${totals.subtotal.toFixed(2)}</p>
                 <p><strong>Shipping:</strong> $${totals.shipping.toFixed(2)}</p>
+                ${orderData.promoCode ? `
+                    <p style="color: #28a745; font-weight: bold;">
+                        <strong>Discount (${orderData.promoCode.code}):</strong> -$${orderData.promoCode.discountAmount.toFixed(2)}
+                    </p>
+                ` : ''}
                 <p class="total"><strong>Total:</strong> $${totals.total.toFixed(2)}</p>
+                ${orderData.promoCode ? `
+                    <p style="color: #28a745; font-size: 14px; margin-top: 5px;">
+                        You saved $${orderData.promoCode.discountAmount.toFixed(2)} with promo code ${orderData.promoCode.code}!
+                    </p>
+                ` : ''}
             </div>
         </div>
         

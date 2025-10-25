@@ -289,11 +289,31 @@ class PublicModule {
       [product.id]
     );
 
+    // Get fit options if fit is required
+    let available_fits = [];
+    if (product.fit_required) {
+      try {
+        const [fitOptions] = await db.execute(
+          `SELECT lv.value, lv.description 
+           FROM lookup_values lv 
+           JOIN lookup_headers lh ON lv.header_id = lh.id 
+           WHERE lh.name = 'Product Fit' AND lv.status = 'Active'
+           ORDER BY lv.value`,
+          []
+        );
+        available_fits = fitOptions;
+      } catch (error) {
+        console.error('Error fetching fit options:', error);
+        available_fits = [];
+      }
+    }
+
     return {
       ...product,
       images: images.map(img => img.image_url),
       variants,
-      main_image: images.length > 0 ? images[0].image_url : null
+      main_image: images.length > 0 ? images[0].image_url : null,
+      available_fits
     };
   }
 
