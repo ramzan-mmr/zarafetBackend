@@ -75,6 +75,7 @@ class PublicModule {
   static async getProducts(filters = {}, pagination = {}) {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
+    
     // Handle multiple categories separately
     let whereClause = '';
     let values = [];
@@ -111,6 +112,34 @@ class PublicModule {
           whereClause = `WHERE ${typeCondition}`;
         }
       }
+    }
+    
+    // Handle size filtering at database level
+    if (filters.size) {
+      const sizes = filters.size.includes(',') ? filters.size.split(',').map(s => s.trim()) : [filters.size];
+      const sizePlaceholders = sizes.map(() => '?').join(',');
+      const sizeCondition = `EXISTS (SELECT 1 FROM product_variants pv WHERE pv.product_id = p.id AND pv.size IN (${sizePlaceholders}))`;
+      
+      if (whereClause) {
+        whereClause += ` AND ${sizeCondition}`;
+      } else {
+        whereClause = `WHERE ${sizeCondition}`;
+      }
+      values.push(...sizes);
+    }
+    
+    // Handle color filtering at database level
+    if (filters.color) {
+      const colors = filters.color.includes(',') ? filters.color.split(',').map(c => c.trim()) : [filters.color];
+      const colorPlaceholders = colors.map(() => '?').join(',');
+      const colorCondition = `EXISTS (SELECT 1 FROM product_variants pv WHERE pv.product_id = p.id AND pv.color_name IN (${colorPlaceholders}))`;
+      
+      if (whereClause) {
+        whereClause += ` AND ${colorCondition}`;
+      } else {
+        whereClause = `WHERE ${colorCondition}`;
+      }
+      values.push(...colors);
     }
     
     const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'price', 'stock', 'date_added', 'created_at', 'total_orders']);
@@ -172,6 +201,34 @@ class PublicModule {
       }
     }
     
+    // Handle size filtering at database level
+    if (filters.size) {
+      const sizes = filters.size.includes(',') ? filters.size.split(',').map(s => s.trim()) : [filters.size];
+      const sizePlaceholders = sizes.map(() => '?').join(',');
+      const sizeCondition = `EXISTS (SELECT 1 FROM product_variants pv WHERE pv.product_id = p.id AND pv.size IN (${sizePlaceholders}))`;
+      
+      if (whereClause) {
+        whereClause += ` AND ${sizeCondition}`;
+      } else {
+        whereClause = `WHERE ${sizeCondition}`;
+      }
+      values.push(...sizes);
+    }
+    
+    // Handle color filtering at database level
+    if (filters.color) {
+      const colors = filters.color.includes(',') ? filters.color.split(',').map(c => c.trim()) : [filters.color];
+      const colorPlaceholders = colors.map(() => '?').join(',');
+      const colorCondition = `EXISTS (SELECT 1 FROM product_variants pv WHERE pv.product_id = p.id AND pv.color_name IN (${colorPlaceholders}))`;
+      
+      if (whereClause) {
+        whereClause += ` AND ${colorCondition}`;
+      } else {
+        whereClause = `WHERE ${colorCondition}`;
+      }
+      values.push(...colors);
+    }
+    
     const [rows] = await db.execute(
       `SELECT COUNT(*) as total FROM products p ${whereClause}`,
       values
@@ -221,8 +278,6 @@ class PublicModule {
 
   // Get products by type with size and color filtering
   static async getProductsByTypeWithFilters(type, filters = {}) {
-    const { size, color } = filters;
-    
     // Get base products by type
     let products;
     switch (type) {
@@ -236,25 +291,7 @@ class PublicModule {
         products = await this.getFeaturedProducts(filters.limit || 8);
         break;
       default:
-        products = await this.getProducts(filters, { page: 1, limit: filters.limit || 8 });
-    }
-
-    // Apply size filter if provided
-    if (size) {
-      const sizes = size.includes(',') ? size.split(',').map(s => s.trim()) : [size];
-      products = products.filter(product => 
-        product.variants.some(variant => sizes.includes(variant.size))
-      );
-    }
-
-    // Apply color filter if provided
-    if (color) {
-      products = products.filter(product => 
-        product.variants.some(variant => 
-          variant.color_name?.toLowerCase().includes(color.toLowerCase()) ||
-          variant.color_code?.toLowerCase().includes(color.toLowerCase())
-        )
-      );
+        products = await this.getProducts(filters, { page: filters.page || 1, limit: filters.limit || 8 });
     }
 
     return products;

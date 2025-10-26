@@ -140,7 +140,8 @@ const getProducts = async (req, res) => {
       ...filters,
       size,
       color,
-      limit: parseInt(limit)
+      limit: parseInt(limit),
+      page: parseInt(page)
     });
     const total = await PublicModule.countProducts(filters);
 
