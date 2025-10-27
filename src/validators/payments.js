@@ -53,13 +53,13 @@ exports.processPayment = Joi.object({
     cost: Joi.number().min(0).required()
   }).required(),
   payment: Joi.object({
-    method: Joi.string().valid('creditCard', 'applePay', 'googlePay', 'alipay', 'wechatPay').required(),
+    method: Joi.string().valid('creditCard', 'paypal', 'applePay', 'googlePay', 'alipay', 'wechatPay').required(),
     cardDetails: Joi.object({
       cardholderName: Joi.string().allow(''),
       cardNumber: Joi.string().allow(''),
       expDate: Joi.string().allow(''),
       cvv: Joi.string().allow('')
-    }).allow(null),
+    }).allow(null).optional(),
     paymentIntentId: Joi.string().allow(''),
     sameAsBilling: Joi.boolean().default(true)
   }).required(),
