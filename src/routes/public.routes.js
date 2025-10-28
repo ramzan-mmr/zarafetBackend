@@ -14,6 +14,7 @@ router.get('/products', publicCtrl.getProducts);
 router.get('/products/trending', publicCtrl.getTrendingProducts);
 router.get('/products/latest', publicCtrl.getLatestProducts);
 router.get('/products/featured', publicCtrl.getFeaturedProducts);
+router.get('/products/recommended', publicCtrl.getRecommendedProducts);
 router.get('/products/bulk', publicCtrl.getProductsByIds);
 router.get('/products/:id', publicCtrl.getProductById);
 // Customer authentication routes

@@ -8,7 +8,7 @@ CREATE TABLE `payments` (
   `stripe_payment_intent_id` varchar(255) NOT NULL,
   `stripe_charge_id` varchar(255) DEFAULT NULL,
   `amount` decimal(12,2) NOT NULL,
-  `currency` varchar(3) DEFAULT 'usd',
+  `currency` varchar(3) DEFAULT 'gbp',
   `status` enum('pending','succeeded','failed','cancelled') DEFAULT 'pending',
   `payment_method` varchar(50) DEFAULT NULL,
   `payment_method_details` text DEFAULT NULL,

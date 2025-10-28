@@ -1,9 +1,10 @@
+const config = require('../config/env');
 const Joi = require('joi');
 const { positiveInt, money } = require('./common');
 
 exports.createPaymentIntent = Joi.object({
   amount: Joi.number().min(0.01).required(),
-  currency: Joi.string().length(3).default('usd'),
+  currency: Joi.string().length(3).default(config.currency.default),
   metadata: Joi.object().default({})
 });
 

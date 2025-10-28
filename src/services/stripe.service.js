@@ -1,14 +1,15 @@
+const config = require('../config/env');
 const stripe = require('../config/stripe');
 
 class StripeService {
   /**
    * Create a payment intent for frontend integration
    * @param {number} amount - Amount in cents
-   * @param {string} currency - Currency code (default: 'usd')
+   * @param {string} currency - Currency code (default: 'gbp')
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Stripe payment intent
    */
-  static async createPaymentIntent(amount, currency = 'usd', metadata = {}) {
+  static async createPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
     try {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -29,11 +30,11 @@ class StripeService {
   /**
    * Create a payment intent specifically for PayPal payments
    * @param {number} amount - Amount in dollars
-   * @param {string} currency - Currency code (default: 'usd')
+   * @param {string} currency - Currency code (default: 'gbp')
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Stripe payment intent with PayPal enabled
    */
-  static async createPayPalPaymentIntent(amount, currency = 'usd', metadata = {}) {
+  static async createPayPalPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
     try {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -52,11 +53,11 @@ class StripeService {
   /**
    * Create a payment intent specifically for Apple Pay payments
    * @param {number} amount - Amount in dollars
-   * @param {string} currency - Currency code (default: 'usd')
+   * @param {string} currency - Currency code (default: 'gbp')
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Stripe payment intent with Apple Pay enabled
    */
-  static async createApplePayPaymentIntent(amount, currency = 'usd', metadata = {}) {
+  static async createApplePayPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
     try {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -78,11 +79,11 @@ class StripeService {
   /**
    * Create a payment intent specifically for Google Pay payments
    * @param {number} amount - Amount in dollars
-   * @param {string} currency - Currency code (default: 'usd')
+   * @param {string} currency - Currency code (default: 'gbp')
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Stripe payment intent with Google Pay enabled
    */
-  static async createGooglePayPaymentIntent(amount, currency = 'usd', metadata = {}) {
+  static async createGooglePayPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
     try {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -129,7 +130,7 @@ class StripeService {
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Stripe charge
    */
-  static async createCharge(paymentMethodId, amount, currency = 'usd', metadata = {}) {
+  static async createCharge(paymentMethodId, amount, currency = config.currency.default, metadata = {}) {
     try {
       const charge = await stripe.charges.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -153,7 +154,7 @@ class StripeService {
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Payment result
    */
-  static async processPayment(paymentData, amount, currency = 'usd', metadata = {}) {
+  static async processPayment(paymentData, amount, currency = config.currency.default, metadata = {}) {
     try {
       console.log('🔍 StripeService.processPayment called with:', {
         paymentData,

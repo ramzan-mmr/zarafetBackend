@@ -140,7 +140,7 @@ const process = async (req, res) => {
     const paymentResult = await StripeService.processPayment(
       payment,
       expectedTotal, // Use backend-calculated total
-      'usd',
+      config.currency.default,
       {
         user_id,
         order_items: orderItems.length,
@@ -170,7 +170,7 @@ const process = async (req, res) => {
       stripe_payment_intent_id: paymentResult.paymentIntent?.id || paymentResult.charge?.payment_intent,
       stripe_charge_id: paymentResult.chargeId,
       amount: expectedTotal, // Use backend-calculated total
-      currency: 'usd',
+      currency: config.currency.default,
       status: 'succeeded',
       payment_method: payment.method,
       payment_method_details: payment.method === 'paypal' ? { method: 'paypal' } : payment.cardDetails,

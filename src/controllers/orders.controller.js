@@ -201,7 +201,7 @@ const place = async (req, res) => {
       stripe_payment_intent_id: paymentResult.paymentIntent?.id || paymentResult.charge?.payment_intent,
       stripe_charge_id: paymentResult.chargeId,
       amount: expectedTotal, // Use backend-calculated total
-      currency: 'usd',
+      currency: config.currency.default,
       status: 'succeeded',
       payment_method: payment.method,
       payment_method_details: payment.cardDetails,

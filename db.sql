@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Oct 25, 2025 at 01:11 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost
+-- Generation Time: Oct 28, 2025 at 01:22 PM
+-- Server version: 10.4.28-MariaDB
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -148,7 +148,8 @@ CREATE TABLE `lookup_headers` (
 
 INSERT INTO `lookup_headers` (`id`, `code`, `name`, `description`, `category`, `type`, `status`, `created_at`) VALUES
 (8, 'LH-00008', 'Product Category', 'Product Category', NULL, 'Custom', 'Active', '2025-09-28 23:24:34'),
-(20, 'LH-00009', 'Order Status', 'Order status values', NULL, 'Custom', 'Active', '2025-10-12 04:57:51');
+(20, 'LH-00009', 'Order Status', 'Order status values', NULL, 'Custom', 'Active', '2025-10-12 04:57:51'),
+(21, 'LH-00010', 'Product Fit', 'Available fit options for clothing products', NULL, 'Custom', 'Active', '2025-10-27 15:12:58');
 
 -- --------------------------------------------------------
 
@@ -184,7 +185,13 @@ INSERT INTO `lookup_values` (`id`, `code`, `header_id`, `value`, `description`, 
 (29, 'LV-00029', 20, 'Shipped', 'Order has been shipped', 'Active', 3, NULL, '2025-10-17 23:00:03', 1),
 (30, 'LV-00030', 20, 'Delivered', 'Order has been delivered', 'Active', 4, NULL, '2025-10-17 23:00:03', 1),
 (31, 'LV-00031', 20, 'Cancelled', 'Order has been cancelled', 'Active', 5, NULL, '2025-10-17 23:00:03', 1),
-(33, 'LV-00033', 20, 'Returned', 'Order has been returned', 'Inactive', 7, NULL, '2025-10-17 23:00:03', 1);
+(33, 'LV-00033', 20, 'Returned', 'Order has been returned', 'Inactive', 7, NULL, '2025-10-17 23:00:03', 1),
+(34, NULL, 21, 'Standard Fit', 'Regular standard fit', 'Active', 1, NULL, '2025-10-27 15:13:45', NULL),
+(35, NULL, 21, 'Slim Fit', 'Tighter, more fitted silhouette', 'Active', 1, NULL, '2025-10-27 15:13:45', NULL),
+(36, NULL, 21, 'Loose Fit', 'Relaxed, comfortable fit', 'Active', 1, NULL, '2025-10-27 15:13:45', NULL),
+(37, NULL, 21, 'Oversized', 'Larger, relaxed fit', 'Active', 1, NULL, '2025-10-27 15:13:45', NULL),
+(38, NULL, 21, 'Fitted', 'Close to body fit', 'Active', 1, NULL, '2025-10-27 15:13:45', NULL),
+(39, NULL, 21, 'Relaxed Fit', 'Comfortable, not tight', 'Active', 1, NULL, '2025-10-27 15:13:45', NULL);
 
 -- --------------------------------------------------------
 
@@ -221,7 +228,13 @@ INSERT INTO `orders` (`id`, `code`, `user_id`, `status_value_id`, `payment_metho
 (38, 'ORD-00038', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:07:30', 40, 'paid', NULL, 0.00, NULL),
 (39, 'ORD-00039', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:08:32', 41, 'paid', NULL, 0.00, NULL),
 (40, 'ORD-00040', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:09:36', 42, 'paid', NULL, 0.00, NULL),
-(41, 'ORD-00041', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:10:09', 43, 'paid', NULL, 0.00, NULL);
+(41, 'ORD-00041', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:10:09', 43, 'paid', NULL, 0.00, NULL),
+(42, 'ORD-00042', 5, 27, NULL, 268.00, 26.80, 0.00, 268.00, '2025-10-27 16:37:11', 44, 'paid', NULL, 0.00, NULL),
+(43, 'ORD-00043', 5, 27, NULL, 268.00, 26.80, 0.00, 151.00, '2025-10-28 12:32:29', 45, 'paid', NULL, 117.00, 'TEST'),
+(44, 'ORD-00044', 5, 27, NULL, 268.00, 26.80, 0.00, 151.00, '2025-10-28 12:52:19', 46, 'paid', NULL, 117.00, 'TEST'),
+(45, 'ORD-00045', 5, 27, NULL, 268.00, 26.80, 0.00, 151.00, '2025-10-28 12:55:30', 47, 'paid', NULL, 117.00, 'TEST'),
+(46, 'ORD-00046', 5, 27, NULL, 268.00, 26.80, 0.00, 268.00, '2025-10-28 12:57:35', 48, 'paid', NULL, 0.00, NULL),
+(47, 'ORD-00047', 5, 27, NULL, 311.00, 31.10, 0.00, 182.50, '2025-10-28 15:27:10', 49, 'paid', NULL, 128.50, 'TEST');
 
 -- --------------------------------------------------------
 
@@ -252,7 +265,13 @@ INSERT INTO `order_addresses` (`id`, `order_id`, `label`, `line1`, `line2`, `cit
 (36, 38, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:07:30'),
 (37, 39, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:08:32'),
 (38, 40, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:09:36'),
-(39, 41, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:10:09');
+(39, 41, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:10:09'),
+(40, 42, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-27 16:37:11'),
+(41, 43, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-28 12:32:29'),
+(42, 44, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-28 12:52:19'),
+(43, 45, 'alsdkf', '234234', '', '234234', '234234', '03048796763', '2025-10-28 12:55:30'),
+(44, 46, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-28 12:57:35'),
+(45, 47, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-28 15:27:10');
 
 -- --------------------------------------------------------
 
@@ -280,7 +299,14 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `quanti
 (40, 38, 21, 55, 1, 12.00),
 (41, 39, 21, 55, 1, 12.00),
 (42, 40, 21, 55, 1, 12.00),
-(43, 41, 21, 55, 1, 12.00);
+(43, 41, 21, 55, 1, 12.00),
+(44, 42, 20, 56, 1, 268.00),
+(45, 43, 20, 56, 1, 268.00),
+(46, 44, 20, 56, 1, 268.00),
+(47, 45, 20, 56, 1, 268.00),
+(48, 46, 20, 56, 1, 268.00),
+(49, 47, 19, 69, 1, 43.00),
+(50, 47, 20, 56, 1, 268.00);
 
 -- --------------------------------------------------------
 
@@ -309,7 +335,13 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `t
 (46, 38, NULL, 27, 5, NULL, '2025-10-25 16:07:30'),
 (47, 39, NULL, 27, 5, NULL, '2025-10-25 16:08:32'),
 (48, 40, NULL, 27, 5, NULL, '2025-10-25 16:09:36'),
-(49, 41, NULL, 27, 5, NULL, '2025-10-25 16:10:09');
+(49, 41, NULL, 27, 5, NULL, '2025-10-25 16:10:09'),
+(50, 42, NULL, 27, 5, NULL, '2025-10-27 16:37:11'),
+(51, 43, NULL, 27, 5, NULL, '2025-10-28 12:32:29'),
+(52, 44, NULL, 27, 5, NULL, '2025-10-28 12:52:19'),
+(53, 45, NULL, 27, 5, NULL, '2025-10-28 12:55:30'),
+(54, 46, NULL, 27, 5, NULL, '2025-10-28 12:57:35'),
+(55, 47, NULL, 27, 5, NULL, '2025-10-28 15:27:10');
 
 -- --------------------------------------------------------
 
@@ -398,7 +430,7 @@ CREATE TABLE `payments` (
   `stripe_payment_intent_id` varchar(255) NOT NULL,
   `stripe_charge_id` varchar(255) DEFAULT NULL,
   `amount` decimal(12,2) NOT NULL,
-  `currency` varchar(3) DEFAULT 'usd',
+  `currency` varchar(3) DEFAULT 'gbp',
   `status` enum('pending','succeeded','failed','cancelled') DEFAULT 'pending',
   `payment_method` varchar(50) DEFAULT NULL,
   `payment_method_details` text DEFAULT NULL,
@@ -412,49 +444,55 @@ CREATE TABLE `payments` (
 --
 
 INSERT INTO `payments` (`id`, `order_id`, `stripe_payment_intent_id`, `stripe_charge_id`, `amount`, `currency`, `status`, `payment_method`, `payment_method_details`, `metadata`, `created_at`, `updated_at`) VALUES
-(1, NULL, 'pi_3SHCDGD3H6qI9jyC1O6ryNr0', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 04:28:35', '2025-10-12 04:28:35'),
-(2, NULL, 'pi_3SHCZ5D3H6qI9jyC2eEKBGcq', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 04:51:08', '2025-10-12 04:51:08'),
-(3, NULL, 'pi_3SHClkD3H6qI9jyC2g9yneZg', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 05:04:14', '2025-10-12 05:04:14'),
-(4, NULL, 'pi_3SHjuTD3H6qI9jyC03L7kmBX', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-13 16:27:25', '2025-10-13 16:27:25'),
-(5, NULL, 'pi_3SHkobD3H6qI9jyC0vYLrGfD', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-13 17:25:25', '2025-10-13 17:25:25'),
-(6, NULL, 'pi_3SHlR4D3H6qI9jyC1NRiuEfi', NULL, 57.80, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-13 18:05:10', '2025-10-13 18:05:10'),
-(7, NULL, 'pi_3SHpxsD3H6qI9jyC2LNCM0Bn', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-13 22:55:21', '2025-10-13 22:55:21'),
-(8, NULL, 'pi_3SHpyqD3H6qI9jyC1wxXdA90', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-13 22:56:21', '2025-10-13 22:56:21'),
-(9, NULL, 'pi_3SHqs2D3H6qI9jyC2wDdwDMv', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:53:23', '2025-10-13 23:53:23'),
-(10, NULL, 'pi_3SHqsqD3H6qI9jyC0Rgzn8qo', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:54:13', '2025-10-13 23:54:13'),
-(11, NULL, 'pi_3SHqvRD3H6qI9jyC2g3qRJUd', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:56:54', '2025-10-13 23:56:54'),
-(12, NULL, 'pi_3SHqxGD3H6qI9jyC19oyBJyj', NULL, 30.30, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:58:47', '2025-10-13 23:58:47'),
-(13, NULL, 'pi_3SJHc9D3H6qI9jyC2BiCoc3s', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-17 22:38:54', '2025-10-17 22:38:54'),
-(14, NULL, 'pi_3SJh9ED3H6qI9jyC0Mt8teNz', NULL, 56.70, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":47,\"tax\":4.7,\"shipping\":5}', '2025-10-19 01:54:44', '2025-10-19 01:54:44'),
-(15, NULL, 'pi_3SJhGPD3H6qI9jyC23N2Drnu', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdfa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-19 02:02:09', '2025-10-19 02:02:09'),
-(16, NULL, 'pi_3SJhHsD3H6qI9jyC2Zc0MExm', NULL, 18.20, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-19 02:03:41', '2025-10-19 02:03:41'),
-(17, NULL, 'pi_3SJwzYD3H6qI9jyC1DBbxoVK', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:48', '2025-10-19 18:49:48'),
-(18, NULL, 'pi_3SJwzcD3H6qI9jyC28JprF9u', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:52', '2025-10-19 18:49:52'),
-(19, NULL, 'pi_3SJxSnD3H6qI9jyC2540NX8g', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfsd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 19:20:01', '2025-10-19 19:20:01'),
-(20, NULL, 'pi_3SJygaD3H6qI9jyC00k6Zcf0', NULL, 548.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"1234\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":548,\"tax\":0,\"shipping\":0}', '2025-10-19 20:38:20', '2025-10-19 20:38:20'),
-(21, NULL, 'pi_3SLJkiD3H6qI9jyC19KbJ9Es', NULL, 268.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-23 13:20:08', '2025-10-23 13:20:08'),
-(22, NULL, 'pi_3SLTnfD3H6qI9jyC0ZXEkvky', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdasdfsd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-24 00:03:52', '2025-10-24 00:03:52'),
-(23, NULL, 'pi_3SLUvlD3H6qI9jyC1xk0MfWQ', NULL, 268.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asda\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-24 01:16:18', '2025-10-24 01:16:18'),
-(24, NULL, 'pi_3SLr71D3H6qI9jyC0S3svUOf', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"rasdas\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 00:57:23', '2025-10-25 00:57:23'),
-(25, NULL, 'pi_3SLsmSD3H6qI9jyC1iAPyUHp', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"mainasdfas\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 02:44:15', '2025-10-25 02:44:15'),
-(26, NULL, 'pi_3SLsoKD3H6qI9jyC0llWX2wt', NULL, 29.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramznasa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":24,\"tax\":0,\"shipping\":5}', '2025-10-25 02:46:11', '2025-10-25 02:46:11'),
-(27, NULL, 'pi_3SLsvgD3H6qI9jyC2mIjU2Eh', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 02:53:47', '2025-10-25 02:53:47'),
-(28, NULL, 'pi_3SLt5pD3H6qI9jyC0MEIhDFz', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:04:16', '2025-10-25 03:04:16'),
-(29, NULL, 'pi_3SLtFfD3H6qI9jyC1nW7NdDs', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:14:26', '2025-10-25 03:14:26'),
-(30, NULL, 'pi_3SLtJxD3H6qI9jyC01CPlcpp', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdfgsdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:18:52', '2025-10-25 03:18:52'),
-(31, NULL, 'pi_3SLtPsD3H6qI9jyC2oDSwteV', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"234\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:24:59', '2025-10-25 03:24:59'),
-(32, NULL, 'pi_3SLtUQD3H6qI9jyC1lfqoACT', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfad\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:29:41', '2025-10-25 03:29:41'),
-(33, NULL, 'pi_3SM4r4D3H6qI9jyC2odHMqcU', NULL, 65.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdaasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"232\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":60,\"tax\":0,\"shipping\":5}', '2025-10-25 15:37:50', '2025-10-25 15:37:50'),
-(34, NULL, 'pi_3SM4xGD3H6qI9jyC2xLNRS0O', NULL, 65.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdaasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"232\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":60,\"tax\":0,\"shipping\":5}', '2025-10-25 15:44:13', '2025-10-25 15:44:13'),
-(35, NULL, 'pi_3SM4zzD3H6qI9jyC1KpzZ0T5', NULL, 268.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"1234\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-25 15:47:03', '2025-10-25 15:47:03'),
-(36, NULL, 'pi_3SM54mD3H6qI9jyC2p7tR0Z8', NULL, 41.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"sfadf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":36,\"tax\":0,\"shipping\":5}', '2025-10-25 15:52:00', '2025-10-25 15:52:00'),
-(37, NULL, 'pi_3SM59TD3H6qI9jyC2sdjqXhw', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"safdasdfa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 15:56:50', '2025-10-25 15:56:50'),
-(38, NULL, 'pi_3SM5EzD3H6qI9jyC1oBPEQFF', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:02:32', '2025-10-25 16:02:32'),
-(39, NULL, 'pi_3SM5IdD3H6qI9jyC2LzNeZVD', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:06:19', '2025-10-25 16:06:19'),
-(40, NULL, 'pi_3SM5JmD3H6qI9jyC2XTJDRWP', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:07:30', '2025-10-25 16:07:30'),
-(41, NULL, 'pi_3SM5KnD3H6qI9jyC2D46YBiF', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:08:32', '2025-10-25 16:08:32'),
-(42, NULL, 'pi_3SM5LoD3H6qI9jyC1gpJqRpM', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:09:36', '2025-10-25 16:09:36'),
-(43, NULL, 'pi_3SM5MMD3H6qI9jyC2xEq7LjK', NULL, 17.00, 'usd', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:10:09', '2025-10-25 16:10:09');
+(1, NULL, 'pi_3SHCDGD3H6qI9jyC1O6ryNr0', NULL, 57.80, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 04:28:35', '2025-10-28 12:48:02'),
+(2, NULL, 'pi_3SHCZ5D3H6qI9jyC2eEKBGcq', NULL, 57.80, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 04:51:08', '2025-10-28 12:48:02'),
+(3, NULL, 'pi_3SHClkD3H6qI9jyC2g9yneZg', NULL, 57.80, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-12 05:04:14', '2025-10-28 12:48:02'),
+(4, NULL, 'pi_3SHjuTD3H6qI9jyC03L7kmBX', NULL, 57.80, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-13 16:27:25', '2025-10-28 12:48:02'),
+(5, NULL, 'pi_3SHkobD3H6qI9jyC0vYLrGfD', NULL, 57.80, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-13 17:25:25', '2025-10-28 12:48:02'),
+(6, NULL, 'pi_3SHlR4D3H6qI9jyC1NRiuEfi', NULL, 57.80, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":48,\"tax\":4.800000000000001,\"shipping\":5}', '2025-10-13 18:05:10', '2025-10-28 12:48:02'),
+(7, NULL, 'pi_3SHpxsD3H6qI9jyC2LNCM0Bn', NULL, 18.20, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-13 22:55:21', '2025-10-28 12:48:02'),
+(8, NULL, 'pi_3SHpyqD3H6qI9jyC1wxXdA90', NULL, 18.20, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-13 22:56:21', '2025-10-28 12:48:02'),
+(9, NULL, 'pi_3SHqs2D3H6qI9jyC2wDdwDMv', NULL, 30.30, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:53:23', '2025-10-28 12:48:02'),
+(10, NULL, 'pi_3SHqsqD3H6qI9jyC0Rgzn8qo', NULL, 30.30, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:54:13', '2025-10-28 12:48:02'),
+(11, NULL, 'pi_3SHqvRD3H6qI9jyC2g3qRJUd', NULL, 30.30, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:56:54', '2025-10-28 12:48:02'),
+(12, NULL, 'pi_3SHqxGD3H6qI9jyC19oyBJyj', NULL, 30.30, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/34\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":23,\"tax\":2.3000000000000003,\"shipping\":5}', '2025-10-13 23:58:47', '2025-10-28 12:48:02'),
+(13, NULL, 'pi_3SJHc9D3H6qI9jyC2BiCoc3s', NULL, 18.20, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-17 22:38:54', '2025-10-28 12:48:02'),
+(14, NULL, 'pi_3SJh9ED3H6qI9jyC0Mt8teNz', NULL, 56.70, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":47,\"tax\":4.7,\"shipping\":5}', '2025-10-19 01:54:44', '2025-10-28 12:48:02'),
+(15, NULL, 'pi_3SJhGPD3H6qI9jyC23N2Drnu', NULL, 18.20, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdfa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-19 02:02:09', '2025-10-28 12:48:02'),
+(16, NULL, 'pi_3SJhHsD3H6qI9jyC2Zc0MExm', NULL, 18.20, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":1.2000000000000002,\"shipping\":5}', '2025-10-19 02:03:41', '2025-10-28 12:48:02'),
+(17, NULL, 'pi_3SJwzYD3H6qI9jyC1DBbxoVK', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:48', '2025-10-28 12:48:02'),
+(18, NULL, 'pi_3SJwzcD3H6qI9jyC28JprF9u', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 18:49:52', '2025-10-28 12:48:02'),
+(19, NULL, 'pi_3SJxSnD3H6qI9jyC2540NX8g', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfsd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-19 19:20:01', '2025-10-28 12:48:02'),
+(20, NULL, 'pi_3SJygaD3H6qI9jyC00k6Zcf0', NULL, 548.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"1234\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":548,\"tax\":0,\"shipping\":0}', '2025-10-19 20:38:20', '2025-10-28 12:48:02'),
+(21, NULL, 'pi_3SLJkiD3H6qI9jyC19KbJ9Es', NULL, 268.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-23 13:20:08', '2025-10-28 12:48:02'),
+(22, NULL, 'pi_3SLTnfD3H6qI9jyC0ZXEkvky', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdasdfsd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-24 00:03:52', '2025-10-28 12:48:02'),
+(23, NULL, 'pi_3SLUvlD3H6qI9jyC1xk0MfWQ', NULL, 268.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asda\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-24 01:16:18', '2025-10-28 12:48:02'),
+(24, NULL, 'pi_3SLr71D3H6qI9jyC0S3svUOf', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"rasdas\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 00:57:23', '2025-10-28 12:48:02'),
+(25, NULL, 'pi_3SLsmSD3H6qI9jyC1iAPyUHp', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"mainasdfas\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 02:44:15', '2025-10-28 12:48:02'),
+(26, NULL, 'pi_3SLsoKD3H6qI9jyC0llWX2wt', NULL, 29.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"ramznasa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":24,\"tax\":0,\"shipping\":5}', '2025-10-25 02:46:11', '2025-10-28 12:48:02'),
+(27, NULL, 'pi_3SLsvgD3H6qI9jyC2mIjU2Eh', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 02:53:47', '2025-10-28 12:48:02'),
+(28, NULL, 'pi_3SLt5pD3H6qI9jyC0MEIhDFz', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:04:16', '2025-10-28 12:48:02'),
+(29, NULL, 'pi_3SLtFfD3H6qI9jyC1nW7NdDs', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:14:26', '2025-10-28 12:48:02'),
+(30, NULL, 'pi_3SLtJxD3H6qI9jyC01CPlcpp', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdfgsdf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:18:52', '2025-10-28 12:48:02'),
+(31, NULL, 'pi_3SLtPsD3H6qI9jyC2oDSwteV', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"234\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:24:59', '2025-10-28 12:48:02'),
+(32, NULL, 'pi_3SLtUQD3H6qI9jyC1lfqoACT', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfad\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 03:29:41', '2025-10-28 12:48:02'),
+(33, NULL, 'pi_3SM4r4D3H6qI9jyC2odHMqcU', NULL, 65.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdaasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"232\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":60,\"tax\":0,\"shipping\":5}', '2025-10-25 15:37:50', '2025-10-28 12:48:02'),
+(34, NULL, 'pi_3SM4xGD3H6qI9jyC2xLNRS0O', NULL, 65.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"sdaasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"232\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":60,\"tax\":0,\"shipping\":5}', '2025-10-25 15:44:13', '2025-10-28 12:48:02'),
+(35, NULL, 'pi_3SM4zzD3H6qI9jyC1KpzZ0T5', NULL, 268.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfasd\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"1234\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0}', '2025-10-25 15:47:03', '2025-10-28 12:48:02'),
+(36, NULL, 'pi_3SM54mD3H6qI9jyC2p7tR0Z8', NULL, 41.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"sfadf\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":36,\"tax\":0,\"shipping\":5}', '2025-10-25 15:52:00', '2025-10-28 12:48:02'),
+(37, NULL, 'pi_3SM59TD3H6qI9jyC2sdjqXhw', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"safdasdfa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 15:56:50', '2025-10-28 12:48:02'),
+(38, NULL, 'pi_3SM5EzD3H6qI9jyC1oBPEQFF', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"asdfa\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:02:32', '2025-10-28 12:48:02'),
+(39, NULL, 'pi_3SM5IdD3H6qI9jyC2LzNeZVD', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:06:19', '2025-10-28 12:48:02'),
+(40, NULL, 'pi_3SM5JmD3H6qI9jyC2XTJDRWP', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:07:30', '2025-10-28 12:48:02'),
+(41, NULL, 'pi_3SM5KnD3H6qI9jyC2D46YBiF', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:08:32', '2025-10-28 12:48:02'),
+(42, NULL, 'pi_3SM5LoD3H6qI9jyC1gpJqRpM', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:09:36', '2025-10-28 12:48:02'),
+(43, NULL, 'pi_3SM5MMD3H6qI9jyC2xEq7LjK', NULL, 17.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Test User\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":12,\"tax\":0,\"shipping\":5}', '2025-10-25 16:10:09', '2025-10-28 12:48:02'),
+(44, NULL, 'pi_3SMojbD3H6qI9jyC1tiZ1NJc', NULL, 268.00, 'gbp', 'succeeded', 'paypal', '{\"method\":\"paypal\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0,\"payment_method\":\"paypal\"}', '2025-10-27 16:37:11', '2025-10-28 12:48:02'),
+(45, NULL, 'pi_3SN7OLD3H6qI9jyC2mLyEPoN', NULL, 151.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 12:32:29', '2025-10-28 12:48:02'),
+(46, NULL, 'pi_3SN7hXD3H6qI9jyC1BXRL3Vk', NULL, 151.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 12:52:19', '2025-10-28 12:52:19'),
+(47, NULL, 'pi_3SN7kcD3H6qI9jyC133QpcpR', NULL, 151.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 12:55:30', '2025-10-28 12:55:30'),
+(48, NULL, 'pi_3SN7mdD3H6qI9jyC2g0dBZiK', NULL, 268.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"dsafds\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 12:57:35', '2025-10-28 12:57:35'),
+(49, NULL, 'pi_3SNA7OD3H6qI9jyC2Dx7OMS4', NULL, 182.50, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzna\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/23\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":311,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 15:27:10', '2025-10-28 15:27:10');
 
 -- --------------------------------------------------------
 
@@ -490,32 +528,40 @@ CREATE TABLE `products` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `original_price` decimal(10,2) DEFAULT NULL COMMENT 'Original price before discount',
   `current_price` decimal(10,2) DEFAULT NULL COMMENT 'Current selling price',
-  `discount_percentage` decimal(5,2) DEFAULT NULL COMMENT 'Discount percentage calculated automatically'
+  `discount_percentage` decimal(5,2) DEFAULT NULL COMMENT 'Discount percentage calculated automatically',
+  `materials_care` text DEFAULT NULL COMMENT 'Materials and care instructions for the product',
+  `delivery_returns` text DEFAULT NULL COMMENT 'Delivery and returns information',
+  `return_exchanges` text DEFAULT NULL COMMENT 'Return and exchange policy information',
+  `contact_info` text DEFAULT NULL COMMENT 'Contact information for product support',
+  `fit_options` text DEFAULT NULL COMMENT 'Available fit options for the product (JSON string)',
+  `default_fit` varchar(50) DEFAULT NULL COMMENT 'Default fit option',
+  `fit_required` tinyint(1) DEFAULT 0 COMMENT 'Whether fit selection is required for this product'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`id`, `code`, `sku`, `name`, `description`, `category_value_id`, `price`, `stock`, `stock_status`, `status`, `date_added`, `created_at`, `updated_at`, `original_price`, `current_price`, `discount_percentage`) VALUES
-(2, 'PRD-00002', 'SKU-MG7U0TUT-QYB84', 'Testing product', 'fldsjafldsa fldsa dsadsa', 6, 300.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:16:57', '2025-10-08 23:10:09', 400.00, 300.00, 25.00),
-(3, 'PRD-00003', 'SKU-MG7U19CV-J6KV2', 'Testing product', 'fldsjafldsa fldsa dsadsa', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:17:17', '2025-10-13 23:50:38', 400.00, 300.00, 25.00),
-(4, 'PRD-00004', 'TESTING-6AFC6CA2', 'Testing', 'afdsasihT', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:28:31', '2025-10-08 23:09:59', 400.00, 300.00, 25.00),
-(5, 'PRD-00005', 'THIS-TESTING-9953ACED', 'Updated Product', 'Updated description', 6, 23.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:30:13', '2025-10-08 23:10:51', 33.00, 23.00, 30.30),
-(7, 'PRD-00007', 'BSA-UK1EOAFS', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:24', '2025-10-08 22:53:30', 60.00, 50.00, 16.67),
-(8, 'PRD-00008', 'BSA-GWNWXIXD', 'Black SIlk Abaya', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:51', '2025-10-08 22:53:48', 60.00, 50.00, 16.67),
-(9, 'PRD-00009', 'BSA-H1IWRY2D', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:37:32', '2025-10-08 23:08:08', 60.00, 50.00, 16.67),
-(10, 'PRD-00010', 'BSA-D305YAO0', 'Black SIlk Abaya', 'fdslafkdsa', 8, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:00', '2025-10-08 23:08:15', 60.00, 50.00, 16.67),
-(11, 'PRD-00011', 'BSA-FT1GNCS4', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-08 23:08:22', 60.00, 50.00, 16.67),
-(12, 'PRD-00012', 'BSA-8TT2D302', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-08 23:08:30', 60.00, 50.00, 16.67),
-(13, 'PRD-00013', 'BSA-J6CFUPPP', 'Black SIlk Abaya', 'fdslafkdsa', 10, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:05', '2025-10-08 23:08:47', 60.00, 50.00, 16.67),
-(14, 'PRD-00014', 'BSA-5GT87547', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-08 23:08:59', 60.00, 50.00, 16.67),
-(15, 'PRD-00015', 'BSA-4AVCILJU', 'Black SIlk Abaya ......', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-08 23:09:50', 60.00, 50.00, 16.67),
-(16, 'PRD-00016', 'BSA-ZK6EFBXR', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-08 23:09:12', 60.00, 50.00, 16.67),
-(17, 'PRD-00017', 'BSA-M1L63XBK', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:11', '2025-10-08 23:09:19', 60.00, 50.00, 16.67),
-(19, 'PRD-00019', 'A-2WIMT3N0', 'Updated Test Product', '3333333333333333333333333333333', 7, 25.00, 234, 'Active', 'Active', '2025-10-02', '2025-10-02 01:30:18', '2025-10-08 23:00:45', 10.00, 23.00, NULL),
-(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 90, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-19 20:11:51', 2344.00, 234.00, 90.02),
-(21, 'PRD-00021', 'TP-NHUQ4CUZ', 'Testing product', 'dts', 6, 12.00, 100, 'Active', 'Active', '2025-10-11', '2025-10-11 18:52:25', '2025-10-13 22:59:29', 123.00, 12.00, 90.24);
+INSERT INTO `products` (`id`, `code`, `sku`, `name`, `description`, `category_value_id`, `price`, `stock`, `stock_status`, `status`, `date_added`, `created_at`, `updated_at`, `original_price`, `current_price`, `discount_percentage`, `materials_care`, `delivery_returns`, `return_exchanges`, `contact_info`, `fit_options`, `default_fit`, `fit_required`) VALUES
+(2, 'PRD-00002', 'SKU-MG7U0TUT-QYB84', 'Testing product', 'fldsjafldsa fldsa dsadsa', 6, 300.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:16:57', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(3, 'PRD-00003', 'SKU-MG7U19CV-J6KV2', 'Testing product', 'fldsjafldsa fldsa dsadsa', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:17:17', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(4, 'PRD-00004', 'TESTING-6AFC6CA2', 'Testing', 'afdsasihT', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:28:31', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(5, 'PRD-00005', 'THIS-TESTING-9953ACED', 'Updated Product', 'Updated description', 6, 23.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:30:13', '2025-10-27 14:58:03', 33.00, 23.00, 30.30, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(7, 'PRD-00007', 'BSA-UK1EOAFS', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:24', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(8, 'PRD-00008', 'BSA-GWNWXIXD', 'Black SIlk Abaya', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:51', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(9, 'PRD-00009', 'BSA-H1IWRY2D', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:37:32', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(10, 'PRD-00010', 'BSA-D305YAO0', 'Black SIlk Abaya', 'fdslafkdsa', 8, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:00', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(11, 'PRD-00011', 'BSA-FT1GNCS4', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(12, 'PRD-00012', 'BSA-8TT2D302', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(13, 'PRD-00013', 'BSA-J6CFUPPP', 'Black SIlk Abaya', 'fdslafkdsa', 10, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:05', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(14, 'PRD-00014', 'BSA-5GT87547', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(15, 'PRD-00015', 'BSA-4AVCILJU', 'Black SIlk Abaya ......', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(16, 'PRD-00016', 'BSA-ZK6EFBXR', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(17, 'PRD-00017', 'BSA-M1L63XBK', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:11', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(19, 'PRD-00019', 'A-2WIMT3N0', 'Updated Test Product', 'Product name: Aurora X200 Wireless Noise-Cancelling Headphones<div>SKU: AUR-X200-BLK</div><div><ul><li>Short description: Premium over-ear Bluetooth headphones with active noise cancellation, 40-hour battery, and studio-grade sound.</li></ul></div><div>Price: $129.99 (USD) — Sale: $99.99 (limited time)</div><div><ul><li>Currency: USD</li></ul></div><div>Stock: 1,250 units</div><div>Category: Electronics / Audio</div><div>Tags: wireless, ANC, bluetooth, over-ear, long-battery</div><div>Key features:</div><div><ol><li><b><br></b></li><li><b>1: Active Noise Cancellation (ANC) with ambient mode</b></li><li><b>Bluetooth 5.3, aptX HD support</b></li><li><b>40 hours playback (standard mode), 20 min quick charge → 6 hours</b></li><li><b>Built-in microphone with ENC for clear calls</b></li><li><b>Foldable, lightweight aluminum frame with memory-foam earcups</b></li><li><b>On-device touch controls + voice assistant support</b></li><li><b>Technical specifications:</b></li><li><b>Drivers: 40 mm dynamic</b></li><li><b>Frequency response: 20 Hz – 20 kH</b></li></ol></div>', 7, 23.00, 1000, 'Active', 'Active', '2025-10-02', '2025-10-02 01:30:18', '2025-10-28 13:18:47', 10.00, 23.00, NULL, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.\n\nany extra information that you want to add  >>>>>>>>>>>>', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', '[\"Fitted\",\"Loose Fit\",\"Oversized\",\"Relaxed Fit\",\"Slim Fit\",\"Standard Fit\"]', 'Oversized', 1),
+(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 90, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-27 14:58:03', 2344.00, 234.00, 90.02, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(21, 'PRD-00021', 'TP-NHUQ4CUZ', 'Testing product', 'dts', 6, 12.00, 100, 'Active', 'Active', '2025-10-11', '2025-10-11 18:52:25', '2025-10-27 14:58:03', 123.00, 12.00, 90.24, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(22, 'PRD-00022', 'AT-C75UTQCJ', 'Again tesgin', 'asdfasdfasdf', 6, 200.00, 200, 'Active', 'Active', '2025-10-27', '2025-10-27 15:10:10', '2025-10-27 15:17:12', 200.00, 200.00, NULL, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', '[\"Fitted\",\"Loose Fit\",\"Oversized\",\"Relaxed Fit\",\"Slim Fit\",\"Standard Fit\"]', 'Relaxed Fit', 1);
 
 -- --------------------------------------------------------
 
@@ -535,10 +581,6 @@ CREATE TABLE `product_images` (
 --
 
 INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `order`) VALUES
-(111, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm1-dc8a0bb52264efef.jpg', 1),
-(112, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm6-16fc4f0336c195c4.jpg', 2),
-(113, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm7-ce8b3be468dd3cab.jpg', 3),
-(114, 19, 'http://localhost:3000/uploads/products/19/mg8mv81g-98115437a5d0b59b.jpg', 4),
 (115, 7, 'http://localhost:3000/uploads/products/7/mgiaewpi-1eaa9929c4d4e2fa.jpg', 1),
 (116, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5u-b33e0353446bea82.jpg', 1),
 (117, 8, 'http://localhost:3000/uploads/products/8/mg7uqf5v-ca6da264f6d81209.jpg', 2),
@@ -614,7 +656,15 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `order`) VALUES
 (234, 20, 'http://localhost:3000/uploads/products/20/mgib3aan-ccd5bea86a39c0f5.jpg', 1),
 (235, 20, 'http://localhost:3000/uploads/products/20/mgib3aar-d5bf4a50b8eb7a4f.jpg', 2),
 (236, 20, 'http://localhost:3000/uploads/products/20/mgib3aat-9ea9b38a2fa45630.jpg', 3),
-(237, 20, 'http://localhost:3000/uploads/products/20/mgib3aav-f13369f26cdc27c6.jpg', 4);
+(237, 20, 'http://localhost:3000/uploads/products/20/mgib3aav-f13369f26cdc27c6.jpg', 4),
+(250, 22, 'http://localhost:3000/uploads/products/22/mh8z88kj-3941a6f98efee65c.jpg', 1),
+(251, 22, 'http://localhost:3000/uploads/products/22/mh8z88kp-d9b6c2d1a9732523.jpg', 2),
+(252, 22, 'http://localhost:3000/uploads/products/22/mh8z88kr-263492bebc905ba0.jpg', 3),
+(253, 22, 'http://localhost:3000/uploads/products/22/mh8z88ku-3af40a45352822a2.jpg', 4),
+(262, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm1-dc8a0bb52264efef.jpg', 1),
+(263, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm6-16fc4f0336c195c4.jpg', 2),
+(264, 19, 'http://localhost:3000/uploads/products/19/mg8hhnm7-ce8b3be468dd3cab.jpg', 3),
+(265, 19, 'http://localhost:3000/uploads/products/19/mg8mv81g-98115437a5d0b59b.jpg', 4);
 
 -- --------------------------------------------------------
 
@@ -639,16 +689,17 @@ CREATE TABLE `product_variants` (
 --
 
 INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock`, `size`, `color_name`, `color_code`, `color_image`) VALUES
-(39, 19, 'ASDFASDFAS-S-asdfasd', 0.00, 772, 'S', 'asdfasd', '#000000', ''),
-(40, 19, 'ASDFASDFAS-M-Blue', 25.00, 23, 'M', 'Blue', '#087fba', ''),
 (45, 13, 'BLACK-SILK-ABAYA-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
 (49, 15, 'BLACK-SILK-ABAYA-......-S-Black', 0.00, 234, 'S', 'Black', '#000000', ''),
 (50, 4, 'TESTING-S-Black', 0.00, 10, 'S', 'Black', '#000000', ''),
 (51, 2, 'TESTING-PRODUCT-S-Black', 0.00, 23, 'S', 'Black', '#000000', ''),
 (55, 21, 'TESTING-PRODUCT-S-Red', 0.00, 60, 'S', 'Red', '#f50f0f', ''),
-(56, 20, 'ASDFASD-M-sdfgs', 34.00, 25, 'M', 'sdfgs', '#000000', ''),
+(56, 20, 'ASDFASD-M-sdfgs', 34.00, 19, 'M', 'sdfgs', '#000000', ''),
 (57, 20, 'ASDFASD-S-asdfasd', 0.00, 29, 'S', 'asdfasd', '#683c3c', ''),
-(58, 20, 'ASDFASD-L-asdfads', 0.00, 30, 'L', 'asdfads', '#0d8bc9', '');
+(58, 20, 'ASDFASD-L-asdfads', 0.00, 30, 'L', 'asdfads', '#0d8bc9', ''),
+(69, 19, 'UPDATED-TEST-PRODUCT-S-asdfasd', 20.00, 771, 'S', 'asdfasd', '#000000', ''),
+(70, 19, 'UPDATED-TEST-PRODUCT-M-Blue', 8.00, 23, 'M', 'Blue', '#087fba', ''),
+(71, 19, 'UPDATED-TEST-PRODUCT-L-blue', 0.00, 104, 'L', 'blue', '#0657f9', '');
 
 -- --------------------------------------------------------
 
@@ -702,10 +753,11 @@ INSERT INTO `recently_viewed` (`id`, `user_id`, `product_id`, `viewed_at`) VALUE
 (7, 8, 21, '2025-10-19 01:45:21'),
 (16, 5, 13, '2025-10-19 19:58:31'),
 (17, 5, 11, '2025-10-19 19:58:35'),
-(28, 5, 19, '2025-10-19 20:10:00'),
 (45, 5, 14, '2025-10-24 00:03:05'),
-(57, 5, 20, '2025-10-24 00:46:40'),
-(59, 5, 21, '2025-10-25 15:15:52');
+(74, 5, 21, '2025-10-28 12:35:21'),
+(89, 5, 22, '2025-10-28 15:19:00'),
+(90, 5, 19, '2025-10-28 15:19:11'),
+(92, 5, 20, '2025-10-28 17:03:41');
 
 -- --------------------------------------------------------
 
@@ -787,7 +839,13 @@ INSERT INTO `shipments` (`id`, `order_id`, `method_value_id`, `scheduled_date`, 
 (38, 38, 28, NULL, 5.00),
 (39, 39, 28, NULL, 5.00),
 (40, 40, 28, NULL, 5.00),
-(41, 41, 28, NULL, 5.00);
+(41, 41, 28, NULL, 5.00),
+(42, 42, 28, NULL, 5.00),
+(43, 43, 28, NULL, 5.00),
+(44, 44, 28, NULL, 5.00),
+(45, 45, 28, NULL, 5.00),
+(46, 46, 28, NULL, 5.00),
+(47, 47, 28, NULL, 5.00);
 
 -- --------------------------------------------------------
 
@@ -1133,37 +1191,37 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `lookup_headers`
 --
 ALTER TABLE `lookup_headers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `lookup_values`
 --
 ALTER TABLE `lookup_values`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `order_addresses`
 --
 ALTER TABLE `order_addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `otp_verifications`
@@ -1175,7 +1233,7 @@ ALTER TABLE `otp_verifications`
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -1187,19 +1245,19 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=238;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=266;
 
 --
 -- AUTO_INCREMENT for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT for table `promo_codes`
@@ -1211,7 +1269,7 @@ ALTER TABLE `promo_codes`
 -- AUTO_INCREMENT for table `recently_viewed`
 --
 ALTER TABLE `recently_viewed`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
 
 --
 -- AUTO_INCREMENT for table `reviews`
@@ -1229,7 +1287,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipments`
 --
 ALTER TABLE `shipments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `users`
