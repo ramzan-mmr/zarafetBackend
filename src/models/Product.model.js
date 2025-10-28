@@ -4,7 +4,7 @@ const ImageService = require('../utils/imageService');
 
 class Product {
   static async create(productData) {
-    const { name, description, category_value_id, price, original_price, current_price, stock, stock_status, status, images, variants, fit_required, default_fit, fit_options } = productData;
+    const { name, description, category_value_id, price, original_price, current_price, stock, stock_status, status, images, variants, fit_required, default_fit, fit_options, materials_care, delivery_returns, return_exchanges, contact_info } = productData;
     
     // Validate category_value_id if provided
     if (category_value_id !== undefined && category_value_id !== null) {
@@ -46,9 +46,9 @@ class Product {
     }
     
     const [result] = await db.execute(
-      `INSERT INTO products (sku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status, fit_required, default_fit, fit_options) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [finalSku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status, Boolean(fit_required), default_fit || null, fit_options || null]
+      `INSERT INTO products (sku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status, fit_required, default_fit, fit_options, materials_care, delivery_returns, return_exchanges, contact_info) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [finalSku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status, Boolean(fit_required), default_fit || null, fit_options || null, materials_care || null, delivery_returns || null, return_exchanges || null, contact_info || null]
     );
     
     const productId = result.insertId;
@@ -187,7 +187,25 @@ class Product {
     `;
     
     const [rows] = await db.execute(query, values);
-    return rows;
+    
+    // Add default values for product information sections for each product
+    const productsWithDefaults = rows.map(product => {
+      if (!product.materials_care) {
+        product.materials_care = 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.';
+      }
+      if (!product.delivery_returns) {
+        product.delivery_returns = 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.';
+      }
+      if (!product.return_exchanges) {
+        product.return_exchanges = 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.';
+      }
+      if (!product.contact_info) {
+        product.contact_info = 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.';
+      }
+      return product;
+    });
+    
+    return productsWithDefaults;
   }
   
   static async findById(id) {
@@ -236,6 +254,20 @@ class Product {
         console.error('Error fetching fit options:', error);
         product.available_fits = [];
       }
+    }
+    
+    // Add default values for product information sections if they are empty
+    if (!product.materials_care) {
+      product.materials_care = 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.';
+    }
+    if (!product.delivery_returns) {
+      product.delivery_returns = 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.';
+    }
+    if (!product.return_exchanges) {
+      product.return_exchanges = 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.';
+    }
+    if (!product.contact_info) {
+      product.contact_info = 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.';
     }
     
     return product;

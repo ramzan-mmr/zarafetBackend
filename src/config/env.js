@@ -60,5 +60,11 @@ module.exports = {
   smtp: {
     email: process.env.SMTP_EMAIL,
     password: process.env.SMTP_PASSWORD
+  },
+
+  // Currency Configuration
+  currency: {
+    default: process.env.DEFAULT_CURRENCY || 'gbp',
+    symbol: process.env.CURRENCY_SYMBOL || '£'
   }
 };

@@ -1,14 +1,15 @@
+const config = require('../config/env');
 const stripe = require('../config/stripe');
 
 class StripeService {
   /**
    * Create a payment intent for frontend integration
    * @param {number} amount - Amount in cents
-   * @param {string} currency - Currency code (default: 'usd')
+   * @param {string} currency - Currency code (default: 'gbp')
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Stripe payment intent
    */
-  static async createPaymentIntent(amount, currency = 'usd', metadata = {}) {
+  static async createPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
     try {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -23,6 +24,81 @@ class StripeService {
     } catch (error) {
       console.error('Stripe createPaymentIntent error:', error);
       throw new Error(`Failed to create payment intent: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create a payment intent specifically for PayPal payments
+   * @param {number} amount - Amount in dollars
+   * @param {string} currency - Currency code (default: 'gbp')
+   * @param {object} metadata - Additional metadata
+   * @returns {Promise<object>} Stripe payment intent with PayPal enabled
+   */
+  static async createPayPalPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
+        metadata,
+        payment_method_types: ['paypal'],
+      });
+
+      return paymentIntent;
+    } catch (error) {
+      console.error('Stripe createPayPalPaymentIntent error:', error);
+      throw new Error(`Failed to create PayPal payment intent: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create a payment intent specifically for Apple Pay payments
+   * @param {number} amount - Amount in dollars
+   * @param {string} currency - Currency code (default: 'gbp')
+   * @param {object} metadata - Additional metadata
+   * @returns {Promise<object>} Stripe payment intent with Apple Pay enabled
+   */
+  static async createApplePayPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
+        metadata,
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: 'always'
+        },
+      });
+
+      return paymentIntent;
+    } catch (error) {
+      console.error('Stripe createApplePayPaymentIntent error:', error);
+      throw new Error(`Failed to create Apple Pay payment intent: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create a payment intent specifically for Google Pay payments
+   * @param {number} amount - Amount in dollars
+   * @param {string} currency - Currency code (default: 'gbp')
+   * @param {object} metadata - Additional metadata
+   * @returns {Promise<object>} Stripe payment intent with Google Pay enabled
+   */
+  static async createGooglePayPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
+        metadata,
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: 'always'
+        },
+      });
+
+      return paymentIntent;
+    } catch (error) {
+      console.error('Stripe createGooglePayPaymentIntent error:', error);
+      throw new Error(`Failed to create Google Pay payment intent: ${error.message}`);
     }
   }
 
@@ -54,7 +130,7 @@ class StripeService {
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Stripe charge
    */
-  static async createCharge(paymentMethodId, amount, currency = 'usd', metadata = {}) {
+  static async createCharge(paymentMethodId, amount, currency = config.currency.default, metadata = {}) {
     try {
       const charge = await stripe.charges.create({
         amount: Math.round(amount * 100), // Convert to cents
@@ -78,7 +154,7 @@ class StripeService {
    * @param {object} metadata - Additional metadata
    * @returns {Promise<object>} Payment result
    */
-  static async processPayment(paymentData, amount, currency = 'usd', metadata = {}) {
+  static async processPayment(paymentData, amount, currency = config.currency.default, metadata = {}) {
     try {
       console.log('🔍 StripeService.processPayment called with:', {
         paymentData,
@@ -103,10 +179,28 @@ class StripeService {
           paymentIntent,
           chargeId: null, // Will be available after confirmation
         };
-      } else if (paymentData.method === 'applePay' || paymentData.method === 'googlePay') {
-        // For wallet payments, create a payment intent
-        console.log(`📱 Creating payment intent for ${paymentData.method} payment...`);
-        const paymentIntent = await this.createPaymentIntent(amount, currency, metadata);
+      } else if (paymentData.method === 'paypal') {
+        // For PayPal payments, create a payment intent with PayPal enabled
+        console.log('💰 Creating payment intent for PayPal payment...');
+        const paymentIntent = await this.createPayPalPaymentIntent(amount, currency, metadata);
+        return {
+          success: true,
+          paymentIntent,
+          chargeId: null, // Will be available after confirmation
+        };
+      } else if (paymentData.method === 'applePay') {
+        // For Apple Pay payments, create a payment intent with Apple Pay enabled
+        console.log('🍎 Creating payment intent for Apple Pay payment...');
+        const paymentIntent = await this.createApplePayPaymentIntent(amount, currency, metadata);
+        return {
+          success: true,
+          paymentIntent,
+          chargeId: null, // Will be available after confirmation
+        };
+      } else if (paymentData.method === 'googlePay') {
+        // For Google Pay payments, create a payment intent with Google Pay enabled
+        console.log('🔵 Creating payment intent for Google Pay payment...');
+        const paymentIntent = await this.createGooglePayPaymentIntent(amount, currency, metadata);
         return {
           success: true,
           paymentIntent,

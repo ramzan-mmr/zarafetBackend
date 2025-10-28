@@ -406,6 +406,27 @@ const getFeaturedProducts = async (req, res) => {
   }
 };
 
+// Get recommended products (mix of trending, latest, and featured)
+const getRecommendedProducts = async (req, res) => {
+  try {
+    const { limit = 8 } = req.query;
+    
+    const products = await PublicModule.getRecommendedProducts(parseInt(limit));
+    
+    res.json({
+      success: true,
+      data: products,
+      message: 'Recommended products retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get recommended products error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch recommended products'
+    });
+  }
+};
+
 // Get single product by ID
 const getProductById = async (req, res) => {
   try {
@@ -1486,6 +1507,7 @@ module.exports = {
   getTrendingProducts,
   getLatestProducts,
   getFeaturedProducts,
+  getRecommendedProducts,
   getProductById,
   getProductsByIds,
   // Address management

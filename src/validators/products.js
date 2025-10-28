@@ -27,6 +27,11 @@ const base = {
   ).default(false),
   default_fit: Joi.string().max(50).allow('', null),
   fit_options: Joi.string().allow('', null), // JSON string of selected fit options
+  // Product information sections
+  materials_care: Joi.string().allow('', null).description('Materials and care instructions'),
+  delivery_returns: Joi.string().allow('', null).description('Delivery and returns information'),
+  return_exchanges: Joi.string().allow('', null).description('Return and exchange policy information'),
+  contact_info: Joi.string().allow('', null).description('Contact information for product support'),
   images: Joi.array().items(Joi.string().max(10000000)).default([]), // Increased to 10MB for base64 images
   variants: Joi.array().items(Joi.object({
     size: Joi.string().valid('XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL').allow(null),

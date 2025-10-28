@@ -1,9 +1,10 @@
+const config = require('../config/env');
 const Joi = require('joi');
 const { positiveInt, money } = require('./common');
 
 exports.createPaymentIntent = Joi.object({
   amount: Joi.number().min(0.01).required(),
-  currency: Joi.string().length(3).default('usd'),
+  currency: Joi.string().length(3).default(config.currency.default),
   metadata: Joi.object().default({})
 });
 
@@ -53,13 +54,13 @@ exports.processPayment = Joi.object({
     cost: Joi.number().min(0).required()
   }).required(),
   payment: Joi.object({
-    method: Joi.string().valid('creditCard', 'applePay', 'googlePay', 'alipay', 'wechatPay').required(),
+    method: Joi.string().valid('creditCard', 'paypal', 'applePay', 'googlePay', 'alipay', 'wechatPay').required(),
     cardDetails: Joi.object({
       cardholderName: Joi.string().allow(''),
       cardNumber: Joi.string().allow(''),
       expDate: Joi.string().allow(''),
       cvv: Joi.string().allow('')
-    }).allow(null),
+    }).allow(null).optional(),
     paymentIntentId: Joi.string().allow(''),
     sameAsBilling: Joi.boolean().default(true)
   }).required(),

@@ -136,17 +136,18 @@ const process = async (req, res) => {
     // }
 
     // Process payment with backend-calculated total
-    console.log('💳 Processing payment with Stripe...');
+    console.log(`💳 Processing ${payment.method} payment with Stripe...`);
     const paymentResult = await StripeService.processPayment(
       payment,
       expectedTotal, // Use backend-calculated total
-      'usd',
+      config.currency.default,
       {
         user_id,
         order_items: orderItems.length,
         subtotal: expectedSubtotal,
         shipping: expectedShipping,
-        tax: expectedTax
+        tax: expectedTax,
+        payment_method: payment.method
       }
     );
 
@@ -169,16 +170,17 @@ const process = async (req, res) => {
       stripe_payment_intent_id: paymentResult.paymentIntent?.id || paymentResult.charge?.payment_intent,
       stripe_charge_id: paymentResult.chargeId,
       amount: expectedTotal, // Use backend-calculated total
-      currency: 'usd',
+      currency: config.currency.default,
       status: 'succeeded',
       payment_method: payment.method,
-      payment_method_details: payment.cardDetails,
+      payment_method_details: payment.method === 'paypal' ? { method: 'paypal' } : payment.cardDetails,
       metadata: {
         user_id,
         order_items: orderItems.length,
         subtotal: expectedSubtotal,
         tax: expectedTax,
-        shipping: expectedShipping
+        shipping: expectedShipping,
+        payment_method: payment.method
       }
     };
 

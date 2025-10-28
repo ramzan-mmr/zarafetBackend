@@ -382,6 +382,30 @@ class PublicModule {
 
     return await this.enrichProductsWithDetails(rows);
   }
+
+  // Get recommended products (mix of trending, latest, and featured)
+  static async getRecommendedProducts(limit = 8) {
+    const [rows] = await db.execute(`
+      SELECT p.*, 
+             c.name as category_name,
+             (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY \`order\` LIMIT 1) as main_image
+      FROM products p
+      LEFT JOIN categories c ON p.category_value_id = c.id
+      WHERE p.status = 'Active' 
+        AND p.stock_status != 'Out of Stock'
+      ORDER BY 
+        CASE 
+          WHEN p.discount_percentage > 20 THEN 1
+          WHEN p.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 2
+          WHEN p.discount_percentage > 0 THEN 3
+          ELSE 4
+        END,
+        p.created_at DESC
+      LIMIT ?
+    `, [parseInt(limit)]);
+
+    return await this.enrichProductsWithDetails(rows);
+  }
 }
 
 module.exports = PublicModule;

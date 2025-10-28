@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const config = require('../config/env');
 
 class Payment {
   /**
@@ -12,7 +13,7 @@ class Payment {
       stripe_payment_intent_id,
       stripe_charge_id,
       amount,
-      currency = 'usd',
+      currency = config.currency.default,
       status = 'pending',
       payment_method,
       payment_method_details,
