@@ -70,11 +70,16 @@ class Order {
 
       console.log(`📊 Final order totals: Subtotal=${subtotal}, Tax=${tax}, Shipping=${shipping}, Total=${total}`);
 
-      // Get initial status (assuming "Pending" status exists)
-      console.log('🔍 Looking up order status...');
-      const [statusRows] = await connection.execute(
-        'SELECT id FROM lookup_values WHERE header_id = (SELECT id FROM lookup_headers WHERE name = "Order Status") AND value = "Pending"'
+      // Get initial status (prefer "Processing"; fallback to "Pending")
+      console.log('🔍 Looking up initial order status...');
+      let [statusRows] = await connection.execute(
+        'SELECT id FROM lookup_values WHERE header_id = (SELECT id FROM lookup_headers WHERE name = "Order Status") AND value = "Processing"'
       );
+      if (!statusRows[0]) {
+        [statusRows] = await connection.execute(
+          'SELECT id FROM lookup_values WHERE header_id = (SELECT id FROM lookup_headers WHERE name = "Order Status") AND value = "Pending"'
+        );
+      }
 
       if (!statusRows[0]) {
         console.error('❌ Order status "Pending" not found');

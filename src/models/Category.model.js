@@ -12,11 +12,14 @@ class Category {
       status = 'Active',
       created_by 
     } = categoryData;
+    const normalizedStatus = typeof status === 'string' 
+      ? (status.toLowerCase() === 'inactive' ? 'Inactive' : (status.toLowerCase() === 'active' ? 'Active' : 'Active'))
+      : 'Active';
     
     const [result] = await db.execute(
       `INSERT INTO categories (name, description, image_url, parent_id, sort_order, status, created_by) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [name, description || null, image_url || null, parent_id || null, sort_order, status, created_by]
+      [name, description || null, image_url || null, parent_id || null, sort_order, normalizedStatus, created_by]
     );
     
     // Generate code and update
@@ -85,6 +88,12 @@ class Category {
     const fields = [];
     const values = [];
     
+    // Normalize status value if provided (DB enum is 'Active' | 'Inactive')
+    if (updateData.status !== undefined && typeof updateData.status === 'string') {
+      const s = updateData.status.toLowerCase();
+      updateData.status = s === 'inactive' ? 'Inactive' : (s === 'active' ? 'Active' : updateData.status);
+    }
+
     Object.entries(updateData).forEach(([key, value]) => {
       if (value !== undefined) {
         if (key === 'sort_order') {
