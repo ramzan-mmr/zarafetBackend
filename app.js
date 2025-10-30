@@ -24,8 +24,8 @@ const promoCodeRoutes = require('./src/routes/promoCode.routes');
 
 const app = express();
 
-// Trust proxy for rate limiting and IP detection
-app.set('trust proxy', true);
+// Trust only the first proxy (recommended for rate limiting behind one proxy like Nginx)
+// app.set('trust proxy', 1);
 
 // Security middleware with image-friendly configuration
 app.use(helmet({

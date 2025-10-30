@@ -13,7 +13,7 @@ const createPromoCodeSchema = Joi.object({
   discount_value: Joi.number().min(0.01).required(),
   status: Joi.string().valid('active', 'inactive'),
   expiry_date: Joi.date().iso().allow(null, ''),
-  description: Joi.string().max(255)
+  description: Joi.string().max(255).allow(null, '')
 });
 
 const updatePromoCodeSchema = Joi.object({
@@ -22,7 +22,7 @@ const updatePromoCodeSchema = Joi.object({
   discount_value: Joi.number().min(0.01),
   status: Joi.string().valid('active', 'inactive'),
   expiry_date: Joi.date().iso().allow(null, ''),
-  description: Joi.string().max(255)
+  description: Joi.string().max(255).allow(null, '')
 });
 
 const validatePromoCodeSchema = Joi.object({
@@ -62,7 +62,7 @@ router.put('/:id',
 );
 
 router.delete('/:id',
-  checkRole(['Admin']), // Only admin can delete promo codes
+  checkRole(['Admin']),
   validateParams(idParamSchema),
   ctrl.remove
 );

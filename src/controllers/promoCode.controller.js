@@ -36,6 +36,7 @@ const getById = async (req, res) => {
 };
 
 const create = async (req, res) => {
+  console.log("Create promo code request:", req.body) 
   try {
     const { code, discount_type, discount_value, status, expiry_date, description } = req.body;
     
@@ -60,17 +61,24 @@ const create = async (req, res) => {
     
     // Check if code already exists
     const existingCode = await PromoCode.findByCode(code);
+    console.log("Existing code:", existingCode)
     if (existingCode) {
       return res.status(400).json(responses.badRequest('Promo code already exists'));
     }
     
+    // Normalize expiry_date: allow Date object, string, or null/empty
+    let normalizedExpiryDate = null;
+    if (expiry_date !== undefined && expiry_date !== null && expiry_date !== '') {
+      normalizedExpiryDate = expiry_date; // Can be a Date or a non-empty string; both accepted by mysql driver
+    }
+
     const promoCodeId = await PromoCode.create({
       code: code.toUpperCase().trim(),
       discount_type,
       discount_value,
       status: status || 'active',
-      expiry_date: expiry_date && expiry_date.trim() !== '' ? expiry_date : null,
-      description
+      expiry_date: normalizedExpiryDate,
+      description: description === '' ? null : description
     });
     
     const newPromoCode = await PromoCode.findById(promoCodeId);
@@ -103,9 +111,16 @@ const update = async (req, res) => {
       }
     }
     
-    // Handle empty expiry_date
+    // Handle empty expiry_date (support Date objects and strings)
     if (updateData.expiry_date !== undefined) {
-      updateData.expiry_date = updateData.expiry_date && updateData.expiry_date.trim() !== '' ? updateData.expiry_date : null;
+      if (updateData.expiry_date === null || updateData.expiry_date === '') {
+        updateData.expiry_date = null;
+      }
+      // else leave as-is (Date or non-empty string)
+    }
+
+    if (updateData.description !== undefined && updateData.description === '') {
+      updateData.description = null;
     }
     
     const success = await PromoCode.update(id, updateData);
