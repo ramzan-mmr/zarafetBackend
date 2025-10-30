@@ -853,8 +853,8 @@ const verifyOTP = async (req, res) => {
     }
     
     // Verify OTP
-    const isValid = await OTP.verify(email, otp);
-    if (!isValid) {
+    const otpResult = await OTP.verify(email, otp);
+    if (!otpResult || otpResult.valid !== true) {
       return res.status(400).json({
         success: false,
         message: 'Invalid or expired OTP'
@@ -1035,8 +1035,8 @@ const resetPassword = async (req, res) => {
     }
     
     // Verify OTP
-    const isValid = await OTP.verify(email, otp);
-    if (!isValid) {
+    const otpResult = await OTP.verify(email, otp);
+    if (!otpResult || otpResult.valid !== true) {
       return res.status(400).json({
         success: false,
         message: 'Invalid or expired OTP'
