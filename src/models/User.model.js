@@ -65,6 +65,17 @@ class User {
       conditions.push('u.role_id = ?');
       values.push(filters.role_id);
     }
+    // Handle role names filter (e.g., ['Admin','Manager'])
+    if (filters.role_names && Array.isArray(filters.role_names) && filters.role_names.length > 0) {
+      const placeholders = filters.role_names.map(() => '?').join(',');
+      conditions.push(`r.name IN (${placeholders})`);
+      values.push(...filters.role_names);
+    }
+    // Handle user_type filter (admin/customer)
+    if (filters.user_type) {
+      conditions.push('u.user_type = ?');
+      values.push(filters.user_type);
+    }
     
     // Handle search filter
     if (filters.search) {
@@ -106,6 +117,17 @@ class User {
       conditions.push('u.role_id = ?');
       values.push(filters.role_id);
     }
+    // Handle role names filter (e.g., ['Admin','Manager'])
+    if (filters.role_names && Array.isArray(filters.role_names) && filters.role_names.length > 0) {
+      const placeholders = filters.role_names.map(() => '?').join(',');
+      conditions.push(`r.name IN (${placeholders})`);
+      values.push(...filters.role_names);
+    }
+    // Handle user_type filter (admin/customer)
+    if (filters.user_type) {
+      conditions.push('u.user_type = ?');
+      values.push(filters.user_type);
+    }
     
     // Handle search filter
     if (filters.search) {
@@ -117,7 +139,7 @@ class User {
     const whereClause = conditions.length > 0 ? 'WHERE ' + conditions.join(' AND ') : '';
     
     const [rows] = await db.execute(
-      `SELECT COUNT(*) as total FROM users u ${whereClause}`,
+      `SELECT COUNT(*) as total FROM users u LEFT JOIN roles r ON u.role_id = r.id ${whereClause}`,
       values
     );
     return rows[0].total;

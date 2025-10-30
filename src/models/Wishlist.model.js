@@ -29,9 +29,19 @@ class Wishlist {
       `SELECT w.*, 
               p.name as product_name,
               p.price,
+              p.original_price,
+              p.current_price,
+              p.stock_status,
               p.sku,
               p.status as product_status,
-              c.name as category_name
+              c.name as category_name,
+              (
+                SELECT pi.image_url 
+                FROM product_images pi 
+                WHERE pi.product_id = p.id 
+                ORDER BY pi.\`order\` ASC 
+                LIMIT 1
+              ) AS image_url
        FROM wishlists w 
        LEFT JOIN products p ON w.product_id = p.id
        LEFT JOIN categories c ON p.category_value_id = c.id

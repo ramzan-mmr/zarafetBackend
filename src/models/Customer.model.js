@@ -20,11 +20,41 @@ class Customer {
       values.push(filters.tier_value_id);
     }
     
-    // Handle search filter
+    // Handle search filter (by name, email, or customer code)
     if (filters.search) {
-      conditions.push('(u.name LIKE ? OR u.email LIKE ?)');
+      conditions.push('(u.name LIKE ? OR u.email LIKE ? OR u.code LIKE ?)');
       const searchTerm = `%${filters.search}%`;
-      values.push(searchTerm, searchTerm);
+      values.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    // Handle order count range
+    if (filters.minOrders !== undefined) {
+      conditions.push('COALESCE(os.total_orders, 0) >= ?');
+      values.push(Number(filters.minOrders));
+    }
+    if (filters.maxOrders !== undefined) {
+      conditions.push('COALESCE(os.total_orders, 0) <= ?');
+      values.push(Number(filters.maxOrders));
+    }
+
+    // Handle spend range
+    if (filters.minSpend !== undefined) {
+      conditions.push('COALESCE(os.total_spend, 0) >= ?');
+      values.push(Number(filters.minSpend));
+    }
+    if (filters.maxSpend !== undefined) {
+      conditions.push('COALESCE(os.total_spend, 0) <= ?');
+      values.push(Number(filters.maxSpend));
+    }
+
+    // Handle registration date range (created_at on users table)
+    if (filters.from) {
+      conditions.push('u.created_at >= ?');
+      values.push(filters.from);
+    }
+    if (filters.to) {
+      conditions.push('u.created_at <= ?');
+      values.push(filters.to);
     }
     
     const whereClause = conditions.length > 0 ? 'AND ' + conditions.join(' AND ') : '';
@@ -32,17 +62,28 @@ class Customer {
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
     const query = `
-      SELECT u.*, 
-             cp.total_orders, 
-             cp.total_spend, 
-             cp.points, 
-             cp.tier_value_id,
-             cp.reg_date,
-             cp.last_order_at,
-             lv.value as tier_name,
-             r.name as role_name
+      SELECT 
+        u.*, 
+        COALESCE(
+          u.phone,
+          (SELECT a.phone FROM addresses a WHERE a.user_id = u.id AND a.is_default = 1 ORDER BY a.id DESC LIMIT 1),
+          (SELECT a2.phone FROM addresses a2 WHERE a2.user_id = u.id ORDER BY a2.id DESC LIMIT 1)
+        ) AS phone,
+        COALESCE(os.total_orders, 0) AS total_orders,
+        COALESCE(os.total_spend, 0) AS total_spend,
+        os.last_order_at,
+        cp.points,
+        cp.tier_value_id,
+        cp.reg_date,
+        lv.value as tier_name,
+        r.name as role_name
       FROM users u 
       LEFT JOIN customer_profiles cp ON u.id = cp.user_id
+      LEFT JOIN (
+        SELECT o.user_id, COUNT(*) AS total_orders, COALESCE(SUM(o.total), 0) AS total_spend, MAX(o.created_at) AS last_order_at
+        FROM orders o
+        GROUP BY o.user_id
+      ) os ON os.user_id = u.id
       LEFT JOIN lookup_values lv ON cp.tier_value_id = lv.id
       LEFT JOIN roles r ON u.role_id = r.id
       WHERE r.name = 'Customer'
@@ -57,17 +98,28 @@ class Customer {
   
   static async findById(user_id) {
     const [rows] = await db.execute(
-      `SELECT u.*, 
-              cp.total_orders, 
-              cp.total_spend, 
-              cp.points, 
-              cp.tier_value_id,
-              cp.reg_date,
-              cp.last_order_at,
-              lv.value as tier_name,
-              r.name as role_name
+      `SELECT 
+          u.*, 
+          COALESCE(
+            u.phone,
+            (SELECT a.phone FROM addresses a WHERE a.user_id = u.id AND a.is_default = 1 ORDER BY a.id DESC LIMIT 1),
+            (SELECT a2.phone FROM addresses a2 WHERE a2.user_id = u.id ORDER BY a2.id DESC LIMIT 1)
+          ) AS phone,
+          COALESCE(os.total_orders, 0) AS total_orders,
+          COALESCE(os.total_spend, 0) AS total_spend,
+          os.last_order_at,
+          cp.points, 
+          cp.tier_value_id,
+          cp.reg_date,
+          lv.value as tier_name,
+          r.name as role_name
        FROM users u 
        LEFT JOIN customer_profiles cp ON u.id = cp.user_id
+       LEFT JOIN (
+         SELECT o.user_id, COUNT(*) AS total_orders, COALESCE(SUM(o.total), 0) AS total_spend, MAX(o.created_at) AS last_order_at
+         FROM orders o
+         GROUP BY o.user_id
+       ) os ON os.user_id = u.id
        LEFT JOIN lookup_values lv ON cp.tier_value_id = lv.id
        LEFT JOIN roles r ON u.role_id = r.id
        WHERE u.id = ? AND r.name = 'Customer'`,
@@ -93,11 +145,41 @@ class Customer {
       values.push(filters.tier_value_id);
     }
     
-    // Handle search filter
+    // Handle search filter (by name, email, or customer code)
     if (filters.search) {
-      conditions.push('(u.name LIKE ? OR u.email LIKE ?)');
+      conditions.push('(u.name LIKE ? OR u.email LIKE ? OR u.code LIKE ?)');
       const searchTerm = `%${filters.search}%`;
-      values.push(searchTerm, searchTerm);
+      values.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    // Handle order count range
+    if (filters.minOrders !== undefined) {
+      conditions.push('COALESCE(os.total_orders, 0) >= ?');
+      values.push(Number(filters.minOrders));
+    }
+    if (filters.maxOrders !== undefined) {
+      conditions.push('COALESCE(os.total_orders, 0) <= ?');
+      values.push(Number(filters.maxOrders));
+    }
+
+    // Handle spend range
+    if (filters.minSpend !== undefined) {
+      conditions.push('COALESCE(os.total_spend, 0) >= ?');
+      values.push(Number(filters.minSpend));
+    }
+    if (filters.maxSpend !== undefined) {
+      conditions.push('COALESCE(os.total_spend, 0) <= ?');
+      values.push(Number(filters.maxSpend));
+    }
+
+    // Handle registration date range
+    if (filters.from) {
+      conditions.push('u.created_at >= ?');
+      values.push(filters.from);
+    }
+    if (filters.to) {
+      conditions.push('u.created_at <= ?');
+      values.push(filters.to);
     }
     
     const whereClause = conditions.length > 0 ? 'AND ' + conditions.join(' AND ') : '';
@@ -106,6 +188,11 @@ class Customer {
       `SELECT COUNT(*) as total 
        FROM users u 
        LEFT JOIN customer_profiles cp ON u.id = cp.user_id
+       LEFT JOIN (
+         SELECT o.user_id, COUNT(*) AS total_orders, COALESCE(SUM(o.total), 0) AS total_spend
+         FROM orders o
+         GROUP BY o.user_id
+       ) os ON os.user_id = u.id
        LEFT JOIN roles r ON u.role_id = r.id
        WHERE r.name = 'Customer'
        ${whereClause}`,

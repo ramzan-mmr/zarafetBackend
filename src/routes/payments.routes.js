@@ -5,7 +5,7 @@ const { idParam } = require('../validators/common');
 const { createPaymentIntent, processPayment, getPayment } = require('../validators/payments');
 const ctrl = require('../controllers/payments.controller');
 // All routes require authentication
-// router.use(verifyJWT); // Temporarily disabled for testing
+router.use(verifyJWT);
 // Create payment intent for frontend
 router.post('/create-intent',
   validateBody(createPaymentIntent),

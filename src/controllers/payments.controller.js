@@ -35,7 +35,10 @@ const process = async (req, res) => {
   try {
   //  return console.log('🚀 Starting payment process...', req.body.promoCode);
     const { cart, address, shipping, payment, totals, promoCode } = req.body;
-    const user_id = req.user?.id || 5; // Use dummy user ID for testing
+    if (!req.user || !req.user.id) {
+      return res.status(401).json(responses.error('UNAUTHORIZED', 'Authentication required'));
+    }
+    const user_id = req.user.id;
     
     // Debug: Log the incoming request data
     console.log('🔍 DEBUGGING PAYMENT REQUEST:');

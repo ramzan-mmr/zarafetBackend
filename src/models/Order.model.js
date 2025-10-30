@@ -75,6 +75,11 @@ class Order {
       const [statusRows] = await connection.execute(
         'SELECT id FROM lookup_values WHERE header_id = (SELECT id FROM lookup_headers WHERE name = "Order Status") AND value = "Processing"'
       );
+      if (!statusRows[0]) {
+        [statusRows] = await connection.execute(
+          'SELECT id FROM lookup_values WHERE header_id = (SELECT id FROM lookup_headers WHERE name = "Order Status") AND value = "Pending"'
+        );
+      }
 
       if (!statusRows[0]) {
         console.error('❌ Order status "Pending" not found');

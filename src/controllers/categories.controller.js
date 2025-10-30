@@ -75,6 +75,7 @@ const createCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`[${new Date().toISOString()}] 🛠️ Update Category called`, { id, body: req.body });
     
     const existingCategory = await Category.findById(id);
     if (!existingCategory) {
@@ -82,6 +83,7 @@ const updateCategory = async (req, res) => {
     }
     
     const updateData = { ...req.body };
+    console.log(`[${new Date().toISOString()}] 🧩 Update payload before processing`, updateData);
     
     // Handle image upload if provided
     if (req.file) {
@@ -101,6 +103,7 @@ const updateCategory = async (req, res) => {
     }
     
     const category = await Category.update(id, updateData);
+    console.log(`[${new Date().toISOString()}] ✅ Category updated`, { id, status: category?.status });
     res.json(responses.ok(category));
   } catch (error) {
     console.error('Update category error:', error);

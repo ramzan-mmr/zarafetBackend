@@ -4,6 +4,16 @@ const responses = require('../utils/responses');
 const list = async (req, res) => {
   try {
     const { page, limit, ...filters } = req.pagination;
+    // Dashboard should not list customers; enforce admin-side users by default
+    if (!filters.user_type && !req.query.user_type) {
+      filters.user_type = 'admin';
+    } else if (req.query.user_type) {
+      filters.user_type = req.query.user_type;
+    }
+    // Limit to Admin and Manager by default (exclude Super_Admin and Customer)
+    if (!req.query.role_id && !req.query.role_name) {
+      filters.role_names = ['Admin', 'Manager'];
+    }
     
     const users = await User.findAll(filters, { page, limit, ...req.query });
     const total = await User.count(filters);
