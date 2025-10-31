@@ -1,0 +1,23 @@
+[2025-10-31T21:39:59.938Z] INFO: === EMAIL TEST STARTED ===
+[2025-10-31T21:39:59.940Z] INFO: Request received - To: Not provided, Subject: Zarafet Test Email
+[2025-10-31T21:39:59.940Z] ERROR: ERROR: Email recipient (to) is required
+[2025-10-31T21:41:37.953Z] INFO: === EMAIL TEST STARTED ===
+[2025-10-31T21:41:37.954Z] INFO: Request received - To: Not provided, Subject: Zarafet Test Email
+[2025-10-31T21:41:37.954Z] ERROR: ERROR: Email recipient (to) is required
+[2025-10-31T21:41:49.338Z] INFO: === EMAIL TEST STARTED ===
+[2025-10-31T21:41:49.339Z] INFO: Request received - To: mianmuhammadramzan99@gmail.com, Subject: Zarafet Test Email
+[2025-10-31T21:41:49.339Z] INFO: Creating nodemailer transporter...
+[2025-10-31T21:41:49.340Z] INFO: SMTP Config - Host: smtpout.secureserver.net, Port: 465, Secure: true
+[2025-10-31T21:41:49.341Z] INFO: SMTP Email: Set
+[2025-10-31T21:41:49.341Z] INFO: SMTP Password: Set
+[2025-10-31T21:41:49.345Z] INFO: Transporter created successfully
+[2025-10-31T21:41:49.345Z] INFO: Verifying SMTP connection...
+[2025-10-31T21:41:53.884Z] INFO: ✅ SMTP connection verified successfully
+[2025-10-31T21:41:53.942Z] INFO: Preparing to send email to: mianmuhammadramzan99@gmail.com
+[2025-10-31T21:41:53.943Z] INFO: Subject: Zarafet Test Email
+[2025-10-31T21:41:53.944Z] INFO: Text: This is a test email from Zarafet
+[2025-10-31T21:41:53.944Z] INFO: Sending email...
+[2025-10-31T21:41:59.686Z] INFO: ✅ Email sent successfully in 5742ms
+[2025-10-31T21:41:59.687Z] INFO: Message ID: <5a4eae68-0051-60c5-3c96-4b965f71f023@zarafet.uk>
+[2025-10-31T21:41:59.688Z] INFO: Response: "250 EwsbvxeiekD8g mail accepted for delivery"
+[2025-10-31T21:41:59.689Z] INFO: === EMAIL TEST COMPLETED SUCCESSFULLY ===

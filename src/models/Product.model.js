@@ -168,12 +168,13 @@ class Product {
     const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'price', 'stock', 'date_added', 'created_at', 'total_orders']);
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
-    // Add soft delete filter to exclude inactive products
-    const softDeleteCondition = `p.status != 'Inactive'`;
-    if (whereClause) {
-      whereClause += ` AND ${softDeleteCondition}`;
-    } else {
-      whereClause = `WHERE ${softDeleteCondition}`;
+    // Always filter for Active products (unless explicitly overridden via filters.status)
+    if (!filters.status) {
+      if (whereClause) {
+        whereClause += ` AND p.status = 'Active'`;
+      } else {
+        whereClause = `WHERE p.status = 'Active'`;
+      }
     }
     
     const query = `
@@ -214,7 +215,7 @@ class Product {
               c.name as category_name
        FROM products p 
        LEFT JOIN categories c ON p.category_value_id = c.id
-       WHERE p.id = ? AND p.status != 'Inactive'`,
+       WHERE p.id = ? AND p.status = 'Active'`,
       [id]
     );
     
@@ -300,6 +301,15 @@ class Product {
       const result = buildWhereClause(filters, allowedColumns);
       whereClause = result.whereClause;
       values = result.values;
+    }
+    
+    // Always filter for Active products (unless explicitly overridden via filters.status)
+    if (!filters.status) {
+      if (whereClause) {
+        whereClause += ` AND p.status = 'Active'`;
+      } else {
+        whereClause = `WHERE p.status = 'Active'`;
+      }
     }
     
     const [rows] = await db.execute(

@@ -2,10 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 const config = require('./src/config/env');
-
-// Import email service
-const { sendEmail, sendOrderConfirmation, sendOrderStatusUpdate } = require('./src/services/email.service');
 
 // Import routes
 const authRoutes = require('./src/routes/auth.routes');
@@ -133,128 +133,131 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Test email functions (called directly, not as API endpoints)
-// const testEmailFunction = async () => {
-//   try {
-//     console.log('🧪 Testing basic email functionality...');
+// Test email endpoint with logging and debugging
+app.post('/test-email', async (req, res) => {
+  const logDir = path.join(__dirname, 'logs');
+  const logFile = path.join(logDir, 'email-test.log');
+  
+  // Ensure logs directory exists
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  
+  // Helper function to write to log file
+  const writeLog = (message, isError = false) => {
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] ${isError ? 'ERROR:' : 'INFO:'} ${message}\n`;
     
-//     const result = await sendEmail({
-//       to: 'mianmuhammadramzan99@gmail.com',
-//       subject: 'Zarafet Email Service Test',
-//       text: 'This is a test email from Zarafet email service to verify that the email functionality is working correctly.',
-//       html: `
-//         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-//           <h2 style="color: #28a745; text-align: center;">✅ Email Service Test</h2>
-//           <p style="font-size: 16px; line-height: 1.6;">This is a test email from <strong>Zarafet email service</strong> to verify that the email functionality is working correctly.</p>
-//           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-//             <p style="margin: 0; color: #495057;"><strong>Test Details:</strong></p>
-//             <ul style="margin: 10px 0; color: #495057;">
-//               <li>Service: Zarafet Email Service</li>
-//               <li>Test Type: Basic Email Functionality</li>
-//               <li>Status: ✅ Working</li>
-//               <li>SMTP Host: business113.web-hosting.com</li>
-//             </ul>
-//           </div>
-//           <p style="color: #666; font-size: 14px; text-align: center; margin-top: 30px;">
-//             Test completed at: ${new Date().toLocaleString()}
-//           </p>
-//         </div>
-//       `
-//     });
-
-//     if (result.success) {
-//       console.log('✅ Test email sent successfully!');
-//       console.log(`📧 Message ID: ${result.messageId}`);
-//     } else {
-//       console.log('❌ Test email failed:', result.error);
-//     }
-//   } catch (error) {
-//     console.error('❌ Test email error:', error);
-//   }
-// };
-
-// const testOrderEmailFunction = async () => {
-//   try {
-//     console.log('🧪 Testing order confirmation email...');
+    console.log(logMessage.trim());
     
-//     const mockOrderData = {
-//       order: {
-//         id: 999,
-//         code: 'ORD-TEST-001',
-//         created_at: new Date().toISOString(),
-//         status_name: 'Processing'
-//       },
-//       items: [
-//         {
-//           product_name: 'Test Product 1',
-//           variant_name: 'Red - Large',
-//           quantity: 2,
-//           unit_price: 25.99
-//         },
-//         {
-//           product_name: 'Test Product 2',
-//           variant_name: 'Blue - Medium',
-//           quantity: 1,
-//           unit_price: 15.50
-//         }
-//       ],
-//       totals: {
-//         subtotal: 67.48,
-//         tax: 6.75,
-//         shipping: 5.00,
-//         total: 79.23
-//       },
-//       address: {
-//         line1: '123 Test Street',
-//         line2: 'Apt 4B',
-//         city: 'Test City',
-//         postal_code: '12345',
-//         phone: '+1-555-0123'
-//       }
-//     };
-
-//     const result = await sendOrderConfirmation({
-//       userEmail: 'mianmuhammadramzan99@gmail.com',
-//       userName: 'Test User',
-//       orderData: mockOrderData
-//     });
-
-//     if (result.success) {
-//       console.log('✅ Order confirmation email sent successfully!');
-//       console.log(`📧 Message ID: ${result.messageId}`);
-//     } else {
-//       console.log('❌ Order confirmation email failed:', result.error);
-//     }
-//   } catch (error) {
-//     console.error('❌ Order email test error:', error);
-//   }
-// };
-
-// const testStatusEmailFunction = async () => {
-//   try {
-//     console.log('🧪 Testing order status update email...');
+    try {
+      fs.appendFileSync(logFile, logMessage, 'utf8');
+    } catch (err) {
+      console.error('Failed to write to log file:', err);
+    }
+  };
+  
+  const { to: recipientEmail, subject = 'Zarafet Test Email', text = 'This is a test email from Zarafet' } = req.body;
+  
+  writeLog('=== EMAIL TEST STARTED ===');
+  writeLog(`Request received - To: ${recipientEmail || 'Not provided'}, Subject: ${subject}`);
+  
+  if (!recipientEmail) {
+    writeLog('ERROR: Email recipient (to) is required', true);
+    return res.status(400).json({
+      error: {
+        code: 'MISSING_EMAIL',
+        message: 'Email recipient (to) is required'
+      }
+    });
+  }
+  
+  try {
+    writeLog('Creating nodemailer transporter...');
+    writeLog(`SMTP Config - Host: smtpout.secureserver.net, Port: 465, Secure: true`);
+    writeLog(`SMTP Email: ${config.smtp.email ? 'Set' : 'NOT SET'}`);
+    writeLog(`SMTP Password: ${config.smtp.password ? 'Set' : 'NOT SET'}`);
     
-//     const result = await sendOrderStatusUpdate({
-//       userEmail: 'mianmuhammadramzan99@gmail.com',
-//       userName: 'Test User',
-//       orderData: {
-//         order: {
-//           code: 'ORD-TEST-001'
-//         }
-//       },
-//       newStatus: 'Shipped'
-//     });
-
-//     if (result.success) {
-//       console.log('✅ Order status update email sent successfully!');
-//       console.log(`📧 Message ID: ${result.messageId}`);
-//     } else {
-//       console.log('❌ Order status update email failed:', result.error);
-//     }
-//   } catch (error) {
-//     console.error('❌ Status email test error:', error);
-//   }
-// };
+    // Create transporter with debug enabled
+    const transporter = nodemailer.createTransport({
+      host: 'smtpout.secureserver.net',
+      port: 465,
+      secure: true,
+      auth: {
+        user: config.smtp.email,
+        pass: config.smtp.password
+      },
+      tls: {
+        rejectUnauthorized: false
+      },
+      debug: true, // Enable debugging
+      logger: true  // Enable logging
+    });
+    
+    writeLog('Transporter created successfully');
+    
+    // Verify transporter connection
+    writeLog('Verifying SMTP connection...');
+    await transporter.verify();
+    writeLog('✅ SMTP connection verified successfully');
+    
+    // Prepare email message
+    const message = {
+      from: `Zarafet <${config.smtp.email}>`,
+      to: recipientEmail,
+      subject: subject,
+      text: text,
+      html: `<div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2 style="color: #333;">Zarafet Test Email</h2>
+        <p>${text}</p>
+        <p style="color: #666; font-size: 12px; margin-top: 20px;">This is a test email sent at ${new Date().toLocaleString()}</p>
+      </div>`
+    };
+    
+    writeLog(`Preparing to send email to: ${recipientEmail}`);
+    writeLog(`Subject: ${subject}`);
+    writeLog(`Text: ${text.substring(0, 100)}${text.length > 100 ? '...' : ''}`);
+    
+    // Send email
+    const startTime = Date.now();
+    writeLog('Sending email...');
+    
+    const result = await transporter.sendMail(message);
+    
+    const duration = Date.now() - startTime;
+    writeLog(`✅ Email sent successfully in ${duration}ms`);
+    writeLog(`Message ID: ${result.messageId}`);
+    writeLog(`Response: ${JSON.stringify(result.response)}`);
+    writeLog('=== EMAIL TEST COMPLETED SUCCESSFULLY ===');
+    
+    res.json({
+      success: true,
+      message: 'Test email sent successfully',
+      messageId: result.messageId,
+      response: result.response,
+      duration: `${duration}ms`,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    const errorMessage = error.message || 'Unknown error';
+    const errorStack = error.stack || 'No stack trace';
+    
+    writeLog('❌ EMAIL TEST FAILED', true);
+    writeLog(`Error: ${errorMessage}`, true);
+    writeLog(`Stack: ${errorStack}`, true);
+    writeLog(`Full Error: ${JSON.stringify(error, null, 2)}`, true);
+    writeLog('=== EMAIL TEST FAILED ===');
+    
+    res.status(500).json({
+      error: {
+        code: 'EMAIL_SEND_FAILED',
+        message: errorMessage,
+        details: errorStack
+      }
+    });
+  }
+});
 
 // Specific route for serving images with proper CORS headers
 app.get('/uploads/products/:productId/:filename', (req, res) => {

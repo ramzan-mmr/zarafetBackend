@@ -247,57 +247,59 @@ const process = async (req, res) => {
     const order = await Order.create(orderData);
     console.log('✅ Order created successfully:', order.id);
     
-    // Send order confirmation email
-    try {
-      const user = await User.findById(user_id);
-      if (user && user.email) {
-        console.log('📧 Sending order confirmation email...');
-        
-        // Get order details with items for email
-        const orderWithItems = await Order.findById(order.id);
-        
-        const emailData = {
-          userEmail: user.email,
-          userName: user.name,
-          orderData: {
-            order: orderWithItems,
-            items: orderWithItems.items || [],
-            totals: {
-              subtotal: expectedSubtotal,
-              tax: expectedTax,
-              shipping: expectedShipping,
-              total: expectedTotal
-            },
-            address: {
-              line1: address.line1,
-              line2: address.line2,
-              city: address.city,
-              postal_code: address.postalCode,
-              phone: address.phone
-            },
-            // Include promo code information if applied
-            promoCode: promoCode ? {
-              code: promoCode.code,
-              discountAmount: discountAmount,
-              discountType: promoCode.discountType,
-              discountValue: promoCode.discountValue
-            } : null
+    // Send order confirmation email in background (non-blocking)
+    setImmediate(async () => {
+      try {
+        const user = await User.findById(user_id);
+        if (user && user.email) {
+          console.log('📧 Sending order confirmation email...');
+          
+          // Get order details with items for email
+          const orderWithItems = await Order.findById(order.id);
+          
+          const emailData = {
+            userEmail: user.email,
+            userName: user.name,
+            orderData: {
+              order: orderWithItems,
+              items: orderWithItems.items || [],
+              totals: {
+                subtotal: expectedSubtotal,
+                tax: expectedTax,
+                shipping: expectedShipping,
+                total: expectedTotal
+              },
+              address: {
+                line1: address.line1,
+                line2: address.line2,
+                city: address.city,
+                postal_code: address.postalCode,
+                phone: address.phone
+              },
+              // Include promo code information if applied
+              promoCode: promoCode ? {
+                code: promoCode.code,
+                discountAmount: discountAmount,
+                discountType: promoCode.discountType,
+                discountValue: promoCode.discountValue
+              } : null
+            }
+          };
+          
+          const emailResult = await EmailService.sendOrderConfirmation(emailData);
+          if (emailResult.success) {
+            console.log('✅ Order confirmation email sent successfully');
+          } else {
+            console.error('❌ Failed to send order confirmation email:', emailResult.error);
           }
-        };
-        
-        const emailResult = await EmailService.sendOrderConfirmation(emailData);
-        if (emailResult.success) {
-          console.log('✅ Order confirmation email sent successfully');
         } else {
-          console.error('❌ Failed to send order confirmation email:', emailResult.error);
+          console.warn('⚠️ User email not found, skipping order confirmation email');
         }
-      } else {
-        console.warn('⚠️ User email not found, skipping order confirmation email');
+      } catch (emailError) {
+        console.error('❌ Error sending order confirmation email:', emailError);
+        // Email failure doesn't affect the order
       }
-    } catch (emailError) {
-      console.error('❌ Error sending order confirmation email:', emailError);
-      // Don't fail the order creation if email fails
-    }
+    });
     
     console.log('🎉 Payment process completed successfully!');
     console.log('📤 Sending response to frontend...');

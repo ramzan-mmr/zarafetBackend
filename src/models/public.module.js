@@ -142,6 +142,15 @@ class PublicModule {
       values.push(...colors);
     }
     
+    // Always filter for Active products in public endpoints (unless explicitly overridden)
+    if (!filters.status) {
+      if (whereClause) {
+        whereClause += ` AND p.status = 'Active'`;
+      } else {
+        whereClause = `WHERE p.status = 'Active'`;
+      }
+    }
+    
     const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'price', 'stock', 'date_added', 'created_at', 'total_orders']);
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
@@ -227,6 +236,15 @@ class PublicModule {
         whereClause = `WHERE ${colorCondition}`;
       }
       values.push(...colors);
+    }
+    
+    // Always filter for Active products in public endpoints (unless explicitly overridden)
+    if (!filters.status) {
+      if (whereClause) {
+        whereClause += ` AND p.status = 'Active'`;
+      } else {
+        whereClause = `WHERE p.status = 'Active'`;
+      }
     }
     
     const [rows] = await db.execute(

@@ -134,12 +134,20 @@ class Order {
 
         // Update stock
         if (item.variant_id) {
+          // Update both variant stock and overall product stock
           console.log(`📊 Updating variant stock: ${item.variant_id}, -${item.quantity}`);
           await connection.execute(
             'UPDATE product_variants SET stock = stock - ? WHERE id = ?',
             [item.quantity, item.variant_id]
           );
+          
+          console.log(`📊 Updating product stock: ${item.product_id}, -${item.quantity}`);
+          await connection.execute(
+            'UPDATE products SET stock = stock - ? WHERE id = ?',
+            [item.quantity, item.product_id]
+          );
         } else {
+          // No variant - only update product stock
           console.log(`📊 Updating product stock: ${item.product_id}, -${item.quantity}`);
           await connection.execute(
             'UPDATE products SET stock = stock - ? WHERE id = ?',
@@ -304,7 +312,14 @@ class Order {
              oa.line1 as shipping_address_line1,
              oa.city as shipping_address_city,
              oa.postal_code as shipping_address_postal_code,
-             'Unknown' as category_name,
+             COALESCE(
+               (SELECT GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', ')
+                FROM order_items oi
+                INNER JOIN products pr ON oi.product_id = pr.id
+                INNER JOIN categories c ON pr.category_value_id = c.id
+                WHERE oi.order_id = o.id),
+               'Unknown'
+             ) as category_name,
              NULL as product_image
       FROM orders o 
       LEFT JOIN users u ON o.user_id = u.id
