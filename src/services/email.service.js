@@ -3,11 +3,37 @@ const config = require('../config/env');
 
 console.log(config.smtp);
 
+// Helper function to generate professional email footer
+const getEmailFooter = () => {
+  return `
+Thank you for choosing Zarafet — Effortlessly Refined
+
+Team Zarafet:
+WhatsApp: +447494930922
+Website: zarafet.uk
+Instagram: @zarafet.uk
+TikTok: @zarafet.uk
+  `;
+};
+
+// Helper function to generate professional HTML email footer
+const getEmailFooterHTML = () => {
+  return `
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #333; font-size: 14px; line-height: 1.8;">
+            <p style="margin: 0 0 15px 0;">Thank you for choosing Zarafet — Effortlessly Refined</p>
+            <p style="margin: 0 0 10px 0; font-weight: 600;">Team Zarafet:</p>
+            <p style="margin: 2px 0;">WhatsApp: +447494930922</p>
+            <p style="margin: 2px 0;">Website: <a href="https://zarafet.uk" style="color: #333; text-decoration: none;">zarafet.uk</a></p>
+            <p style="margin: 2px 0;">Instagram: <a href="https://instagram.com/zarafet.uk" style="color: #333; text-decoration: none;">@zarafet.uk</a></p>
+            <p style="margin: 2px 0;">TikTok: <a href="https://tiktok.com/@zarafet.uk" style="color: #333; text-decoration: none;">@zarafet.uk</a></p>
+        </div>
+  `;
+};
+
 // Create transporter instance
 const createTransporter = () => {
   return nodemailer.createTransport({
-    // service: 'gmail',
-    host: 'smtpout.secureserver.net',
+    host: 'server86.web-hosting.com',
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
@@ -51,28 +77,26 @@ const sendEmail = async ({ to, subject, text, html, attachments = [] }) => {
 const sendOrderConfirmation = async ({ userEmail, userName, orderData }) => {
   const { order, items, totals, address } = orderData;
 
+  // Ensure proper formatting of user name (trim and normalize spaces)
+  const formattedUserName = (userName || '').trim().replace(/\s+/g, ' ');
+
   const subject = `Order Confirmation - Order #${order.code}`;
 
   const text = `
+Dear ${formattedUserName},
+
+We're pleased to inform you that your order #${order.code} has been confirmed and is in processing.
+
+You'll receive another update once it's shipped.
+
+If you have any questions regarding your order, please don't hesitate to contact us.
+
 Order Details:
-- Order Number: ${order.code}
-- Order Date: ${new Date(order.created_at).toLocaleDateString()}
-- Total Amount: ${config.currency.symbol}${totals.total.toFixed(2)}
 
-Items Ordered:
-${items.map(item => `- ${item.product_name} (${item.variant_name || 'Standard'})${item.selected_fit ? ` - Fit: ${item.selected_fit}` : ''} x ${item.quantity} - ${config.currency.symbol}${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}`).join('\n')}
+Order Number: ${order.code}
+Current Status: Processing
 
-Order Summary:
-- Subtotal: ${config.currency.symbol}${totals.subtotal.toFixed(2)}
-- Shipping: ${config.currency.symbol}${totals.shipping.toFixed(2)}
-${orderData.promoCode ? `- Discount (${orderData.promoCode.code}): -${config.currency.symbol}${orderData.promoCode.discountAmount.toFixed(2)}` : ''}
-- Total: ${config.currency.symbol}${totals.total.toFixed(2)}
-${orderData.promoCode ? `- You saved ${config.currency.symbol}${orderData.promoCode.discountAmount.toFixed(2)} with promo code ${orderData.promoCode.code}!` : ''}
-
-Shipping Address:
-${address.line1}
-${address.line2 ? address.line2 + '\n' : ''}${address.city}, ${address.postal_code}
-Phone: ${address.phone}
+${getEmailFooter()}
     `;
 
   const html = `
@@ -83,70 +107,29 @@ Phone: ${address.phone}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Confirmation</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
-        .order-details { background-color: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-        .order-summary { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0; }
-        .item { padding: 10px 0; border-bottom: 1px solid #eee; }
-        .item:last-child { border-bottom: none; }
-        .total { font-weight: bold; font-size: 18px; color: #28a745; }
-        .address { background-color: #f8f9fa; padding: 15px; border-radius: 5px; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        body { font-family: Arial, sans-serif; line-height: 1.8; color: #333; margin: 0; padding: 0; background-color: #ffffff; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        .content { padding: 0; }
+        p { font-size: 16px; margin-bottom: 20px; line-height: 1.8; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Order Confirmation</h1>
-        </div>
-        
-        <div class="order-details">
-            <h2>Order Information</h2>
-            <div class="order-summary">
-                <p><strong>Order Number:</strong> ${order.code}</p>
-                <p><strong>Order Date:</strong> ${new Date(order.created_at).toLocaleDateString()}</p>
-                <p><strong>Status:</strong> ${order.status_name || 'Processing'}</p>
-            </div>
+        <div class="content">
+            <p>Dear ${formattedUserName},</p>
             
-            <h3>Items Ordered</h3>
-            ${items.map(item => `
-                <div class="item">
-                    <strong>${item.product_name}</strong>
-                    ${item.variant_name ? `<br><small>Variant: ${item.variant_name}</small>` : ''}
-                    ${item.selected_fit ? `<br><small>Fit: ${item.selected_fit}</small>` : ''}
-                    <br>Quantity: ${item.quantity} × ${config.currency.symbol}${parseFloat(item.unit_price).toFixed(2)} = ${config.currency.symbol}${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}
-                </div>
-            `).join('')}
+            <p>We're pleased to inform you that your order #${order.code} has been confirmed and is in processing.</p>
             
-            <div class="order-summary">
-                <p><strong>Subtotal:</strong> ${config.currency.symbol}${totals.subtotal.toFixed(2)}</p>
-                <p><strong>Shipping:</strong> ${config.currency.symbol}${totals.shipping.toFixed(2)}</p>
-                ${orderData.promoCode ? `
-                    <p style="color: #28a745; font-weight: bold;">
-                        <strong>Discount (${orderData.promoCode.code}):</strong> -${config.currency.symbol}${orderData.promoCode.discountAmount.toFixed(2)}
-                    </p>
-                ` : ''}
-                <p class="total"><strong>Total:</strong> ${config.currency.symbol}${totals.total.toFixed(2)}</p>
-                ${orderData.promoCode ? `
-                    <p style="color: #28a745; font-size: 14px; margin-top: 5px;">
-                        You saved ${config.currency.symbol}${orderData.promoCode.discountAmount.toFixed(2)} with promo code ${orderData.promoCode.code}!
-                    </p>
-                ` : ''}
-            </div>
-        </div>
-        
-        <div class="address">
-            <h3>Shipping Address</h3>
-            <p>
-                ${address.line1}<br>
-                ${address.line2 ? address.line2 + '<br>' : ''}
-                ${address.city}, ${address.postal_code}<br>
-                <strong>Phone:</strong> ${address.phone}
-            </p>
-        </div>
-        
-        <div class="footer">
+            <p>You'll receive another update once it's shipped.</p>
+            
+            <p>If you have any questions regarding your order, please don't hesitate to contact us.</p>
+            
+            <p><strong>Order Details:</strong></p>
+            
+            <p>Order Number: ${order.code}<br>
+            Current Status: Processing</p>
+            
+            ${getEmailFooterHTML()}
         </div>
     </div>
 </body>
@@ -165,12 +148,33 @@ Phone: ${address.phone}
 const sendOrderStatusUpdate = async ({ userEmail, userName, orderData, newStatus }) => {
   const { order } = orderData;
 
+  // Ensure proper formatting of user name (trim and normalize spaces)
+  const formattedUserName = (userName || '').trim().replace(/\s+/g, ' ');
+
+  // Format status message based on status
+  let statusMessage = '';
+  if (newStatus.toLowerCase() === 'shipped') {
+    statusMessage = `We're pleased to inform you that your order #${order.code} has been shipped and will be delivered to you soon.`;
+  } else if (newStatus.toLowerCase() === 'processing') {
+    statusMessage = `We're pleased to inform you that your order #${order.code} has been confirmed and is in processing.`;
+  } else {
+    statusMessage = `Your order #${order.code} status has been updated.`;
+  }
+
   const subject = `Order Update - Order #${order.code}`;
 
   const text = `
+Dear ${formattedUserName},
+
+${statusMessage}
+
+If you have any questions regarding your order, please don't hesitate to contact us.
+
 Order Details:
-- Order Number: ${order.code}
-- New Status: ${newStatus}
+
+Order Number: ${order.code}
+Current Status: ${newStatus}
+${getEmailFooter()}
     `;
 
   const html = `
@@ -181,26 +185,27 @@ Order Details:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Status Update</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px; margin-bottom: 20px; }
-        .status-update { background-color: #e7f3ff; padding: 20px; border-radius: 8px; margin: 20px 0; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
+        body { font-family: Arial, sans-serif; line-height: 1.8; color: #333; margin: 0; padding: 0; background-color: #ffffff; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        .content { padding: 0; }
+        p { font-size: 16px; margin-bottom: 20px; line-height: 1.8; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>📦 Order Status Update</h1>
-        </div>
-        
-        <div class="status-update">
-            <h2>Order Status Update</h2>
-            <p><strong>Order Number:</strong> ${order.code}</p>
-            <p><strong>New Status:</strong> ${newStatus}</p>
-        </div>
-        
-        <div class="footer">
+        <div class="content">
+            <p>Dear ${formattedUserName},</p>
+            
+            <p>${statusMessage}</p>
+            
+            <p>If you have any questions regarding your order, please don't hesitate to contact us.</p>
+            
+            <p><strong>Order Details:</strong></p>
+            
+            <p>Order Number: ${order.code}<br>
+            Current Status: ${newStatus}</p>
+            
+            ${getEmailFooterHTML()}
         </div>
     </div>
 </body>
@@ -231,8 +236,7 @@ This code will expire in 10 minutes.
 
 If you didn't create an account with Zarafet, please ignore this email.
 
-Best regards,
-Zarafet Team
+${getEmailFooter()}
     `;
 
     const html = `
@@ -268,9 +272,7 @@ Zarafet Team
             
             <p>If you didn't create an account with Zarafet, please ignore this email.</p>
         </div>
-        <div class="footer">
-            <p>Best regards,<br>Zarafet Team</p>
-        </div>
+        ${getEmailFooterHTML()}
     </div>
 </body>
 </html>
@@ -304,8 +306,7 @@ This code will expire in 10 minutes.
 
 If you didn't request a password reset, please ignore this email.
 
-Best regards,
-Zarafet Team
+${getEmailFooter()}
     `;
 
     const html = `
@@ -341,9 +342,7 @@ Zarafet Team
             
             <p>If you didn't request a password reset, please ignore this email.</p>
         </div>
-        <div class="footer">
-            <p>Best regards,<br>Zarafet Team</p>
-        </div>
+        ${getEmailFooterHTML()}
     </div>
 </body>
 </html>
@@ -361,14 +360,18 @@ Zarafet Team
   }
 };
 
-// Send contact form email function
+// Send contact form email function (sends to both user and admin)
 const sendContactEmail = async ({ firstName, lastName, email, phone, orderNumber, subject, message }) => {
   try {
-    const fullName = `${firstName} ${lastName}`;
-    const subjectLine = `Contact Form: ${subject} - ${fullName}`;
-
-    const text = `
-Contact Form Submission:
+    // Ensure proper spacing between first and last name
+    const first = (firstName || '').trim();
+    const last = (lastName || '').trim();
+    const fullName = [first, last].filter(Boolean).join(' ');
+    
+    // Email to admin
+    const adminSubject = `Contact Form: ${subject} - ${fullName}`;
+    const adminText = `
+New Contact Form Submission:
 
 Name: ${fullName}
 Email: ${email}
@@ -380,10 +383,10 @@ Message:
 ${message}
 
 ---
-This message was sent from the Zarafet contact form.
+This message was sent from the Zarafet contact form at ${new Date().toLocaleString()}
     `;
 
-    const html = `
+    const adminHtml = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -445,14 +448,169 @@ This message was sent from the Zarafet contact form.
 </html>
     `;
 
+    // Email to user (confirmation)
+    const userSubject = `Thank You for Contacting Zarafet - ${subject}`;
+    const userText = `
+Dear ${fullName},
+
+Thank you for contacting Zarafet. We have received your message and will get back to you soon.
+
+Your Message Details:
+Subject: ${subject}
+${orderNumber ? `Order Number: ${orderNumber}` : ''}
+
+We aim to respond to all inquiries within 24-48 hours.
+
+${getEmailFooter()}
+    `;
+
+    const userHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You for Contacting Us</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.8; color: #333; margin: 0; padding: 0; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #ffffff; }
+        .content { padding: 0 20px; }
+        .greeting { font-size: 16px; margin-bottom: 25px; }
+        .message { font-size: 16px; margin-bottom: 30px; line-height: 1.8; }
+        .details-section { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0; }
+        .details-section h3 { margin-top: 0; margin-bottom: 15px; font-size: 18px; color: #333; }
+        .detail-item { margin: 10px 0; font-size: 15px; }
+        .detail-label { font-weight: bold; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <p class="greeting">Dear ${fullName},</p>
+            
+            <p class="message">
+                Thank you for contacting Zarafet. We have received your message and will get back to you soon.
+            </p>
+            
+            <div class="details-section">
+                <h3>Your Message Details:</h3>
+                <div class="detail-item">
+                    <span class="detail-label">Subject:</span> ${subject}
+                </div>
+                ${orderNumber ? `
+                <div class="detail-item">
+                    <span class="detail-label">Order Number:</span> ${orderNumber}
+                </div>
+                ` : ''}
+            </div>
+            
+            <p class="message">
+                We aim to respond to all inquiries within 24-48 hours.
+            </p>
+            
+            ${getEmailFooterHTML()}
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    // Send email to admin
+    const adminResult = await sendEmail({
+      to: config.smtp.email,
+      subject: adminSubject,
+      text: adminText,
+      html: adminHtml
+    });
+
+    // Send confirmation email to user
+    const userResult = await sendEmail({
+      to: email,
+      subject: userSubject,
+      text: userText,
+      html: userHtml
+    });
+
+    return {
+      success: adminResult.success && userResult.success,
+      adminMessageId: adminResult.messageId,
+      userMessageId: userResult.messageId
+    };
+  } catch (error) {
+    console.error('❌ Failed to send contact email:', error.message);
+    throw error;
+  }
+};
+
+// Send email subscription confirmation function
+const sendSubscriptionConfirmation = async ({ email }) => {
+  try {
+    const subject = 'Thank You for Subscribing to Zarafet';
+
+    const text = `
+Dear Subscriber,
+
+Thank you for subscribing to Zarafet! We're excited to have you join our community.
+
+You'll now receive:
+- Exclusive deals and discounts
+- New product announcements
+- Style tips and updates
+- Special offers just for subscribers
+
+We promise to only send you valuable updates and never spam your inbox.
+
+If you have any questions, please don't hesitate to contact us.
+
+${getEmailFooter()}
+    `;
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You for Subscribing</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.8; color: #333; margin: 0; padding: 0; background-color: #ffffff; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        .content { padding: 0; }
+        p { font-size: 16px; margin-bottom: 20px; line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <p>Dear Subscriber,</p>
+            
+            <p>Thank you for subscribing to Zarafet! We're excited to have you join our community.</p>
+            
+            <p>You'll now receive:<br>
+            - Exclusive deals and discounts<br>
+            - New product announcements<br>
+            - Style tips and updates<br>
+            - Special offers just for subscribers</p>
+            
+            <p>We promise to only send you valuable updates and never spam your inbox.</p>
+            
+            <p>If you have any questions, please don't hesitate to contact us.</p>
+            
+            ${getEmailFooterHTML()}
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
     return await sendEmail({
-      to: config.smtp.email, // Send to your business email
-      subject: subjectLine,
+      to: email,
+      subject: subject,
       text: text,
       html: html
     });
   } catch (error) {
-    console.error('❌ Failed to send contact email:', error.message);
+    console.error('❌ Failed to send subscription confirmation email:', error.message);
     throw error;
   }
 };
@@ -464,5 +622,6 @@ module.exports = {
   sendOrderStatusUpdate,
   sendOTPVerificationEmail,
   sendPasswordResetEmail,
-  sendContactEmail
+  sendContactEmail,
+  sendSubscriptionConfirmation
 };

@@ -31,6 +31,8 @@ const createIntent = async (req, res) => {
   }
 };
 
+
+
 const process = async (req, res) => {
   try {
   //  return console.log('🚀 Starting payment process...', req.body.promoCode);
@@ -171,12 +173,12 @@ const process = async (req, res) => {
     const paymentData = {
       order_id: null, // Will be set after order creation
       stripe_payment_intent_id: paymentResult.paymentIntent?.id || paymentResult.charge?.payment_intent,
-      stripe_charge_id: paymentResult.chargeId,
+      stripe_charge_id: paymentResult.chargeId || null, // Ensure null instead of undefined
       amount: expectedTotal, // Use backend-calculated total
       currency: config.currency.default,
       status: 'succeeded',
       payment_method: payment.method,
-      payment_method_details: payment.method === 'paypal' ? { method: 'paypal' } : payment.cardDetails,
+      payment_method_details: payment.method === 'paypal' ? { method: 'paypal' } : (payment.method === 'googlePay' ? { method: 'googlePay' } : (payment.method === 'klarna' ? { method: 'klarna' } : (payment.method === 'link' ? { method: 'link' } : payment.cardDetails))),
       metadata: {
         user_id,
         order_items: orderItems.length,
@@ -362,8 +364,46 @@ const getById = async (req, res) => {
   }
 };
 
+// Register domain with Stripe for Google Pay/Apple Pay (one-time setup)
+const registerDomain = async (req, res) => {
+  try {
+    const { domain_name } = req.body;
+    
+    if (!domain_name) {
+      return res.status(400).json(responses.error('DOMAIN_REQUIRED', 'Domain name is required'));
+    }
+
+    console.log(`🌐 Registering domain ${domain_name} with Stripe for Google Pay/Apple Pay...`);
+    const domain = await StripeService.registerPaymentMethodDomain(domain_name);
+
+    res.json(responses.ok({
+      domain: domain,
+      message: `Domain ${domain_name} registered successfully for Google Pay/Apple Pay`
+    }));
+  } catch (error) {
+    console.error('Register domain error:', error);
+    res.status(500).json(responses.internalError(error.message || 'Failed to register domain'));
+  }
+};
+
+// List all registered payment method domains
+const listDomains = async (req, res) => {
+  try {
+    const domains = await StripeService.listPaymentMethodDomains();
+    res.json(responses.ok({
+      domains: domains.data,
+      count: domains.data.length
+    }));
+  } catch (error) {
+    console.error('List domains error:', error);
+    res.status(500).json(responses.internalError('Failed to list domains'));
+  }
+};
+
 module.exports = {
   createIntent,
   process,
-  getById
+  getById,
+  registerDomain,
+  listDomains
 };

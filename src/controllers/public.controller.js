@@ -8,7 +8,7 @@ const PublicModule = require('../models/public.module');
 const OTP = require('../models/OTP.model');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
-const { sendEmail, sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail } = require('../services/email.service');
+const { sendEmail, sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail, sendSubscriptionConfirmation } = require('../services/email.service');
 
 /**
  * Public controller for website APIs (no authentication required)
@@ -1457,33 +1457,54 @@ New email subscription from Zarafet website:
 
 Email: ${cleanEmail}
 Date: ${new Date().toLocaleString()}
-IP Address: ${req.ip || req.connection.remoteAddress}
-User Agent: ${req.get('User-Agent') || 'Unknown'}
 
 This email was automatically generated from the website subscription form.
     `;
     
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">New Email Subscription</h2>
-        <p>New email subscription from Zarafet website:</p>
-        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
-          <p><strong>Email:</strong> ${cleanEmail}</p>
-          <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
-          <p><strong>IP Address:</strong> ${req.ip || req.connection.remoteAddress}</p>
-          <p><strong>User Agent:</strong> ${req.get('User-Agent') || 'Unknown'}</p>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Email Subscription</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.8; color: #333; margin: 0; padding: 0; background-color: #ffffff; }
+        .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+        .content { padding: 0; }
+        p { font-size: 16px; margin-bottom: 20px; line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <p>New email subscription from Zarafet website:</p>
+            
+            <p>Email: ${cleanEmail}<br>
+            Date: ${new Date().toLocaleString()}</p>
+            
+            <p style="color: #666; font-size: 14px;">This email was automatically generated from the website subscription form.</p>
         </div>
-        <p style="color: #666; font-size: 12px;">This email was automatically generated from the website subscription form.</p>
-      </div>
+    </div>
+</body>
+</html>
     `;
     
-    // Send email using the existing email service
+    // Send email to admin using the existing email service
     await sendEmail({
       to: 'info@zarafet.uk',
       subject: emailSubject,
       text: emailText,
       html: emailHtml
     });
+    
+    // Send confirmation email to user
+    try {
+      await sendSubscriptionConfirmation({ email: cleanEmail });
+    } catch (emailError) {
+      console.error('❌ Failed to send subscription confirmation email:', emailError);
+      // Don't fail the subscription if confirmation email fails
+    }
     
     res.json({
       success: true,

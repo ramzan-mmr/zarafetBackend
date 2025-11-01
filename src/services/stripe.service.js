@@ -85,6 +85,57 @@ class StripeService {
    */
   static async createGooglePayPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
     try {
+      // For Google Pay, we need card payment methods enabled
+      // Google Pay works through the Payment Request API which requires card support
+      // Note: Cannot use both payment_method_types and automatic_payment_methods
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
+        metadata,
+        // Google Pay requires card payment methods
+        // Use payment_method_types for card support (Google Pay uses card-based payments)
+        payment_method_types: ['card'],
+      });
+
+      return paymentIntent;
+    } catch (error) {
+      console.error('Stripe createGooglePayPaymentIntent error:', error);
+      throw new Error(`Failed to create Google Pay payment intent: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create a payment intent specifically for Klarna payments
+   * @param {number} amount - Amount in dollars
+   * @param {string} currency - Currency code (default: 'gbp')
+   * @param {object} metadata - Additional metadata
+   * @returns {Promise<object>} Stripe payment intent with Klarna enabled
+   */
+  static async createKlarnaPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency,
+        metadata,
+        payment_method_types: ['klarna'],
+      });
+
+      return paymentIntent;
+    } catch (error) {
+      console.error('Stripe createKlarnaPaymentIntent error:', error);
+      throw new Error(`Failed to create Klarna payment intent: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create a payment intent specifically for Link payments
+   * @param {number} amount - Amount in dollars
+   * @param {string} currency - Currency code (default: 'gbp')
+   * @param {object} metadata - Additional metadata
+   * @returns {Promise<object>} Stripe payment intent with Link enabled
+   */
+  static async createLinkPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
+    try {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency,
@@ -97,8 +148,8 @@ class StripeService {
 
       return paymentIntent;
     } catch (error) {
-      console.error('Stripe createGooglePayPaymentIntent error:', error);
-      throw new Error(`Failed to create Google Pay payment intent: ${error.message}`);
+      console.error('Stripe createLinkPaymentIntent error:', error);
+      throw new Error(`Failed to create Link payment intent: ${error.message}`);
     }
   }
 
@@ -206,16 +257,48 @@ class StripeService {
           paymentIntent,
           chargeId: null, // Will be available after confirmation
         };
-      }
-
-      // If paymentIntentId is provided, confirm the existing intent
-      if (paymentIntentId) {
-        console.log('✅ Confirming existing payment intent:', paymentIntentId);
-        const paymentIntent = await this.confirmPayment(paymentIntentId);
+      } else if (paymentData.method === 'klarna') {
+        // For Klarna payments, create a payment intent with Klarna enabled
+        console.log('💚 Creating payment intent for Klarna payment...');
+        const paymentIntent = await this.createKlarnaPaymentIntent(amount, currency, metadata);
         return {
           success: true,
           paymentIntent,
-          chargeId: paymentIntent.charges?.data?.[0]?.id,
+          chargeId: null, // Will be available after confirmation
+        };
+      } else if (paymentData.method === 'link') {
+        // For Link payments, create a payment intent with Link enabled
+        console.log('🔗 Creating payment intent for Link payment...');
+        const paymentIntent = await this.createLinkPaymentIntent(amount, currency, metadata);
+        return {
+          success: true,
+          paymentIntent,
+          chargeId: null, // Will be available after confirmation
+        };
+      }
+
+      // If paymentIntentId is provided, retrieve the confirmed payment intent
+      if (paymentIntentId) {
+        console.log('✅ Retrieving confirmed payment intent:', paymentIntentId);
+        // Payment intent is already confirmed by frontend, just retrieve it with charges expanded
+        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+          expand: ['charges']
+        });
+        
+        // Extract charge ID from confirmed payment intent
+        let chargeId = null;
+        if (paymentIntent.charges && paymentIntent.charges.data && paymentIntent.charges.data.length > 0) {
+          chargeId = paymentIntent.charges.data[0].id;
+        } else if (paymentIntent.latest_charge) {
+          chargeId = paymentIntent.latest_charge;
+        }
+        
+        console.log('✅ Payment intent retrieved, charge ID:', chargeId);
+        
+        return {
+          success: true,
+          paymentIntent,
+          chargeId: chargeId || null, // Ensure it's null, not undefined
         };
       }
 
@@ -276,6 +359,55 @@ class StripeService {
     } catch (error) {
       console.error('Stripe getPaymentIntent error:', error);
       throw new Error(`Failed to get payment intent: ${error.message}`);
+    }
+  }
+
+  /**
+   * Register a domain with Stripe for Google Pay/Apple Pay
+   * Required for production domains (not needed for localhost)
+   * @param {string} domainName - Domain name to register (e.g., 'example.com')
+   * @returns {Promise<object>} Registered domain object
+   */
+  static async registerPaymentMethodDomain(domainName) {
+    try {
+      console.log(`🌐 Registering domain ${domainName} with Stripe for Google Pay/Apple Pay...`);
+      
+      // Register domain with Stripe
+      const domain = await stripe.paymentMethodDomains.create({
+        domain_name: domainName,
+      });
+
+      console.log(`✅ Domain ${domainName} registered successfully:`, domain.id);
+      return domain;
+    } catch (error) {
+      console.error('Stripe registerPaymentMethodDomain error:', error);
+      
+      // If domain already exists, that's okay
+      if (error.code === 'resource_already_exists') {
+        console.log(`ℹ️ Domain ${domainName} is already registered`);
+        // Try to retrieve existing domain
+        const domains = await stripe.paymentMethodDomains.list();
+        const existingDomain = domains.data.find(d => d.domain_name === domainName);
+        if (existingDomain) {
+          return existingDomain;
+        }
+      }
+      
+      throw new Error(`Failed to register domain: ${error.message}`);
+    }
+  }
+
+  /**
+   * List all registered payment method domains
+   * @returns {Promise<object>} List of registered domains
+   */
+  static async listPaymentMethodDomains() {
+    try {
+      const domains = await stripe.paymentMethodDomains.list({ limit: 100 });
+      return domains;
+    } catch (error) {
+      console.error('Stripe listPaymentMethodDomains error:', error);
+      throw new Error(`Failed to list domains: ${error.message}`);
     }
   }
 }
