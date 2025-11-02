@@ -6,6 +6,13 @@ const list = async (req, res) => {
   try {
     const { page, limit, ...filters } = req.pagination;
     
+    // Clean up empty string filters
+    Object.keys(filters).forEach(key => {
+      if (filters[key] === '' || filters[key] === null || filters[key] === undefined) {
+        delete filters[key];
+      }
+    });
+    
     const products = await Product.findAll(filters, { page, limit, ...req.query });
     const total = await Product.count(filters);
     
@@ -106,11 +113,37 @@ const getAvailableCategories = async (req, res) => {
   }
 };
 
+// Fix stock_status for all products based on their current stock
+const fixStockStatus = async (req, res) => {
+  try {
+    const db = require('../config/db');
+    
+    // Update all products' stock_status based on their current stock
+    const [result] = await db.execute(
+      `UPDATE products 
+       SET stock_status = CASE 
+         WHEN stock <= 0 THEN 'Out of Stock'
+         WHEN stock < 10 THEN 'Low Stock'
+         ELSE 'Active'
+       END`
+    );
+    
+    res.json(responses.ok({
+      message: 'Stock status updated successfully',
+      affectedRows: result.affectedRows
+    }));
+  } catch (error) {
+    console.error('Fix stock status error:', error);
+    res.status(500).json(responses.internalError('Failed to fix stock status'));
+  }
+};
+
 module.exports = {
   list,
   getById,
   create,
   update,
   remove,
-  getAvailableCategories
+  getAvailableCategories,
+  fixStockStatus
 };

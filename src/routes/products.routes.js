@@ -35,4 +35,9 @@ router.delete('/:id',
   ctrl.remove
 );
 router.get('/categories', ctrl.getAvailableCategories);
+// Fix stock_status for all products (admin only)
+router.post('/fix-stock-status',
+  checkRole(['Admin']),
+  ctrl.fixStockStatus
+);
 module.exports = router;

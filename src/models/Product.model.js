@@ -45,10 +45,13 @@ class Product {
       discount_percentage = Math.round(((original_price - current_price) / original_price) * 100 * 100) / 100;
     }
     
+    // Calculate stock_status based on stock if not provided
+    const finalStockStatus = stock_status || this.calculateStockStatus(stock || 0);
+    
     const [result] = await db.execute(
       `INSERT INTO products (sku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status, fit_required, default_fit, fit_options, materials_care, delivery_returns, return_exchanges, contact_info) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [finalSku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, stock_status, status, Boolean(fit_required), default_fit || null, fit_options || null, materials_care || null, delivery_returns || null, return_exchanges || null, contact_info || null]
+      [finalSku, name, description, category_value_id, price, original_price, current_price, discount_percentage, stock, finalStockStatus, status, Boolean(fit_required), default_fit || null, fit_options || null, materials_care || null, delivery_returns || null, return_exchanges || null, contact_info || null]
     );
     
     const productId = result.insertId;
@@ -355,6 +358,13 @@ class Product {
       }
     });
     
+    // If stock is being updated, also update stock_status based on new stock value
+    if (productData.stock !== undefined) {
+      const stockStatus = this.calculateStockStatus(productData.stock);
+      fields.push('stock_status = ?');
+      values.push(stockStatus);
+    }
+    
     // Add price fields if provided
     if (original_price !== undefined) {
       fields.push('original_price = ?');
@@ -543,10 +553,29 @@ class Product {
     return true;
   }
   
+  // Helper function to calculate stock_status based on stock quantity
+  static calculateStockStatus(stock) {
+    if (stock <= 0) {
+      return 'Out of Stock';
+    } else if (stock < 10) {
+      return 'Low Stock';
+    } else {
+      return 'Active';
+    }
+  }
+
   static async updateStock(id, quantity) {
+    // Update stock and recalculate stock_status
     await db.execute(
-      'UPDATE products SET stock = stock - ? WHERE id = ?',
-      [quantity, id]
+      `UPDATE products 
+       SET stock = stock - ?, 
+           stock_status = CASE 
+             WHEN stock - ? <= 0 THEN 'Out of Stock'
+             WHEN stock - ? < 10 THEN 'Low Stock'
+             ELSE 'Active'
+           END
+       WHERE id = ?`,
+      [quantity, quantity, quantity, id]
     );
   }
   
@@ -555,6 +584,24 @@ class Product {
       'UPDATE product_variants SET stock = stock - ? WHERE id = ?',
       [quantity, variantId]
     );
+  }
+  
+  // Update product stock_status based on current stock
+  static async updateStockStatus(productId) {
+    const [rows] = await db.execute(
+      'SELECT stock FROM products WHERE id = ?',
+      [productId]
+    );
+    
+    if (rows.length > 0) {
+      const stock = rows[0].stock;
+      const stockStatus = this.calculateStockStatus(stock);
+      
+      await db.execute(
+        'UPDATE products SET stock_status = ? WHERE id = ?',
+        [stockStatus, productId]
+      );
+    }
   }
   
   // Helper method to get type condition for filtering

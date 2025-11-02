@@ -142,16 +142,32 @@ class Order {
           );
           
           console.log(`📊 Updating product stock: ${item.product_id}, -${item.quantity}`);
+          // Update stock and recalculate stock_status
           await connection.execute(
-            'UPDATE products SET stock = stock - ? WHERE id = ?',
-            [item.quantity, item.product_id]
+            `UPDATE products 
+             SET stock = stock - ?, 
+                 stock_status = CASE 
+                   WHEN stock - ? <= 0 THEN 'Out of Stock'
+                   WHEN stock - ? < 10 THEN 'Low Stock'
+                   ELSE 'Active'
+                 END
+             WHERE id = ?`,
+            [item.quantity, item.quantity, item.quantity, item.product_id]
           );
         } else {
           // No variant - only update product stock
           console.log(`📊 Updating product stock: ${item.product_id}, -${item.quantity}`);
+          // Update stock and recalculate stock_status
           await connection.execute(
-            'UPDATE products SET stock = stock - ? WHERE id = ?',
-            [item.quantity, item.product_id]
+            `UPDATE products 
+             SET stock = stock - ?, 
+                 stock_status = CASE 
+                   WHEN stock - ? <= 0 THEN 'Out of Stock'
+                   WHEN stock - ? < 10 THEN 'Low Stock'
+                   ELSE 'Active'
+                 END
+             WHERE id = ?`,
+            [item.quantity, item.quantity, item.quantity, item.product_id]
           );
         }
       }

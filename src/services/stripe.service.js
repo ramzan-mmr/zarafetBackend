@@ -109,16 +109,26 @@ class StripeService {
    * @param {number} amount - Amount in dollars
    * @param {string} currency - Currency code (default: 'gbp')
    * @param {object} metadata - Additional metadata
+   * @param {object} customerInfo - Customer information (email, name, shipping address)
    * @returns {Promise<object>} Stripe payment intent with Klarna enabled
    */
-  static async createKlarnaPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
+  static async createKlarnaPaymentIntent(amount, currency = config.currency.default, metadata = {}, customerInfo = null) {
     try {
-      const paymentIntent = await stripe.paymentIntents.create({
+      const paymentIntentData = {
         amount: Math.round(amount * 100), // Convert to cents
         currency,
         metadata,
-        payment_method_types: ['klarna'],
-      });
+        // Use automatic_payment_methods with allow_redirects for Klarna redirect flow
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: 'always'
+        },
+      };
+
+      // Note: Customer information and shipping address will be collected during redirect flow
+      // Stripe will handle collecting this information when user redirects to Klarna
+
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentData);
 
       return paymentIntent;
     } catch (error) {

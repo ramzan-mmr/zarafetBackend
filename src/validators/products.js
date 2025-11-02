@@ -3,10 +3,10 @@ const { paginationQuery, positiveInt, money } = require('./common');
 
 exports.listQuery = paginationQuery.keys({
   category_value_id: positiveInt,
-  status: Joi.string().valid('Active', 'Inactive'),
-  stock_status: Joi.string().valid('Active', 'Low Stock', 'Out of Stock'),
-  minPrice: money,
-  maxPrice: money
+  status: Joi.string().valid('Active', 'Inactive').allow('', null),
+  stock_status: Joi.string().valid('Active', 'Low Stock', 'Out of Stock').allow('', null),
+  minPrice: money.allow('', null),
+  maxPrice: money.allow('', null)
 });
 
 const base = {

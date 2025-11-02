@@ -9,15 +9,56 @@ const config = require('../config/env');
 
 const createIntent = async (req, res) => {
   try {
-    const { amount, currency, metadata } = req.body;
-    const paymentIntent = await StripeService.createPaymentIntent(
-      amount,
-      currency,
-      {
-        ...metadata,
-        user_id: req.user.id
-      }
-    );
+    const { amount, currency, metadata, customerInfo } = req.body;
+    const paymentMethod = metadata?.payment_method;
+    
+    let paymentIntent;
+    
+    // Create payment intent based on payment method
+    if (paymentMethod === 'klarna') {
+      // Get user info for Klarna (requires customer details)
+      const user = await User.findById(req.user.id);
+      paymentIntent = await StripeService.createKlarnaPaymentIntent(
+        amount,
+        currency,
+        {
+          ...metadata,
+          user_id: req.user.id
+        },
+        user ? {
+          email: user.email,
+          name: user.name
+        } : null
+      );
+    } else if (paymentMethod === 'link') {
+      paymentIntent = await StripeService.createLinkPaymentIntent(
+        amount,
+        currency,
+        {
+          ...metadata,
+          user_id: req.user.id
+        }
+      );
+    } else if (paymentMethod === 'googlePay') {
+      paymentIntent = await StripeService.createGooglePayPaymentIntent(
+        amount,
+        currency,
+        {
+          ...metadata,
+          user_id: req.user.id
+        }
+      );
+    } else {
+      // Default payment intent for credit card
+      paymentIntent = await StripeService.createPaymentIntent(
+        amount,
+        currency,
+        {
+          ...metadata,
+          user_id: req.user.id
+        }
+      );
+    }
 
     res.json(responses.ok({
       client_secret: paymentIntent.client_secret,
