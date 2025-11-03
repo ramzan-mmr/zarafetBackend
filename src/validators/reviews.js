@@ -16,6 +16,12 @@ const createReview = Joi.object({
       'number.positive': 'Order ID must be positive',
       'any.required': 'Order ID is required'
     }),
+  variant_id: Joi.number().integer().positive().allow(null).optional()
+    .messages({
+      'number.base': 'Variant ID must be a number',
+      'number.integer': 'Variant ID must be an integer',
+      'number.positive': 'Variant ID must be positive'
+    }),
   rating: Joi.number().integer().min(1).max(5).required()
     .messages({
       'number.base': 'Rating must be a number',

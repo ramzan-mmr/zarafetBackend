@@ -151,18 +151,47 @@ class PublicModule {
       }
     }
     
-    const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'price', 'stock', 'date_added', 'created_at', 'total_orders']);
+    // Handle "most_popular" sorting - need to count order items
+    let orderClause = '';
+    let needsOrderCount = false;
+    
+    if (pagination.sortBy === 'total_orders') {
+      needsOrderCount = true;
+      const direction = pagination.sortDir && pagination.sortDir.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+      orderClause = `ORDER BY total_orders ${direction}, p.created_at DESC`;
+    } else {
+      orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'price', 'stock', 'date_added', 'created_at'], 'p');
+    }
+    
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
-    const query = `
-      SELECT p.*, 
-             c.name as category_name
-      FROM products p 
-      LEFT JOIN categories c ON p.category_value_id = c.id
-      ${whereClause} 
-      ${orderClause} 
-      ${paginationClause}
-    `;
+    let query = '';
+    if (needsOrderCount) {
+      // Include order count in SELECT and JOIN with order_items
+      query = `
+        SELECT p.*, 
+               c.name as category_name,
+               COALESCE(SUM(oi.quantity), 0) as total_orders
+        FROM products p 
+        LEFT JOIN categories c ON p.category_value_id = c.id
+        LEFT JOIN order_items oi ON p.id = oi.product_id
+        ${whereClause}
+        GROUP BY p.id, c.name
+        ${orderClause} 
+        ${paginationClause}
+      `;
+    } else {
+      // Regular query without order count
+      query = `
+        SELECT p.*, 
+               c.name as category_name
+        FROM products p 
+        LEFT JOIN categories c ON p.category_value_id = c.id
+        ${whereClause} 
+        ${orderClause} 
+        ${paginationClause}
+      `;
+    }
     
     const [rows] = await db.execute(query, values);
     return await this.enrichProductsWithDetails(rows);
@@ -295,7 +324,7 @@ class PublicModule {
   }
 
   // Get products by type with size and color filtering
-  static async getProductsByTypeWithFilters(type, filters = {}) {
+  static async getProductsByTypeWithFilters(type, filters = {}, pagination = {}) {
     // Get base products by type
     let products;
     switch (type) {
@@ -309,7 +338,15 @@ class PublicModule {
         products = await this.getFeaturedProducts(filters.limit || 8);
         break;
       default:
-        products = await this.getProducts(filters, { page: filters.page || 1, limit: filters.limit || 8 });
+        // Use pagination object if provided, otherwise fall back to filters
+        const paginationParams = pagination && pagination.sortBy ? pagination : {
+          page: filters.page || 1,
+          limit: filters.limit || 8,
+          sortBy: pagination?.sortBy || 'created_at',
+          sortDir: pagination?.sortDir || 'DESC'
+        };
+        
+        products = await this.getProducts(filters, paginationParams);
     }
 
     return products;
@@ -348,13 +385,34 @@ class PublicModule {
     let available_fits = [];
     if (product.fit_required) {
       try {
+        // If product has specific fit_options configured (JSON string of values), filter by those
+        let whereClause = `lh.name = 'Product Fit' AND lv.status = 'Active'`;
+        const params = [];
+
+        if (product.fit_options) {
+          try {
+            const fitValues = JSON.parse(product.fit_options);
+            if (Array.isArray(fitValues) && fitValues.length > 0) {
+              const placeholders = fitValues.map(() => '?').join(',');
+              whereClause += ` AND lv.value IN (${placeholders})`;
+              params.push(...fitValues);
+            }
+          } catch (e) {
+            // If parsing fails, fall back to default behavior (all active fits)
+          }
+        } else if (product.default_fit) {
+          // If only default_fit is set, return just that one option
+          whereClause += ` AND lv.value = ?`;
+          params.push(product.default_fit);
+        }
+
         const [fitOptions] = await db.execute(
           `SELECT lv.value, lv.description 
            FROM lookup_values lv 
            JOIN lookup_headers lh ON lv.header_id = lh.id 
-           WHERE lh.name = 'Product Fit' AND lv.status = 'Active'
+           WHERE ${whereClause}
            ORDER BY lv.value`,
-          []
+          params
         );
         available_fits = fitOptions;
       } catch (error) {

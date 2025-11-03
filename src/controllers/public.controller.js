@@ -8,6 +8,7 @@ const PublicModule = require('../models/public.module');
 const OTP = require('../models/OTP.model');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
+const { generateCode } = require('../utils/sql');
 const { sendEmail, sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail, sendSubscriptionConfirmation } = require('../services/email.service');
 
 /**
@@ -1247,9 +1248,39 @@ const createReview = async (req, res) => {
     );
 
     if (existingReview.length > 0) {
+      // Get order code for better error message
+      const orderCode = order.code || generateCode('ORD', order_id);
+      const existingReviewData = existingReview[0];
+      const reviewDate = new Date(existingReviewData.created_at).toLocaleDateString();
+      
+      // Also get all reviews for this product to help user understand
+      const [allProductReviews] = await db.execute(
+        `SELECT r.*, o.code as order_code FROM reviews r LEFT JOIN orders o ON r.order_id = o.id WHERE r.user_id = ? AND r.product_id = ? ORDER BY r.created_at DESC`,
+        [user_id, product_id]
+      );
+      
+      console.log(`🔍 Review Conflict - User ID: ${user_id}, Product ID: ${product_id}, Order ID: ${order_id}`);
+      console.log(`🔍 Existing Review Found:`, existingReviewData);
+      console.log(`🔍 All Reviews for Product:`, allProductReviews);
+      
       return res.status(400).json({
         success: false,
-        message: 'You have already reviewed this product from this order'
+        message: `You have already reviewed this product from order #${orderCode} on ${reviewDate}. Each order can only have one review per product.`,
+        existing_review: {
+          id: existingReviewData.id,
+          order_id: existingReviewData.order_id,
+          order_code: orderCode,
+          rating: existingReviewData.rating,
+          comment: existingReviewData.comment,
+          created_at: existingReviewData.created_at
+        },
+        all_reviews_for_product: allProductReviews.map(r => ({
+          id: r.id,
+          order_id: r.order_id,
+          order_code: r.order_code || generateCode('ORD', r.order_id),
+          rating: r.rating,
+          created_at: r.created_at
+        }))
       });
     }
 

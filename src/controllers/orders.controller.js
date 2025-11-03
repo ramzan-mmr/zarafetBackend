@@ -263,6 +263,16 @@ const place = async (req, res) => {
           // Get order details with items for email
           const orderWithItems = await Order.findById(order.id);
           
+          // Use order address from database if available, otherwise use the provided address
+          const orderAddress = orderWithItems.order_address || address;
+          const formattedAddress = orderAddress ? {
+            line1: orderAddress.line1 || '',
+            line2: orderAddress.line2 || '',
+            city: orderAddress.city || '',
+            postal_code: orderAddress.postal_code || orderAddress.postalCode || '',
+            phone: orderAddress.phone || ''
+          } : null;
+          
           const emailData = {
             userEmail: user.email,
             userName: user.name,
@@ -275,7 +285,7 @@ const place = async (req, res) => {
                 shipping: expectedShipping,
                 total: expectedTotal
               },
-              address: address,
+              address: formattedAddress,
               promoCode: promoCode ? {
                 code: promoCode.code,
                 discountAmount: discountAmount,

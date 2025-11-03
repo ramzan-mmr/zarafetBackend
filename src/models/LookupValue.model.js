@@ -26,7 +26,7 @@ class LookupValue {
     
     const allowedColumns = ['status'];
     const { whereClause, values } = buildWhereClause(filters, allowedColumns);
-    const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['value', 'order', 'created_at']);
+    const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['value', 'order', 'created_at'], '');
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
     const query = `

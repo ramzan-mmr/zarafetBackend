@@ -62,13 +62,26 @@ const buildWhereClause = (filters, allowedColumns = [], tableAlias = 'p') => {
   };
 };
 
-const buildOrderClause = (sortBy, sortDir = 'asc', allowedColumns = []) => {
-  if (!sortBy || (allowedColumns.length > 0 && !allowedColumns.includes(sortBy))) {
-    return 'ORDER BY created_at DESC';
+const buildOrderClause = (sortBy, sortDir = 'asc', allowedColumns = [], tableAlias = 'p') => {
+  const direction = sortDir.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+  const prefix = tableAlias ? `${tableAlias}.` : '';
+  
+  if (!sortBy) {
+    return `ORDER BY ${prefix}created_at DESC`;
   }
   
-  const direction = sortDir.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
-  return `ORDER BY ${sortBy} ${direction}`;
+  // Handle special sorting expressions (like COALESCE, CASE, etc.)
+  // Skip allowedColumns validation for expressions
+  if (sortBy.includes('(') || sortBy.includes('COALESCE') || sortBy.includes('CASE')) {
+    return `ORDER BY ${sortBy} ${direction}`;
+  }
+  
+  // Validate against allowedColumns only if it's a simple column name
+  if (allowedColumns.length > 0 && !allowedColumns.includes(sortBy)) {
+    return `ORDER BY ${prefix}created_at DESC`;
+  }
+  
+  return `ORDER BY ${prefix}${sortBy} ${direction}`;
 };
 
 const buildPaginationClause = (page = 1, limit = 10) => {
