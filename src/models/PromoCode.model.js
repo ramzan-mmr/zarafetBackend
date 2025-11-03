@@ -17,8 +17,8 @@ class PromoCode {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
     const allowedColumns = ['status', 'discount_type'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
-    const orderClause = buildOrderClause('created_at', 'desc');
+    const { whereClause, values } = buildWhereClause(filters, allowedColumns, ''); // No table alias for promo_codes
+    const orderClause = buildOrderClause('created_at', 'desc', [], ''); // No table alias for promo_codes
     const paginationClause = buildPaginationClause(filters.page || 1, filters.limit || 10);
     
     const query = `
@@ -82,7 +82,7 @@ class PromoCode {
     const { buildWhereClause } = require('../utils/sql');
     
     const allowedColumns = ['status', 'discount_type'];
-    const { whereClause, values } = buildWhereClause(filters, allowedColumns);
+    const { whereClause, values } = buildWhereClause(filters, allowedColumns, ''); // No table alias for promo_codes
     
     const [rows] = await db.execute(
       `SELECT COUNT(*) as total FROM promo_codes ${whereClause}`,

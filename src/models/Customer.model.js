@@ -58,7 +58,7 @@ class Customer {
     }
     
     const whereClause = conditions.length > 0 ? 'AND ' + conditions.join(' AND ') : '';
-    const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'created_at', 'last_login_at']);
+    const orderClause = buildOrderClause(pagination.sortBy, pagination.sortDir, ['name', 'created_at', 'last_login_at'], 'u'); // Users table is aliased as 'u'
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
     const query = `
