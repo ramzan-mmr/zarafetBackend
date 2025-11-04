@@ -53,7 +53,7 @@ module.exports = {
   // Shipping Configuration
   pricing: {
     defaultShippingCost: parseFloat(process.env.DEFAULT_SHIPPING_COST) || 5.00,
-    freeShippingThreshold: parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 100.00
+    freeShippingThreshold: parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 10000000000000
   },
 
   // SMTP Configuration
