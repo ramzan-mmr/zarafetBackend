@@ -34,6 +34,7 @@ const base = {
   contact_info: Joi.string().allow('', null).description('Contact information for product support'),
   images: Joi.array().items(Joi.string().max(10000000)).default([]), // Increased to 10MB for base64 images
   variants: Joi.array().items(Joi.object({
+    id: Joi.number().integer().positive().optional().description('Variant ID for updates - if provided, updates existing variant'),
     size: Joi.string().valid('XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL').allow(null),
     color_name: Joi.string().max(100).allow('', null),
     color_code: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).allow('', null).description('Hex color code like #FF5733'),

@@ -478,8 +478,10 @@ class Product {
         }
       }
       
-      await db.execute('DELETE FROM product_variants WHERE product_id = ?', [id]);
+      // Handle variants: Update existing, insert new, delete removed
       if (variants.length > 0) {
+        const variantIds = [];
+        
         for (const variant of variants) {
           let colorImageUrl = variant.color_image;
           
@@ -499,19 +501,37 @@ class Product {
             }
           }
           
+          // If variant has ID, UPDATE existing variant
+          if (variant.id) {
+            await db.execute(
+              `UPDATE product_variants 
+               SET size = ?, color_name = ?, color_code = ?, color_image = ?, sku = ?, extra_price = ?, stock = ?
+               WHERE id = ? AND product_id = ?`,
+              [variant.size, variant.color_name, variant.color_code, colorImageUrl, variant.sku, variant.extra_price, variant.stock, variant.id, id]
+            );
+            variantIds.push(variant.id);
+          } 
+          // If no ID, INSERT new variant
+          else {
+            const [result] = await db.execute(
+              `INSERT INTO product_variants (product_id, size, color_name, color_code, color_image, sku, extra_price, stock) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              [id, variant.size, variant.color_name, variant.color_code, colorImageUrl, variant.sku, variant.extra_price, variant.stock]
+            );
+            variantIds.push(result.insertId);
+          }
+        }
+        
+        // Delete variants that are no longer in the update payload
+        if (variantIds.length > 0) {
           await db.execute(
-            `INSERT INTO product_variants (product_id, size, color_name, color_code, color_image, sku, extra_price, stock) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE
-             size = VALUES(size),
-             color_name = VALUES(color_name),
-             color_code = VALUES(color_code),
-             color_image = VALUES(color_image),
-             extra_price = VALUES(extra_price),
-             stock = VALUES(stock)`,
-            [id, variant.size, variant.color_name, variant.color_code, colorImageUrl, variant.sku, variant.extra_price, variant.stock]
+            `DELETE FROM product_variants WHERE product_id = ? AND id NOT IN (${variantIds.map(() => '?').join(',')})`,
+            [id, ...variantIds]
           );
         }
+      } else {
+        // If no variants provided, delete all variants for this product
+        await db.execute('DELETE FROM product_variants WHERE product_id = ?', [id]);
       }
     }
     

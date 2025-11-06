@@ -17,6 +17,7 @@ class PublicModule {
 
   // Get trending products
   static async getTrendingProducts(limit = 8) {
+    // Get products with discounts first (trending), then fill with recent products
     const [rows] = await db.execute(`
       SELECT p.*, 
              c.name as category_name,
@@ -25,9 +26,14 @@ class PublicModule {
       LEFT JOIN categories c ON p.category_value_id = c.id
       WHERE p.status = 'Active' 
         AND p.stock_status != 'Out of Stock'
-        AND p.discount_percentage IS NOT NULL
-        AND p.discount_percentage > 0
-      ORDER BY p.discount_percentage DESC, p.created_at DESC
+      ORDER BY 
+        CASE 
+          WHEN p.discount_percentage IS NOT NULL AND p.discount_percentage > 0 THEN 0
+          ELSE 1
+        END,
+        p.discount_percentage DESC,
+        p.updated_at DESC,
+        p.created_at DESC
       LIMIT ?
     `, [parseInt(limit)]);
 
