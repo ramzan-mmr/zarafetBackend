@@ -82,6 +82,22 @@ class PublicModule {
     const { buildWhereClause, buildOrderClause, buildPaginationClause } = require('../utils/sql');
     
     
+    // Handle stock statuses FIRST (before buildWhereClause) to avoid conflicts
+    let stockStatusCondition = '';
+    let stockStatusValues = [];
+    console.log('🔍 getProducts - filters received:', JSON.stringify(filters, null, 2));
+    if (filters.stock_statuses && Array.isArray(filters.stock_statuses) && filters.stock_statuses.length > 0) {
+      // Multiple stock statuses - use IN clause
+      const stockPlaceholders = filters.stock_statuses.map(() => '?').join(',');
+      stockStatusCondition = `p.stock_status IN (${stockPlaceholders})`;
+      stockStatusValues = [...filters.stock_statuses];
+      console.log('🔍 getProducts - Multiple stock statuses:', filters.stock_statuses, 'Condition:', stockStatusCondition);
+      // Remove stock_statuses from filters to avoid double processing in buildWhereClause
+      delete filters.stock_statuses;
+    } else if (filters.stock_status) {
+      console.log('🔍 getProducts - Single stock status:', filters.stock_status);
+    }
+    
     // Handle multiple categories separately
     let whereClause = '';
     let values = [];
@@ -106,6 +122,16 @@ class PublicModule {
       const result = buildWhereClause(filters, allowedColumns);
       whereClause = result.whereClause;
       values = result.values;
+    }
+    
+    // Add stock status condition if we have multiple statuses
+    if (stockStatusCondition) {
+      if (whereClause) {
+        whereClause += ` AND ${stockStatusCondition}`;
+      } else {
+        whereClause = `WHERE ${stockStatusCondition}`;
+      }
+      values.push(...stockStatusValues);
     }
     
     // Handle type filtering
@@ -171,6 +197,9 @@ class PublicModule {
     
     const paginationClause = buildPaginationClause(pagination.page, pagination.limit);
     
+    console.log('🔍 getProducts - Final whereClause:', whereClause);
+    console.log('🔍 getProducts - Final values:', values);
+    
     let query = '';
     if (needsOrderCount) {
       // Include order count in SELECT and JOIN with order_items
@@ -199,6 +228,7 @@ class PublicModule {
       `;
     }
     
+    console.log('🔍 getProducts - Final SQL Query:', query);
     const [rows] = await db.execute(query, values);
     return await this.enrichProductsWithDetails(rows);
   }

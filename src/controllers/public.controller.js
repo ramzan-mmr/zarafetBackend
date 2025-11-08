@@ -85,7 +85,34 @@ const getProducts = async (req, res) => {
       }
     }
     
-    if (stock_status) filters.stock_status = stock_status;
+    // Map frontend stock status values to backend values
+    if (stock_status) {
+      console.log('🔍 Stock status received from frontend:', stock_status);
+      // Handle comma-separated or single stock status values
+      const statuses = stock_status.includes(',') 
+        ? stock_status.split(',').map(s => s.trim())
+        : [stock_status];
+      
+      console.log('🔍 Parsed statuses:', statuses);
+      
+      // Map 'In Stock' to 'Active' for each status
+      const mappedStatuses = statuses.map(s => {
+        if (s === 'In Stock') return 'Active';
+        if (s === 'Out of Stock') return 'Out of Stock';
+        return s; // Keep as-is for 'Active', 'Low Stock', etc.
+      });
+      
+      console.log('🔍 Mapped statuses:', mappedStatuses);
+      
+      // If multiple statuses, store as array; otherwise as single value
+      if (mappedStatuses.length > 1) {
+        filters.stock_statuses = mappedStatuses; // Use plural for array
+        console.log('🔍 Setting filters.stock_statuses (multiple):', filters.stock_statuses);
+      } else {
+        filters.stock_status = mappedStatuses[0];
+        console.log('🔍 Setting filters.stock_status (single):', filters.stock_status);
+      }
+    }
     if (min_price) filters.minPrice = min_price;
     if (max_price) filters.maxPrice = max_price;
     if (search) filters.search = search;
