@@ -204,7 +204,7 @@ class Product {
         product.return_exchanges = 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.';
       }
       if (!product.contact_info) {
-        product.contact_info = 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.';
+        product.contact_info = 'For any questions about this product, please contact our customer service team at info@zarafet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.';
       }
       return product;
     });
@@ -271,7 +271,7 @@ class Product {
       product.return_exchanges = 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.';
     }
     if (!product.contact_info) {
-      product.contact_info = 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.';
+      product.contact_info = 'For any questions about this product, please contact our customer service team at info@zarafet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.';
     }
     
     return product;

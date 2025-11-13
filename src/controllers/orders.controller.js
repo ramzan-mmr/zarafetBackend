@@ -223,7 +223,8 @@ const place = async (req, res) => {
       address_id: address.id,
       shipment: {
         method_value_id: shipping.method.id,
-        scheduled_date: null
+        scheduled_date: null,
+        cost: shipping.cost
       },
       payment_method_value_id: null, // Will be set based on payment method
       discount_type_value_id: null,
