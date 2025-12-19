@@ -49,6 +49,12 @@ module.exports = {
     secretKey: process.env.STRIPE_SECRET_KEY,
     publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
   },
+  // Paypal Configuration
+  paypal: {
+    mode: process.env.PAYPAL_MODE || "test",
+    clientId: process.env.PAYPAL_CLIENT_ID,
+    clientSecret: process.env.PAYPAL_CLIENT_SECRET
+  },
 
   // Shipping Configuration
   pricing: {

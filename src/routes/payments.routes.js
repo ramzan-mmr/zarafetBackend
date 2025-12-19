@@ -45,4 +45,10 @@ router.post('/register-domain',
 router.get('/domains/list',
   ctrl.listDomains
 );
+
+router.get('/paypal/config', 
+  ctrl.getConfig);
+router.post('/paypal/create-order', 
+  ctrl.createPaypalOrder);
+
 module.exports = router;

@@ -6,6 +6,7 @@ const StripeService = require('../services/stripe.service');
 const EmailService = require('../services/email.service');
 const responses = require('../utils/responses');
 const config = require('../config/env');
+const { client, checkoutNodeJssdk, capturePaypalOrder } = require('../services/paypal.service');
 
 const createIntent = async (req, res) => {
   try {
@@ -183,19 +184,42 @@ const process = async (req, res) => {
 
     // Process payment with backend-calculated total
     console.log(`💳 Processing ${payment.method} payment with Stripe...`);
-    const paymentResult = await StripeService.processPayment(
-      payment,
-      expectedTotal, // Use backend-calculated total
-      config.currency.default,
-      {
-        user_id,
-        order_items: orderItems.length,
-        subtotal: expectedSubtotal,
-        shipping: expectedShipping,
-        tax: expectedTax,
-        payment_method: payment.method
+    let paymentResult;
+    if (payment?.method === "paypal") {
+      const orderId = payment?.paymentIntentId;
+      if (!orderId) {
+        return res.status(400).json(responses.error('PAYPAL_ORDER_ID_REQUIRED', 'Missing PayPal order ID for capture'));
       }
-    );
+      const captureResult = await capturePaypalOrder(orderId);
+      if (!captureResult.success) {
+        return res.status(400).json(responses.error('PAYMENT_FAILED', captureResult.message || 'Failed to capture PayPal payment'));
+      } else {
+        paymentResult = {
+          success: true,
+          paymentIntent: { id: captureResult.data?.id || orderId },
+          chargeId: null,
+          paymentDetails: captureResult.data
+        };
+        payment.paymentResp = {
+          orderID: orderId,
+          paymentID: captureResult.data?.id
+        };
+      }
+    } else {
+      paymentResult = await StripeService.processPayment(
+        payment,
+        expectedTotal, // Use backend-calculated total
+        config.currency.default,
+        {
+          user_id,
+          order_items: orderItems.length,
+          subtotal: expectedSubtotal,
+          shipping: expectedShipping,
+          tax: expectedTax,
+          payment_method: payment.method
+        }
+      );
+    }
 
     console.log('💳 Stripe payment result:', {
       success: paymentResult.success,
@@ -213,8 +237,8 @@ const process = async (req, res) => {
     console.log('💾 Creating payment record...');
     const paymentData = {
       order_id: null, // Will be set after order creation
-      stripe_payment_intent_id: paymentResult.paymentIntent?.id || paymentResult.charge?.payment_intent,
-      stripe_charge_id: paymentResult.chargeId || null, // Ensure null instead of undefined
+      stripe_payment_intent_id: paymentResult.paymentIntent?.id || paymentResult.charge?.payment_intent||paymentResult?.paymentIntent?.id,
+      stripe_charge_id: paymentResult.chargeId || paymentResult?.paymentDetails?.id||null, // Ensure null instead of undefined
       amount: expectedTotal, // Use backend-calculated total
       currency: config.currency.default,
       status: 'succeeded',
@@ -384,6 +408,69 @@ const process = async (req, res) => {
   }
 };
 
+const getConfig = (req, res) => {
+  try {
+    const id=config.paypal.clientId
+    if (!id) {
+      return res.status(400).json(
+        responses.error('failed', 'missing config')
+      );
+    }
+
+    res.json(
+      responses.ok({
+        id: id
+      })
+    );
+  } catch (error) {
+    console.error('❌ Failed to fetch PayPal config:', error);
+    res.status(500).json(
+      responses.internalError('Failed to fetch PayPal config')
+    );
+  }
+};
+
+const createPaypalOrder = async (req, res) => {
+  try {
+    const { amount ,currency} = req.body;
+
+    if (!amount) {
+      return res.status(400).json(
+        responses.error('AMOUNT_REQUIRED', 'Amount is required')
+      );
+    }
+
+    const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
+    request.prefer('return=representation');
+    request.requestBody({
+      intent: 'CAPTURE',
+      purchase_units: [
+        {
+          amount: {
+            currency_code: currency.toUpperCase(),
+            value: amount.toFixed(2)
+          }
+        }
+      ]
+    });
+
+    const order = await client.execute(request);
+    res.json(
+      responses.ok({
+        orderID: order.result.id
+      })
+    );
+  } catch (error) {
+    console.error('❌ PayPal create order error:', error);
+    res.status(500).json(
+      responses.internalError('Failed to create PayPal order')
+    );
+  }
+};
+
+
+
+
 const getById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -446,5 +533,7 @@ module.exports = {
   process,
   getById,
   registerDomain,
-  listDomains
+  listDomains,
+  createPaypalOrder,
+  getConfig
 };
