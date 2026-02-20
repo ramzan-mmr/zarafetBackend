@@ -202,8 +202,8 @@ class Order {
       if (address_snapshot) {
         console.log('🏠 Creating order address snapshot...');
         await connection.execute(
-          'INSERT INTO order_addresses (order_id, label, line1, line2, city, postal_code, phone) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [orderId, address_snapshot.label, address_snapshot.line1, address_snapshot.line2, address_snapshot.city, address_snapshot.postal_code, address_snapshot.phone]
+          'INSERT INTO order_addresses (order_id, label, recipient_name, line1, line2, city, state_region, postal_code, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [orderId, address_snapshot.label, address_snapshot.recipient_name || null, address_snapshot.line1, address_snapshot.line2, address_snapshot.city, address_snapshot.state_region || null, address_snapshot.postal_code, address_snapshot.phone]
         );
         console.log('✅ Order address snapshot created');
       }
@@ -318,7 +318,7 @@ class Order {
 
     const query = `
       SELECT o.*, 
-             u.name as customer_name,
+             COALESCE(oa.recipient_name, u.name) as customer_name,
              u.email as customer_email,
              lv1.value as status_name,
              lv2.value as payment_method_name,
@@ -404,6 +404,11 @@ class Order {
       [id]
     );
     order.order_address = addresses[0] || null;
+
+    // Use recipient name from order snapshot when present (so each order shows the name used at placement)
+    if (order.order_address?.recipient_name) {
+      order.customer_name = order.order_address.recipient_name;
+    }
 
     return order;
   }

@@ -216,6 +216,9 @@ const place = async (req, res) => {
 
     const paymentRecord = await Payment.create(paymentData);
 
+    // Get customer name for order snapshot
+    const user = await User.findById(user_id);
+
     // Prepare order data with backend-calculated totals
     const orderData = {
       user_id,
@@ -232,6 +235,7 @@ const place = async (req, res) => {
       payment_id: paymentRecord.id,
       address_snapshot: {
         label: address.label,
+        recipient_name: user?.name || null,
         line1: address.line1,
         line2: address.line2,
         city: address.city,

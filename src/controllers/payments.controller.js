@@ -10,6 +10,15 @@ const { client, checkoutNodeJssdk, capturePaypalOrder } = require('../services/p
 
 const createIntent = async (req, res) => {
   try {
+    console.log('[PAYMENTS] createIntent — from frontend:', JSON.stringify({
+      bodyKeys: Object.keys(req.body || {}),
+      amount: req.body?.amount,
+      currency: req.body?.currency,
+      metadata: req.body?.metadata,
+      hasUser: !!req.user,
+      userId: req.user?.id
+    }, null, 2));
+
     const { amount, currency, metadata, customerInfo } = req.body;
     const paymentMethod = metadata?.payment_method;
     
@@ -68,37 +77,38 @@ const createIntent = async (req, res) => {
       currency: paymentIntent.currency
     }));
   } catch (error) {
-    console.error('Create payment intent error:', error);
+    console.error('[PAYMENTS] createIntent ERROR:', {
+      message: error?.message,
+      stack: error?.stack,
+      code: error?.code,
+      response: error?.response?.data
+    });
     res.status(500).json(responses.internalError('Failed to create payment intent'));
   }
 };
 
-
-
 const process = async (req, res) => {
   try {
-  //  return console.log('🚀 Starting payment process...', req.body.promoCode);
+    console.log('[PAYMENTS] process — from frontend:', JSON.stringify({
+      bodyKeys: Object.keys(req.body || {}),
+      hasUser: !!req.user,
+      userId: req.user?.id,
+      cart: req.body?.cart ? { itemsCount: req.body.cart.items?.length, subtotal: req.body.cart.subtotal } : null,
+      address: req.body?.address ? { id: req.body.address.id, line1: req.body.address.line1, city: req.body.address.city } : null,
+      shipping: req.body?.shipping ? { cost: req.body.shipping.cost, methodId: req.body.shipping.method?.id } : null,
+      payment: req.body?.payment ? { method: req.body.payment.method, hasPaymentIntentId: !!req.body.payment.paymentIntentId } : null,
+      totals: req.body?.totals,
+      promoCode: req.body?.promoCode ? { code: req.body.promoCode.code, discountAmount: req.body.promoCode.discountAmount } : null
+    }, null, 2));
+
     const { cart, address, shipping, payment, totals, promoCode } = req.body;
     if (!req.user || !req.user.id) {
+      console.error('[PAYMENTS] process ERROR: Unauthorized — no req.user or req.user.id');
       return res.status(401).json(responses.error('UNAUTHORIZED', 'Authentication required'));
     }
     const user_id = req.user.id;
     
-    // Debug: Log the incoming request data
-    console.log('🔍 DEBUGGING PAYMENT REQUEST:');
-    console.log('   Promo Code received:', promoCode);
-    console.log('   Cart subtotal:', cart.subtotal);
-    console.log('   Shipping cost:', shipping.cost);
-    console.log('   Full request body keys:', Object.keys(req.body));
-    console.log('🚨 PAYMENTS CONTROLLER - PROMO CODE PROCESSING ACTIVE!');
-    
-    console.log('📦 Request data:', {
-      user_id,
-      cart_items_count: cart?.items?.length,
-      address_id: address?.id,
-      shipping_cost: shipping?.cost,
-      payment_method: payment?.method
-    });
+    console.log('[PAYMENTS] process — parsed:', { user_id, cart_items_count: cart?.items?.length, address_id: address?.id, shipping_cost: shipping?.cost, payment_method: payment?.method, promoCode: promoCode?.code });
 
     // Validate cart items and calculate expected total
     console.log('🛒 Processing cart items...');
@@ -258,6 +268,9 @@ const process = async (req, res) => {
     const paymentRecord = await Payment.create(paymentData);
     console.log('✅ Payment record created:', paymentRecord.id);
 
+    // Get customer name for order snapshot (so each order shows the name at placement)
+    const user = await User.findById(user_id);
+
     // Prepare order data with backend-calculated totals
     console.log('📦 Preparing order data...');
     const orderData = {
@@ -275,6 +288,7 @@ const process = async (req, res) => {
       payment_id: paymentRecord.id,
       address_snapshot: {
         label: address.label,
+        recipient_name: user?.name || null,
         line1: address.line1,
         line2: address.line2,
         city: address.city,
@@ -395,14 +409,16 @@ const process = async (req, res) => {
       } : null
     }));
   } catch (error) {
-    console.error('❌ Process payment error:', error);
-    console.error('❌ Error stack:', error.stack);
-    
+    console.error('[PAYMENTS] process ERROR:', {
+      message: error?.message,
+      stack: error?.stack,
+      code: error?.code,
+      response: error?.response?.data,
+      apiMessage: error?.apiMessage
+    });
     if (error.message.includes('not found') || error.message.includes('Insufficient stock')) {
-      console.error('❌ Order validation error:', error.message);
       res.status(400).json(responses.error('ORDER_ERROR', error.message));
     } else {
-      console.error('❌ Internal server error:', error.message);
       res.status(500).json(responses.internalError('Failed to process payment'));
     }
   }
@@ -423,7 +439,7 @@ const getConfig = (req, res) => {
       })
     );
   } catch (error) {
-    console.error('❌ Failed to fetch PayPal config:', error);
+    console.error('[PAYMENTS] getConfig ERROR:', { message: error?.message, stack: error?.stack });
     res.status(500).json(
       responses.internalError('Failed to fetch PayPal config')
     );
@@ -461,7 +477,7 @@ const createPaypalOrder = async (req, res) => {
       })
     );
   } catch (error) {
-    console.error('❌ PayPal create order error:', error);
+    console.error('[PAYMENTS] createPaypalOrder ERROR:', { message: error?.message, stack: error?.stack, body: req.body });
     res.status(500).json(
       responses.internalError('Failed to create PayPal order')
     );
@@ -487,7 +503,7 @@ const getById = async (req, res) => {
     
     res.json(responses.ok(payment));
   } catch (error) {
-    console.error('Get payment error:', error);
+    console.error('[PAYMENTS] getById ERROR:', { id: req.params?.id, message: error?.message, stack: error?.stack });
     res.status(500).json(responses.internalError('Failed to fetch payment'));
   }
 };
@@ -528,6 +544,335 @@ const listDomains = async (req, res) => {
   }
 };
 
+const createIntentGuest = async (req, res) => {
+  try {
+    console.log('[PAYMENTS] createIntentGuest — from frontend:', JSON.stringify({
+      bodyKeys: Object.keys(req.body || {}),
+      amount: req.body?.amount,
+      currency: req.body?.currency,
+      metadata: req.body?.metadata,
+      guest: req.body?.guest ? { email: req.body.guest.email, name: req.body.guest.name } : null
+    }, null, 2));
+
+    const { amount, currency, metadata, guest } = req.body;
+    const paymentMethod = metadata?.payment_method;
+
+    let paymentIntent;
+    const meta = { ...metadata, guest_checkout: true };
+    if (guest?.email) meta.guest_email = guest.email;
+
+    if (paymentMethod === 'klarna') {
+      paymentIntent = await StripeService.createKlarnaPaymentIntent(
+        amount, currency, meta,
+        guest ? { email: guest.email, name: guest.name } : null
+      );
+    } else if (paymentMethod === 'link') {
+      paymentIntent = await StripeService.createLinkPaymentIntent(amount, currency, meta);
+    } else if (paymentMethod === 'googlePay') {
+      paymentIntent = await StripeService.createGooglePayPaymentIntent(amount, currency, meta);
+    } else {
+      paymentIntent = await StripeService.createPaymentIntent(amount, currency, meta);
+    }
+
+    res.json(responses.ok({
+      client_secret: paymentIntent.client_secret,
+      id: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency
+    }));
+  } catch (error) {
+    console.error('[PAYMENTS] createIntentGuest ERROR:', {
+      message: error?.message,
+      stack: error?.stack,
+      code: error?.code,
+      response: error?.response?.data
+    });
+    res.status(500).json(responses.internalError('Failed to create payment intent'));
+  }
+};
+
+const processGuest = async (req, res) => {
+  try {
+    console.log('[PAYMENTS] processGuest — from frontend:', JSON.stringify({
+      bodyKeys: Object.keys(req.body || {}),
+      guest: req.body?.guest ? { email: req.body.guest.email, name: req.body.guest.name, phone: req.body.guest.phone ? '(set)' : '(missing)' } : null,
+      address: req.body?.address ? { line1: req.body.address.line1, city: req.body.address.city, postal_code: req.body.address.postal_code, phone: req.body.address.phone ? '(set)' : '(missing)' } : null,
+      cart: req.body?.cart ? { itemsCount: req.body.cart.items?.length, subtotal: req.body.cart.subtotal } : null,
+      shipping: req.body?.shipping ? { cost: req.body.shipping.cost, methodId: req.body.shipping.method?.id } : null,
+      payment: req.body?.payment ? { method: req.body.payment.method, hasPaymentIntentId: !!req.body.payment.paymentIntentId } : null,
+      promoCode: req.body?.promoCode ? { code: req.body.promoCode.code } : null
+    }, null, 2));
+
+    const { guest, cart, address, shipping, payment, totals, promoCode } = req.body;
+
+    if (!guest?.email || !guest?.name || !guest?.phone) {
+      console.error('[PAYMENTS] processGuest ERROR: Missing guest fields —', { hasEmail: !!guest?.email, hasName: !!guest?.name, hasPhone: !!guest?.phone });
+    }
+    if (!cart?.items?.length) {
+      console.error('[PAYMENTS] processGuest ERROR: Cart empty or missing items —', { itemsLength: cart?.items?.length });
+    }
+
+    // Block guest checkout if this email is already a registered (non-guest) account
+    const existingRegistered = await User.findRegisteredUserByEmail(guest?.email);
+    if (existingRegistered) {
+      console.log('[PAYMENTS] processGuest — 400 ACCOUNT_EXISTS_PLEASE_LOGIN:', { email: guest.email });
+      return res.status(400).json(responses.error('ACCOUNT_EXISTS_PLEASE_LOGIN', 'An account with this email already exists. Please login first.'));
+    }
+
+    // Validate cart items and calculate expected total
+    let expectedSubtotal = 0;
+    const orderItems = [];
+
+    for (const item of cart.items) {
+      const product = await Order.getProductWithVariant(item.productId, item.variant.id);
+      if (!product) {
+        console.error('[PAYMENTS] processGuest — 400 PRODUCT_NOT_FOUND:', { productId: item.productId });
+        return res.status(400).json(responses.error('PRODUCT_NOT_FOUND', `Product not found: ${item.productId}`));
+      }
+
+      const availableStock = item.variant.id ? product.variant_stock : product.stock;
+      if (availableStock < item.quantity) {
+        console.error('[PAYMENTS] processGuest — 400 INSUFFICIENT_STOCK:', { productName: product.name, required: item.quantity, available: availableStock });
+        return res.status(400).json(responses.error('INSUFFICIENT_STOCK', `Insufficient stock for product: ${product.name}`));
+      }
+
+      const unitPrice = parseFloat(item.price) + parseFloat(item.variant.extra_price || 0);
+      const itemTotal = unitPrice * item.quantity;
+      expectedSubtotal += itemTotal;
+
+      orderItems.push({
+        product_id: item.productId,
+        variant_id: item.variant.id,
+        quantity: item.quantity,
+        unit_price: unitPrice
+      });
+    }
+
+    const expectedTax = 0;
+    let expectedShipping = shipping.cost;
+    if (expectedSubtotal >= config.pricing.freeShippingThreshold) {
+      expectedShipping = 0;
+    }
+
+    let discountAmount = 0;
+    if (promoCode && promoCode.discountAmount) {
+      discountAmount = parseFloat(promoCode.discountAmount);
+    }
+
+    const expectedTotal = expectedSubtotal + expectedTax + expectedShipping - discountAmount;
+
+    // Process payment
+    let paymentResult;
+    if (payment?.method === "paypal") {
+      const orderId = payment?.paymentIntentId;
+      if (!orderId) {
+        console.error('[PAYMENTS] processGuest — 400 PAYPAL_ORDER_ID_REQUIRED: payment.paymentIntentId missing');
+        return res.status(400).json(responses.error('PAYPAL_ORDER_ID_REQUIRED', 'Missing PayPal order ID for capture'));
+      }
+      const captureResult = await capturePaypalOrder(orderId);
+      if (!captureResult.success) {
+        console.error('[PAYMENTS] processGuest — 400 PAYMENT_FAILED (PayPal capture):', { message: captureResult.message, orderId });
+        return res.status(400).json(responses.error('PAYMENT_FAILED', captureResult.message || 'Failed to capture PayPal payment'));
+      }
+      paymentResult = {
+        success: true,
+        paymentIntent: { id: captureResult.data?.id || orderId },
+        chargeId: null,
+        paymentDetails: captureResult.data
+      };
+      payment.paymentResp = { orderID: orderId, paymentID: captureResult.data?.id };
+    } else {
+      paymentResult = await StripeService.processPayment(
+        payment,
+        expectedTotal,
+        config.currency.default,
+        {
+          guest_checkout: true,
+          guest_email: guest.email,
+          order_items: orderItems.length,
+          subtotal: expectedSubtotal,
+          shipping: expectedShipping,
+          tax: expectedTax,
+          payment_method: payment.method
+        }
+      );
+    }
+
+    if (!paymentResult.success) {
+      console.error('[PAYMENTS] processGuest — 400 PAYMENT_FAILED (Stripe/other):', { error: paymentResult.error });
+      return res.status(400).json(responses.error('PAYMENT_FAILED', paymentResult.error));
+    }
+
+    // Find or create guest user
+    const guestUser = await User.findOrCreateGuest({
+      name: guest.name,
+      email: guest.email,
+      phone: guest.phone
+    });
+
+    const user_id = guestUser.id;
+
+    // Create payment record
+    const paymentData = {
+      order_id: null,
+      stripe_payment_intent_id: paymentResult.paymentIntent?.id || paymentResult.charge?.payment_intent || paymentResult?.paymentIntent?.id,
+      stripe_charge_id: paymentResult.chargeId || paymentResult?.paymentDetails?.id || null,
+      amount: expectedTotal,
+      currency: config.currency.default,
+      status: 'succeeded',
+      payment_method: payment.method,
+      payment_method_details: payment.method === 'paypal' ? { method: 'paypal' } : (payment.method === 'googlePay' ? { method: 'googlePay' } : (payment.method === 'klarna' ? { method: 'klarna' } : (payment.method === 'link' ? { method: 'link' } : payment.cardDetails))),
+      metadata: {
+        user_id,
+        guest_checkout: true,
+        order_items: orderItems.length,
+        subtotal: expectedSubtotal,
+        tax: expectedTax,
+        shipping: expectedShipping,
+        payment_method: payment.method
+      }
+    };
+
+    const paymentRecord = await Payment.create(paymentData);
+
+    // Prepare order data
+    const orderData = {
+      user_id,
+      items: orderItems,
+      address_id: null,
+      shipment: {
+        method_value_id: shipping.method.id,
+        scheduled_date: null,
+        cost: shipping.cost
+      },
+      payment_method_value_id: null,
+      discount_type_value_id: null,
+      notes: null,
+      payment_id: paymentRecord.id,
+      address_snapshot: {
+        label: address.label || 'Guest',
+        recipient_name: guest.name,
+        line1: address.line1,
+        line2: address.line2 || null,
+        city: address.city,
+        state_region: address.state_region || null,
+        postal_code: address.postal_code,
+        phone: address.phone
+      },
+      subtotal: expectedSubtotal,
+      tax: expectedTax,
+      shipping: expectedShipping,
+      total: expectedTotal,
+      promoCode: promoCode ? {
+        code: promoCode.code,
+        discountAmount: discountAmount,
+        discountType: promoCode.discountType,
+        discountValue: promoCode.discountValue,
+        promoCodeId: null
+      } : null
+    };
+
+    const order = await Order.create(orderData);
+    console.log('[PAYMENTS] processGuest — success:', { orderId: order.id, orderCode: order.code, user_id, guestEmail: guest.email });
+
+    // Send order confirmation email in background
+    setImmediate(async () => {
+      try {
+        if (guest.email) {
+          const orderWithItems = await Order.findById(order.id);
+          const emailData = {
+            userEmail: guest.email,
+            userName: guest.name,
+            orderData: {
+              order: orderWithItems,
+              items: orderWithItems.items || [],
+              totals: {
+                subtotal: expectedSubtotal,
+                tax: expectedTax,
+                shipping: expectedShipping,
+                total: expectedTotal
+              },
+              address: {
+                line1: address.line1,
+                line2: address.line2,
+                city: address.city,
+                state_region: address.state_region,
+                postal_code: address.postal_code,
+                phone: address.phone
+              },
+              promoCode: promoCode ? {
+                code: promoCode.code,
+                discountAmount: discountAmount,
+                discountType: promoCode.discountType,
+                discountValue: promoCode.discountValue
+              } : null
+            }
+          };
+          await EmailService.sendOrderConfirmation(emailData);
+        }
+      } catch (emailError) {
+        console.error('Guest order confirmation email error:', emailError);
+      }
+    });
+
+    res.status(201).json(responses.created({
+      order,
+      payment: {
+        id: paymentRecord.id,
+        status: paymentRecord.status,
+        amount: paymentRecord.amount,
+        stripe_payment_intent_id: paymentRecord.stripe_payment_intent_id
+      },
+      totals: {
+        subtotal: expectedSubtotal,
+        tax: expectedTax,
+        shipping: expectedShipping,
+        total: expectedTotal
+      },
+      promoCode: promoCode ? {
+        code: promoCode.code,
+        discountAmount: discountAmount,
+        discountType: promoCode.discountType,
+        discountValue: promoCode.discountValue
+      } : null
+    }));
+  } catch (error) {
+    console.error('[PAYMENTS] processGuest ERROR:', {
+      message: error?.message,
+      stack: error?.stack,
+      code: error?.code,
+      response: error?.response?.data,
+      apiMessage: error?.apiMessage
+    });
+    if (error.message.includes('not found') || error.message.includes('Insufficient stock')) {
+      res.status(400).json(responses.error('ORDER_ERROR', error.message));
+    } else {
+      res.status(500).json(responses.internalError('Failed to process guest payment'));
+    }
+  }
+};
+
+/** Check if guest checkout is allowed for this email (not already a registered account). Public, no auth. */
+const checkGuestEmail = async (req, res) => {
+  try {
+    const email = (req.body?.email || req.query?.email || '').trim();
+    if (!email) {
+      return res.status(400).json(responses.error('EMAIL_REQUIRED', 'Email is required'));
+    }
+    const existingRegistered = await User.findRegisteredUserByEmail(email);
+    if (existingRegistered) {
+      return res.json(responses.ok({
+        allowed: false,
+        message: 'An account with this email already exists. Please login first.'
+      }));
+    }
+    return res.json(responses.ok({ allowed: true }));
+  } catch (error) {
+    console.error('[PAYMENTS] checkGuestEmail ERROR:', { message: error?.message, stack: error?.stack });
+    res.status(500).json(responses.internalError('Failed to check email'));
+  }
+};
+
 module.exports = {
   createIntent,
   process,
@@ -535,5 +880,8 @@ module.exports = {
   registerDomain,
   listDomains,
   createPaypalOrder,
-  getConfig
+  getConfig,
+  createIntentGuest,
+  processGuest,
+  checkGuestEmail
 };

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { validateBody, validateParams } = require('../middleware/validate');
 const { verifyJWT } = require('../middleware/auth');
 const { idParam } = require('../validators/common');
-const { createPaymentIntent, processPayment, getPayment } = require('../validators/payments');
+const { createPaymentIntent, processPayment, getPayment, createPaymentIntentGuest, processPaymentGuest } = require('../validators/payments');
 const ctrl = require('../controllers/payments.controller');
 const config = require('../config/env');
 
@@ -17,6 +17,23 @@ router.get('/config', (req, res) => {
     res.status(500).json({ error: 'Failed to get Stripe configuration' });
   }
 });
+
+// Guest checkout endpoints (public - no auth required)
+router.post('/check-guest-email', ctrl.checkGuestEmail);
+router.post('/create-intent-guest',
+  validateBody(createPaymentIntentGuest),
+  ctrl.createIntentGuest
+);
+router.post('/process-guest',
+  validateBody(processPaymentGuest),
+  ctrl.processGuest
+);
+
+// PayPal config and create-order (public for guest checkout)
+router.get('/paypal/config',
+  ctrl.getConfig);
+router.post('/paypal/create-order',
+  ctrl.createPaypalOrder);
 
 // All routes below require authentication
 router.use(verifyJWT);
@@ -45,10 +62,5 @@ router.post('/register-domain',
 router.get('/domains/list',
   ctrl.listDomains
 );
-
-router.get('/paypal/config', 
-  ctrl.getConfig);
-router.post('/paypal/create-order', 
-  ctrl.createPaypalOrder);
 
 module.exports = router;

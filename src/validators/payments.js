@@ -81,3 +81,90 @@ exports.processPayment = Joi.object({
 exports.getPayment = Joi.object({
   id: positiveInt.required()
 });
+
+exports.createPaymentIntentGuest = Joi.object({
+  amount: Joi.number().min(0.01).required(),
+  currency: Joi.string().length(3).default(config.currency.default),
+  metadata: Joi.object().default({}),
+  guest: Joi.object({
+    email: Joi.string().email().required(),
+    name: Joi.string().required()
+  }).optional()
+});
+
+const guestCartSchema = Joi.object({
+  items: Joi.array().items(Joi.object({
+    id: Joi.string().required(),
+    productId: positiveInt.required(),
+    name: Joi.string().required(),
+    price: Joi.string().required(),
+    quantity: Joi.number().integer().min(1).required(),
+    image: Joi.string().uri().required(),
+    variant: Joi.object({
+      id: positiveInt.required(),
+      product_id: positiveInt.required(),
+      sku: Joi.string().required(),
+      extra_price: Joi.string().required(),
+      stock: Joi.number().integer().min(0).required(),
+      size: Joi.string().allow(''),
+      color_name: Joi.string().allow(''),
+      color_code: Joi.string().allow(''),
+      color_image: Joi.string().allow('')
+    }).required(),
+    selectedColor: Joi.string().allow(''),
+    selectedSize: Joi.string().allow(''),
+    stock: Joi.number().integer().min(0).required()
+  })).min(1).required(),
+  subtotal: Joi.number().min(0).required(),
+  totalItems: Joi.number().integer().min(1).required()
+});
+
+exports.processPaymentGuest = Joi.object({
+  guest: Joi.object({
+    email: Joi.string().email().required(),
+    name: Joi.string().required(),
+    phone: Joi.string().required()
+  }).required(),
+  address: Joi.object({
+    label: Joi.string().allow('').optional(),
+    line1: Joi.string().required(),
+    line2: Joi.string().allow('').optional(),
+    city: Joi.string().required(),
+    state_region: Joi.string().allow('').optional(),
+    postal_code: Joi.string().allow('').optional(),
+    phone: Joi.string().required()
+  }).required(),
+  cart: guestCartSchema.required(),
+  shipping: Joi.object({
+    method: Joi.object({
+      id: positiveInt.required(),
+      price: Joi.string().required(),
+      title: Joi.string().required(),
+      deliveryDate: Joi.string().allow('').optional()
+    }).required(),
+    cost: Joi.number().min(0).required()
+  }).required(),
+  payment: Joi.object({
+    method: Joi.string().valid('creditCard', 'paypal', 'applePay', 'googlePay', 'alipay', 'wechatPay', 'klarna', 'link').required(),
+    cardDetails: Joi.object({
+      cardholderName: Joi.string().allow(''),
+      cardNumber: Joi.string().allow(''),
+      expDate: Joi.string().allow(''),
+      cvv: Joi.string().allow('')
+    }).allow(null).optional(),
+    paymentIntentId: Joi.string().allow(''),
+    sameAsBilling: Joi.boolean().default(true)
+  }).required(),
+  totals: Joi.object({
+    subtotal: Joi.number().min(0).required(),
+    shipping: Joi.number().min(0).required(),
+    tax: Joi.number().min(0).required(),
+    total: Joi.number().min(0).required()
+  }).optional(),
+  promoCode: Joi.object({
+    code: Joi.string().required(),
+    discountAmount: Joi.number().min(0).required(),
+    discountType: Joi.string().valid('percentage', 'fixed').required(),
+    discountValue: Joi.string().required()
+  }).allow(null).optional()
+});

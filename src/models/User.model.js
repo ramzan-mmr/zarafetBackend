@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { generateCode } = require('../utils/sql');
 
 class User {
@@ -43,6 +44,16 @@ class User {
        LEFT JOIN roles r ON u.role_id = r.id 
        WHERE u.email = ?`,
       [email]
+    );
+    return rows[0] || null;
+  }
+
+  /** Returns a user if this email is already registered (non-guest). Used to block guest checkout for existing accounts. */
+  static async findRegisteredUserByEmail(email) {
+    if (!email || typeof email !== 'string') return null;
+    const [rows] = await db.execute(
+      `SELECT id, email, name, is_guest FROM users WHERE LOWER(TRIM(email)) = LOWER(?) AND (is_guest = 0 OR is_guest IS NULL)`,
+      [email.trim()]
     );
     return rows[0] || null;
   }
@@ -196,6 +207,44 @@ class User {
       [password_hash, id]
     );
     return true;
+  }
+
+  static async findOrCreateGuest({ name, email, phone }) {
+    const [existing] = await db.execute(
+      `SELECT u.*, r.name as role_name, r.level as role_level
+       FROM users u
+       LEFT JOIN roles r ON u.role_id = r.id
+       WHERE u.email = ? AND u.is_guest = 1`,
+      [email]
+    );
+
+    if (existing.length > 0) {
+      const guest = existing[0];
+      // Do not update name/phone so that previous orders still show the correct customer name
+      return this.findById(guest.id);
+    }
+
+    const [roleRows] = await db.execute(
+      "SELECT id FROM roles WHERE name = 'Customer'"
+    );
+    const customerRoleId = roleRows.length > 0 ? roleRows[0].id : 3;
+
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    const password_hash = await bcrypt.hash(randomPassword, 12);
+
+    const [result] = await db.execute(
+      `INSERT INTO users (name, email, password_hash, role_id, status, phone, user_type, is_guest)
+       VALUES (?, ?, ?, ?, 'Active', ?, 'customer', 1)`,
+      [name, email, password_hash, customerRoleId, phone]
+    );
+
+    const code = generateCode('USR', result.insertId);
+    await db.execute(
+      'UPDATE users SET code = ? WHERE id = ?',
+      [code, result.insertId]
+    );
+
+    return this.findById(result.insertId);
   }
 }
 

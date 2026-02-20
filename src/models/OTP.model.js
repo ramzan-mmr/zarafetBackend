@@ -45,9 +45,9 @@ class OTP {
       [otpRecord.id]
     );
 
-    // Update user email verification status
+    // Update user: mark email verified and convert guest to regular account (is_guest = 0)
     await db.execute(
-      'UPDATE users SET email_verified = 1, email_verified_at = NOW() WHERE id = ?',
+      'UPDATE users SET email_verified = 1, email_verified_at = NOW(), is_guest = 0 WHERE id = ?',
       [otpRecord.user_id]
     );
 
