@@ -107,9 +107,8 @@ class StripeService {
         amount: Math.round(amount * 100), // Convert to cents
         currency,
         metadata,
-        automatic_payment_methods: {
-          enabled: true,
-        },
+        // Card only — avoids showing Revolut Pay, Amazon Pay, etc. in Payment Element
+        payment_method_types: ['card'],
       });
 
       return paymentIntent;
