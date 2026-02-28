@@ -3,9 +3,10 @@ const path = require('path');
 const fs = require('fs').promises;
 const crypto = require('crypto');
 
-// Local storage configuration
+// Local storage configuration (resolve from this file so path matches app.js serving)
 const UPLOADS_DIR = process.env.UPLOADS_DIR || 'uploads';
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const UPLOADS_BASE = path.join(__dirname, '..', '..', UPLOADS_DIR);
 
 class ImageService {
   /**
@@ -101,8 +102,8 @@ class ImageService {
    */
   static async uploadToLocal(imageBuffer, folder, filename) {
     try {
-      // Create full directory path
-      const fullPath = path.join(process.cwd(), UPLOADS_DIR, folder);
+      // Use UPLOADS_BASE (Backend/uploads) so path matches app.js static serving
+      const fullPath = path.join(UPLOADS_BASE, folder);
       
       // Ensure directory exists
       await fs.mkdir(fullPath, { recursive: true });
@@ -129,10 +130,12 @@ class ImageService {
    */
   static async deleteFromLocal(imageUrl) {
     try {
-      // Extract file path from URL
+      // Extract file path from URL; resolve under UPLOADS_BASE so it matches upload location
       const url = new URL(imageUrl);
-      const relativePath = url.pathname.substring(1); // Remove leading slash
-      const fullPath = path.join(process.cwd(), relativePath);
+      const relativePath = url.pathname.substring(1).replace(/^\/+/, '');
+      const fullPath = relativePath.startsWith(UPLOADS_DIR + '/') || relativePath.startsWith(UPLOADS_DIR + '\\')
+        ? path.join(UPLOADS_BASE, relativePath.slice(UPLOADS_DIR.length).replace(/^[/\\]/, ''))
+        : path.join(process.cwd(), relativePath);
       
       // Check if file exists and delete
       try {

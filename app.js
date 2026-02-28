@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -169,16 +170,16 @@ app.get('/uploads/products/:productId/:filename', (req, res) => {
     res.type(mimeTypes[ext]);
   }
   
-  // Serve the file
-  res.sendFile(`${__dirname}/uploads/products/${productId}/${filename}`, (err) => {
+  // Serve the file (path relative to app.js so it matches ImageService when run from Backend)
+  const filePath = path.join(__dirname, 'uploads', 'products', productId, filename);
+  res.sendFile(filePath, (err) => {
     if (err) {
-      console.error('Error serving image:', err);
-      res.status(404).json({
-        error: {
-          code: 'IMAGE_NOT_FOUND',
-          message: 'Image not found'
-        }
-      });
+      if (err.code === 'ENOENT') {
+        res.status(404).json({ error: { code: 'IMAGE_NOT_FOUND', message: 'Image not found' } });
+      } else {
+        console.error('Error serving image:', err);
+        res.status(404).json({ error: { code: 'IMAGE_NOT_FOUND', message: 'Image not found' } });
+      }
     }
   });
 });
@@ -281,3 +282,4 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 module.exports = { app, server };
+

@@ -299,7 +299,7 @@ CREATE TABLE `product_variants` (
   `sku` varchar(50) DEFAULT NULL,
   `extra_price` decimal(10,2) DEFAULT 0.00,
   `stock` int(11) DEFAULT 0,
-  `size` enum('XS','S','M','L','XL','XXL','XXXL') DEFAULT NULL,
+  `size` varchar(50) DEFAULT NULL,
   `color_name` varchar(100) DEFAULT NULL,
   `color_code` varchar(7) DEFAULT NULL COMMENT 'Hex color code like #FF5733',
   `color_image` varchar(500) DEFAULT NULL COMMENT 'Optional color swatch image URL'

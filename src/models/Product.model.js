@@ -198,7 +198,7 @@ class Product {
         product.materials_care = 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.';
       }
       if (!product.delivery_returns) {
-        product.delivery_returns = 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.';
+        product.delivery_returns = 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..';
       }
       if (!product.return_exchanges) {
         product.return_exchanges = 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.';
@@ -265,7 +265,7 @@ class Product {
       product.materials_care = 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.';
     }
     if (!product.delivery_returns) {
-      product.delivery_returns = 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.';
+      product.delivery_returns = 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..';
     }
     if (!product.return_exchanges) {
       product.return_exchanges = 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.';
