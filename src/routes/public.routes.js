@@ -9,6 +9,8 @@ const publicCtrl = require('../controllers/public.controller');
 const promoCodeCtrl = require('../controllers/promoCode.controller');
 // Lookup routes
 router.post('/lookups/values', publicCtrl.getLookupValues);
+// Hero banners route (public, no auth)
+router.get('/banners', publicCtrl.getBanners);
 // Product routes
 router.get('/products', publicCtrl.getProducts);
 router.get('/products/trending', publicCtrl.getTrendingProducts);

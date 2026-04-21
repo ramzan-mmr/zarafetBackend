@@ -10,6 +10,8 @@ const jwt = require('../config/jwt');
 const db = require('../config/db');
 const { generateCode } = require('../utils/sql');
 const { sendEmail, sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail, sendSubscriptionConfirmation } = require('../services/email.service');
+const Banner = require('../models/Banner.model');
+const config = require('../config/env');
 
 /**
  * Public controller for website APIs (no authentication required)
@@ -1578,6 +1580,33 @@ This email was automatically generated from the website subscription form.
   }
 };
 
+// Get active hero banners for the public website
+const getBanners = async (req, res) => {
+  try {
+    const banners = await Banner.findAll({ status: 'Active' });
+
+    // Append full image URL
+    const bannersWithUrls = banners.map(banner => ({
+      ...banner,
+      image_url: banner.image_url
+        ? `${config.storage.baseUrl}/${banner.image_url}`
+        : null
+    }));
+
+    res.json({
+      success: true,
+      data: bannersWithUrls,
+      message: 'Banners retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get public banners error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch banners'
+    });
+  }
+};
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -1621,5 +1650,7 @@ module.exports = {
   createReview,
   updateReview,
   deleteReview,
-  getProductReviews
+  getProductReviews,
+  // Hero banners
+  getBanners
 };

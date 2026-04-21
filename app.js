@@ -22,6 +22,7 @@ const dashboardRoutes = require('./src/routes/dashboard.routes');
 const wishlistRoutes = require('./src/routes/wishlist.routes');
 const categoriesRoutes = require('./src/routes/categories.routes');
 const promoCodeRoutes = require('./src/routes/promoCode.routes');
+const bannerRoutes = require('./src/routes/banner.routes');
 
 const app = express();
 
@@ -200,6 +201,7 @@ app.use('/dashboard', dashboardRoutes);
 app.use('/me', wishlistRoutes);
 app.use('/categories', categoriesRoutes);
 app.use('/promo-codes', promoCodeRoutes);
+app.use('/banners', bannerRoutes);
 
 // 404 handler - Express 5 compatible
 app.use((req, res) => {
