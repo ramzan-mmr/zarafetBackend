@@ -11,6 +11,7 @@ const db = require('../config/db');
 const { generateCode } = require('../utils/sql');
 const { sendEmail, sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail, sendSubscriptionConfirmation } = require('../services/email.service');
 const Banner = require('../models/Banner.model');
+const DiscountPopup = require('../models/DiscountPopup.model');
 const config = require('../config/env');
 
 /**
@@ -1607,6 +1608,40 @@ const getBanners = async (req, res) => {
   }
 };
 
+// Get active discount popup for the public website
+const getDiscountPopup = async (req, res) => {
+  try {
+    const popup = await DiscountPopup.findActive();
+
+    if (!popup) {
+      return res.json({
+        success: true,
+        data: null,
+        message: 'No active discount popup'
+      });
+    }
+
+    const popupWithUrl = {
+      ...popup,
+      image_url: popup.image_url
+        ? `${config.storage.baseUrl}/${popup.image_url}`
+        : null
+    };
+
+    res.json({
+      success: true,
+      data: popupWithUrl,
+      message: 'Discount popup retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Get public discount popup error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch discount popup'
+    });
+  }
+};
+
 module.exports = {
   getLookupValues,
   getProducts,
@@ -1652,5 +1687,7 @@ module.exports = {
   deleteReview,
   getProductReviews,
   // Hero banners
-  getBanners
+  getBanners,
+  // Discount popup
+  getDiscountPopup
 };

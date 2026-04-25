@@ -11,6 +11,8 @@ const promoCodeCtrl = require('../controllers/promoCode.controller');
 router.post('/lookups/values', publicCtrl.getLookupValues);
 // Hero banners route (public, no auth)
 router.get('/banners', publicCtrl.getBanners);
+// Discount popup route (public, no auth)
+router.get('/discount-popup', publicCtrl.getDiscountPopup);
 // Product routes
 router.get('/products', publicCtrl.getProducts);
 router.get('/products/trending', publicCtrl.getTrendingProducts);
