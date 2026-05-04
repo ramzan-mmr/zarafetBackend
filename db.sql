@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Feb 20, 2026 at 05:06 PM
+-- Generation Time: May 04, 2026 at 07:42 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -41,7 +41,6 @@ INSERT INTO `addresses` (`id`, `user_id`, `label`, `line1`, `line2`, `city`, `po
 (3, 5, 'HOME', '123 Main Street', 'Apt 4B', '', '12345', '+1234567890', 0),
 (11, 6, 'asdfa', '2342', '234', 'asdfad', '23423', '234234234', 0),
 (12, 5, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', 1),
-(13, 8, 'tesetign ', '23423', '234234', 'asdfad', '123123', '0398384723', 1),
 (14, 5, 'alsdkf', '234234', '', '234234', '234234', '03048796763', 0);
 
 -- --------------------------------------------------------
@@ -113,11 +112,59 @@ INSERT INTO `customer_profiles` (`user_id`, `total_orders`, `total_spend`, `poin
 (3, 0, 0.00, 0, NULL, '2025-10-02', NULL),
 (5, 0, 0.00, 0, NULL, '2025-10-03', NULL),
 (6, 0, 0.00, 0, NULL, '2025-10-07', NULL),
-(7, 0, 0.00, 0, NULL, '2025-10-17', NULL),
-(8, 0, 0.00, 0, NULL, '2025-10-17', NULL),
 (10, 0, 0.00, 0, NULL, '2025-10-18', NULL),
 (11, 0, 0.00, 0, NULL, '2025-10-18', NULL),
 (15, 0, 0.00, 0, NULL, '2025-10-22', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `discount_popups`
+--
+
+CREATE TABLE `discount_popups` (
+  `id` int(11) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `image_url` varchar(500) NOT NULL,
+  `status` enum('Active','Inactive') DEFAULT 'Active',
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `discount_popups`
+--
+
+INSERT INTO `discount_popups` (`id`, `title`, `image_url`, `status`, `created_at`, `updated_at`, `created_by`) VALUES
+(3, 'Summery Label', 'uploads/discount-popups/discount-popup-1777135205199-optimized.jpeg', 'Active', '2026-04-25 21:40:05', '2026-04-25 21:40:05', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hero_banners`
+--
+
+CREATE TABLE `hero_banners` (
+  `id` int(11) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `tagline` varchar(500) DEFAULT NULL,
+  `image_url` varchar(500) NOT NULL,
+  `sort_order` int(11) DEFAULT 1,
+  `status` enum('Active','Inactive') DEFAULT 'Active',
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_by` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `hero_banners`
+--
+
+INSERT INTO `hero_banners` (`id`, `title`, `tagline`, `image_url`, `sort_order`, `status`, `created_at`, `updated_at`, `created_by`) VALUES
+(1, 'Welcome To Zarafet', 'Where modern fashion meets timeless style.', 'uploads/banners/banner-1776593385526-optimized.jpeg', 1, 'Active', '2026-04-19 15:09:45', '2026-04-19 15:09:45', 1),
+(2, 'Introducing Zarafet Mini', 'Big Style for Little Trendsetters.', 'uploads/banners/banner-1776593473409-optimized.jpeg', 2, 'Active', '2026-04-19 15:11:13', '2026-04-19 15:11:13', 1),
+(4, 'Always Something New', 'We introduce new styles frequently, so there\'s always something to love.', 'uploads/banners/banner-1776593613648-optimized.jpeg', 3, 'Active', '2026-04-19 15:13:33', '2026-04-19 15:14:15', 1);
 
 -- --------------------------------------------------------
 
@@ -216,9 +263,6 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`id`, `code`, `user_id`, `status_value_id`, `payment_method_value_id`, `subtotal`, `tax`, `shipping`, `total`, `created_at`, `payment_id`, `payment_status`, `promo_code_id`, `discount_amount`, `promo_code_used`) VALUES
-(35, 'ORD-00035', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 15:56:50', 37, 'paid', NULL, 0.00, NULL),
-(36, 'ORD-00036', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:02:32', 38, 'paid', NULL, 0.00, NULL),
-(37, 'ORD-00037', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:06:19', 39, 'paid', NULL, 0.00, NULL),
 (38, 'ORD-00038', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:07:30', 40, 'paid', NULL, 0.00, NULL),
 (39, 'ORD-00039', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:08:32', 41, 'paid', NULL, 0.00, NULL),
 (40, 'ORD-00040', 5, 27, NULL, 12.00, 1.20, 5.00, 17.00, '2025-10-25 16:09:36', 42, 'paid', NULL, 0.00, NULL),
@@ -228,7 +272,12 @@ INSERT INTO `orders` (`id`, `code`, `user_id`, `status_value_id`, `payment_metho
 (44, 'ORD-00044', 5, 27, NULL, 268.00, 26.80, 0.00, 151.00, '2025-10-28 12:52:19', 46, 'paid', NULL, 117.00, 'TEST'),
 (45, 'ORD-00045', 5, 27, NULL, 268.00, 26.80, 0.00, 151.00, '2025-10-28 12:55:30', 47, 'paid', NULL, 117.00, 'TEST'),
 (46, 'ORD-00046', 5, 27, NULL, 268.00, 26.80, 0.00, 268.00, '2025-10-28 12:57:35', 48, 'paid', NULL, 0.00, NULL),
-(47, 'ORD-00047', 5, 27, NULL, 311.00, 31.10, 0.00, 182.50, '2025-10-28 15:27:10', 49, 'paid', NULL, 128.50, 'TEST');
+(47, 'ORD-00047', 5, 27, NULL, 311.00, 31.10, 0.00, 182.50, '2025-10-28 15:27:10', 49, 'paid', NULL, 128.50, 'TEST'),
+(49, 'ORD-00049', 5, 28, NULL, 50.00, 5.00, 6.99, 56.99, '2026-02-20 22:05:50', 51, 'paid', NULL, 0.00, NULL),
+(50, 'ORD-00050', 17, 28, NULL, 50.00, 5.00, 6.99, 56.99, '2026-02-20 22:07:22', 52, 'paid', NULL, 0.00, NULL),
+(51, 'ORD-00051', 18, 28, NULL, 50.00, 5.00, 6.99, 56.99, '2026-02-20 22:21:25', 53, 'paid', NULL, 0.00, NULL),
+(52, 'ORD-00052', 18, 28, NULL, 50.00, 5.00, 14.99, 64.99, '2026-02-20 22:37:41', 54, 'paid', NULL, 0.00, NULL),
+(53, 'ORD-00053', 18, 28, NULL, 50.00, 5.00, 6.99, 56.99, '2026-02-21 01:08:43', 55, 'paid', NULL, 0.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -240,9 +289,11 @@ CREATE TABLE `order_addresses` (
   `id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
   `label` varchar(50) DEFAULT NULL,
+  `recipient_name` varchar(120) DEFAULT NULL,
   `line1` varchar(150) NOT NULL,
   `line2` varchar(150) DEFAULT NULL,
   `city` varchar(100) DEFAULT NULL,
+  `state_region` varchar(100) DEFAULT NULL,
   `postal_code` varchar(20) DEFAULT NULL,
   `phone` varchar(30) DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
@@ -252,20 +303,22 @@ CREATE TABLE `order_addresses` (
 -- Dumping data for table `order_addresses`
 --
 
-INSERT INTO `order_addresses` (`id`, `order_id`, `label`, `line1`, `line2`, `city`, `postal_code`, `phone`, `created_at`) VALUES
-(33, 35, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 15:56:50'),
-(34, 36, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:02:32'),
-(35, 37, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:06:19'),
-(36, 38, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:07:30'),
-(37, 39, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:08:32'),
-(38, 40, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:09:36'),
-(39, 41, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-25 16:10:09'),
-(40, 42, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-27 16:37:11'),
-(41, 43, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-28 12:32:29'),
-(42, 44, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-28 12:52:19'),
-(43, 45, 'alsdkf', '234234', '', '234234', '234234', '03048796763', '2025-10-28 12:55:30'),
-(44, 46, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-28 12:57:35'),
-(45, 47, 'Testing address', 'asdfasd', 'asdfasd', 'asdfad', '23423', '093847823423', '2025-10-28 15:27:10');
+INSERT INTO `order_addresses` (`id`, `order_id`, `label`, `recipient_name`, `line1`, `line2`, `city`, `state_region`, `postal_code`, `phone`, `created_at`) VALUES
+(36, 38, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-25 16:07:30'),
+(37, 39, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-25 16:08:32'),
+(38, 40, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-25 16:09:36'),
+(39, 41, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-25 16:10:09'),
+(40, 42, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-27 16:37:11'),
+(41, 43, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-28 12:32:29'),
+(42, 44, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-28 12:52:19'),
+(43, 45, 'alsdkf', NULL, '234234', '', '234234', NULL, '234234', '03048796763', '2025-10-28 12:55:30'),
+(44, 46, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-28 12:57:35'),
+(45, 47, 'Testing address', NULL, 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2025-10-28 15:27:10'),
+(46, 49, 'Testing address', 'Mian Muhammad Ramzan', 'asdfasd', 'asdfasd', 'asdfad', NULL, '23423', '093847823423', '2026-02-20 22:05:50'),
+(47, 50, 'Guest', 'Mian Services', 'Plot No A/269/2 kushti wala house Block 4 Karachi administrator employs cooperative housing society', NULL, 'Karachi', NULL, '75400', '+923048108664', '2026-02-20 22:07:23'),
+(48, 51, 'Guest', 'Mian Services', 'Plot No A/269/2 kushti wala house Block 4 Karachi administrator employs cooperative housing society', NULL, 'Karachi', 'Sindh', '75400', '+923048108664', '2026-02-20 22:21:25'),
+(49, 52, 'Guest', 'Mian Muhammad Ramzan', 'Plot No A/269/2 kushti wala ho', NULL, 'Karachi', NULL, '75400', '+923048108664', '2026-02-20 22:37:41'),
+(50, 53, 'Guest', 'Mian Services', 'Plot No A/269/2 kushti wala house Block 4 Karachi administrator employs cooperative housing society', NULL, 'Karachi', NULL, '75400', '+923048108664', '2026-02-21 01:08:43');
 
 -- --------------------------------------------------------
 
@@ -287,9 +340,6 @@ CREATE TABLE `order_items` (
 --
 
 INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `quantity`, `unit_price`) VALUES
-(37, 35, 21, 55, 1, 12.00),
-(38, 36, 21, 55, 1, 12.00),
-(39, 37, 21, 55, 1, 12.00),
 (40, 38, 21, 55, 1, 12.00),
 (41, 39, 21, 55, 1, 12.00),
 (42, 40, 21, 55, 1, 12.00),
@@ -300,7 +350,12 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `quanti
 (47, 45, 20, 56, 1, 268.00),
 (48, 46, 20, 56, 1, 268.00),
 (49, 47, 19, 69, 1, 43.00),
-(50, 47, 20, 56, 1, 268.00);
+(50, 47, 20, 56, 1, 268.00),
+(52, 49, 7, 73, 1, 50.00),
+(53, 50, 7, 73, 1, 50.00),
+(54, 51, 7, 73, 1, 50.00),
+(55, 52, 7, 73, 1, 50.00),
+(56, 53, 7, 73, 1, 50.00);
 
 -- --------------------------------------------------------
 
@@ -323,9 +378,6 @@ CREATE TABLE `order_status_history` (
 --
 
 INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `to_status_value_id`, `changed_by`, `reason`, `changed_at`) VALUES
-(43, 35, NULL, 27, 5, NULL, '2025-10-25 15:56:50'),
-(44, 36, NULL, 27, 5, NULL, '2025-10-25 16:02:32'),
-(45, 37, NULL, 27, 5, NULL, '2025-10-25 16:06:19'),
 (46, 38, NULL, 27, 5, NULL, '2025-10-25 16:07:30'),
 (47, 39, NULL, 27, 5, NULL, '2025-10-25 16:08:32'),
 (48, 40, NULL, 27, 5, NULL, '2025-10-25 16:09:36'),
@@ -335,7 +387,12 @@ INSERT INTO `order_status_history` (`id`, `order_id`, `from_status_value_id`, `t
 (52, 44, NULL, 27, 5, NULL, '2025-10-28 12:52:19'),
 (53, 45, NULL, 27, 5, NULL, '2025-10-28 12:55:30'),
 (54, 46, NULL, 27, 5, NULL, '2025-10-28 12:57:35'),
-(55, 47, NULL, 27, 5, NULL, '2025-10-28 15:27:10');
+(55, 47, NULL, 27, 5, NULL, '2025-10-28 15:27:10'),
+(56, 49, NULL, 28, 5, NULL, '2026-02-20 22:05:50'),
+(57, 50, NULL, 28, 17, NULL, '2026-02-20 22:07:23'),
+(58, 51, NULL, 28, 18, NULL, '2026-02-20 22:21:25'),
+(59, 52, NULL, 28, 18, NULL, '2026-02-20 22:37:41'),
+(60, 53, NULL, 28, 18, NULL, '2026-02-21 01:08:43');
 
 -- --------------------------------------------------------
 
@@ -410,7 +467,10 @@ INSERT INTO `otp_verifications` (`id`, `user_id`, `email`, `otp_code`, `expires_
 (50, 1, 'mianmuhammadramzan99@gmail.com', '801510', '2025-10-23 16:14:45', 1, '2025-10-23 16:04:45'),
 (51, 5, 'mianmuhammadramzan99@gmail.com', '980446', '2025-10-25 15:13:05', 0, '2025-10-25 15:03:05'),
 (52, 5, 'mianmuhammadramzan99@gmail.com', '659106', '2025-10-25 15:21:16', 0, '2025-10-25 15:11:16'),
-(53, 5, 'mianmuhammadramzan99@gmail.com', '944076', '2025-10-25 15:23:06', 0, '2025-10-25 15:13:06');
+(53, 5, 'mianmuhammadramzan99@gmail.com', '944076', '2025-10-25 15:23:06', 0, '2025-10-25 15:13:06'),
+(54, 18, 'ramzan8664@gmail.com', '728350', '2026-02-20 23:12:21', 1, '2026-02-20 23:02:21'),
+(55, 1, 'mianmuhammadramzan99@gmail.com', '960082', '2026-02-28 22:38:38', 0, '2026-02-28 22:28:38'),
+(56, 1, 'mianmuhammadramzan99@gmail.com', '691995', '2026-02-28 22:59:27', 1, '2026-02-28 22:49:27');
 
 -- --------------------------------------------------------
 
@@ -486,7 +546,13 @@ INSERT INTO `payments` (`id`, `order_id`, `stripe_payment_intent_id`, `stripe_ch
 (46, NULL, 'pi_3SN7hXD3H6qI9jyC1BXRL3Vk', NULL, 151.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 12:52:19', '2025-10-28 12:52:19'),
 (47, NULL, 'pi_3SN7kcD3H6qI9jyC133QpcpR', NULL, 151.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzan\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 12:55:30', '2025-10-28 12:55:30'),
 (48, NULL, 'pi_3SN7mdD3H6qI9jyC2g0dBZiK', NULL, 268.00, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"dsafds\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/26\",\"cvv\":\"123\"}', '{\"user_id\":5,\"order_items\":1,\"subtotal\":268,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 12:57:35', '2025-10-28 12:57:35'),
-(49, NULL, 'pi_3SNA7OD3H6qI9jyC2Dx7OMS4', NULL, 182.50, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzna\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/23\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":311,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 15:27:10', '2025-10-28 15:27:10');
+(49, NULL, 'pi_3SNA7OD3H6qI9jyC2Dx7OMS4', NULL, 182.50, 'gbp', 'succeeded', 'creditCard', '{\"cardholderName\":\"Mian Muhammad Ramzna\",\"cardNumber\":\"4242 4242 4242 4242\",\"expDate\":\"12/23\",\"cvv\":\"124\"}', '{\"user_id\":5,\"order_items\":2,\"subtotal\":311,\"tax\":0,\"shipping\":0,\"payment_method\":\"creditCard\"}', '2025-10-28 15:27:10', '2025-10-28 15:27:10'),
+(50, NULL, 'pi_3T2x0yDuWjRrhtP41CY7mbB5', 'ch_3T2x0yDuWjRrhtP41Dsergt9', 56.99, 'gbp', 'succeeded', 'creditCard', NULL, '{\"user_id\":16,\"guest_checkout\":true,\"order_items\":1,\"subtotal\":50,\"tax\":0,\"shipping\":6.99,\"payment_method\":\"creditCard\"}', '2026-02-20 21:57:41', '2026-02-20 21:57:41'),
+(51, NULL, 'pi_3T2x8zDuWjRrhtP42iqcaOCi', 'ch_3T2x8zDuWjRrhtP429IdHOU3', 56.99, 'gbp', 'succeeded', 'creditCard', NULL, '{\"user_id\":5,\"order_items\":1,\"subtotal\":50,\"tax\":0,\"shipping\":6.99,\"payment_method\":\"creditCard\"}', '2026-02-20 22:05:50', '2026-02-20 22:05:50'),
+(52, NULL, 'pi_3T2xAVDuWjRrhtP40sGHOOpK', 'ch_3T2xAVDuWjRrhtP40Rw8DXgl', 56.99, 'gbp', 'succeeded', 'creditCard', NULL, '{\"user_id\":17,\"guest_checkout\":true,\"order_items\":1,\"subtotal\":50,\"tax\":0,\"shipping\":6.99,\"payment_method\":\"creditCard\"}', '2026-02-20 22:07:22', '2026-02-20 22:07:22'),
+(53, NULL, 'pi_3T2xO2DuWjRrhtP400AlaeLn', 'ch_3T2xO2DuWjRrhtP40fIeXNdq', 56.99, 'gbp', 'succeeded', 'creditCard', NULL, '{\"user_id\":18,\"guest_checkout\":true,\"order_items\":1,\"subtotal\":50,\"tax\":0,\"shipping\":6.99,\"payment_method\":\"creditCard\"}', '2026-02-20 22:21:25', '2026-02-20 22:21:25'),
+(54, NULL, 'pi_3T2xdpDuWjRrhtP41yuZN1hd', 'ch_3T2xdpDuWjRrhtP41JtpuAra', 64.99, 'gbp', 'succeeded', 'creditCard', NULL, '{\"user_id\":18,\"guest_checkout\":true,\"order_items\":1,\"subtotal\":50,\"tax\":0,\"shipping\":14.99,\"payment_method\":\"creditCard\"}', '2026-02-20 22:37:41', '2026-02-20 22:37:41'),
+(55, NULL, 'pi_3T3001DuWjRrhtP40fiRyxJY', 'ch_3T3001DuWjRrhtP4021PQ6pC', 56.99, 'gbp', 'succeeded', 'creditCard', NULL, '{\"user_id\":18,\"guest_checkout\":true,\"order_items\":1,\"subtotal\":50,\"tax\":0,\"shipping\":6.99,\"payment_method\":\"creditCard\"}', '2026-02-21 01:08:43', '2026-02-21 01:08:43');
 
 -- --------------------------------------------------------
 
@@ -537,25 +603,27 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `code`, `sku`, `name`, `description`, `category_value_id`, `price`, `stock`, `stock_status`, `status`, `date_added`, `created_at`, `updated_at`, `original_price`, `current_price`, `discount_percentage`, `materials_care`, `delivery_returns`, `return_exchanges`, `contact_info`, `fit_options`, `default_fit`, `fit_required`) VALUES
-(2, 'PRD-00002', 'SKU-MG7U0TUT-QYB84', 'Testing product', 'fldsjafldsa fldsa dsadsa', 6, 300.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:16:57', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(3, 'PRD-00003', 'SKU-MG7U19CV-J6KV2', 'Testing product', 'fldsjafldsa fldsa dsadsa', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:17:17', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(4, 'PRD-00004', 'TESTING-6AFC6CA2', 'Testing', 'afdsasihT', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:28:31', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(5, 'PRD-00005', 'THIS-TESTING-9953ACED', 'Updated Product', 'Updated description', 6, 23.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:30:13', '2025-10-27 14:58:03', 33.00, 23.00, 30.30, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(7, 'PRD-00007', 'BSA-UK1EOAFS', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 50, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:24', '2026-02-20 21:00:48', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, '', 0),
-(8, 'PRD-00008', 'BSA-GWNWXIXD', 'Black SIlk Abaya', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:51', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(9, 'PRD-00009', 'BSA-H1IWRY2D', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:37:32', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(10, 'PRD-00010', 'BSA-D305YAO0', 'Black SIlk Abaya', 'fdslafkdsa', 8, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:00', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(11, 'PRD-00011', 'BSA-FT1GNCS4', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(12, 'PRD-00012', 'BSA-8TT2D302', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(13, 'PRD-00013', 'BSA-J6CFUPPP', 'Black SIlk Abaya', 'fdslafkdsa', 10, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:05', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(14, 'PRD-00014', 'BSA-5GT87547', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(15, 'PRD-00015', 'BSA-4AVCILJU', 'Black SIlk Abaya ......', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(16, 'PRD-00016', 'BSA-ZK6EFBXR', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(17, 'PRD-00017', 'BSA-M1L63XBK', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:11', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(19, 'PRD-00019', 'A-2WIMT3N0', 'Updated Test Product', 'Product name: Aurora X200 Wireless Noise-Cancelling Headphones<div>SKU: AUR-X200-BLK</div><div><ul><li>Short description: Premium over-ear Bluetooth headphones with active noise cancellation, 40-hour battery, and studio-grade sound.</li></ul></div><div>Price: $129.99 (USD) — Sale: $99.99 (limited time)</div><div><ul><li>Currency: USD</li></ul></div><div>Stock: 1,250 units</div><div>Category: Electronics / Audio</div><div>Tags: wireless, ANC, bluetooth, over-ear, long-battery</div><div>Key features:</div><div><ol><li><b><br></b></li><li><b>1: Active Noise Cancellation (ANC) with ambient mode</b></li><li><b>Bluetooth 5.3, aptX HD support</b></li><li><b>40 hours playback (standard mode), 20 min quick charge → 6 hours</b></li><li><b>Built-in microphone with ENC for clear calls</b></li><li><b>Foldable, lightweight aluminum frame with memory-foam earcups</b></li><li><b>On-device touch controls + voice assistant support</b></li><li><b>Technical specifications:</b></li><li><b>Drivers: 40 mm dynamic</b></li><li><b>Frequency response: 20 Hz – 20 kH</b></li></ol></div>', 7, 23.00, 1000, 'Active', 'Active', '2025-10-02', '2025-10-02 01:30:18', '2025-10-28 13:18:47', 10.00, 23.00, NULL, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.\n\nany extra information that you want to add  >>>>>>>>>>>>', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', '[\"Fitted\",\"Loose Fit\",\"Oversized\",\"Relaxed Fit\",\"Slim Fit\",\"Standard Fit\"]', 'Oversized', 1),
-(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 90, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-27 14:58:03', 2344.00, 234.00, 90.02, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(21, 'PRD-00021', 'TP-NHUQ4CUZ', 'Testing product', 'dts', 6, 12.00, 100, 'Active', 'Active', '2025-10-11', '2025-10-11 18:52:25', '2025-10-27 14:58:03', 123.00, 12.00, 90.24, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
-(22, 'PRD-00022', 'AT-C75UTQCJ', 'Again tesgin', 'testing ........', 6, 200.00, 200, 'Active', 'Inactive', '2025-10-27', '2025-10-27 15:10:10', '2026-02-20 21:00:04', 200.00, 200.00, NULL, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', '[\"Fitted\",\"Loose Fit\",\"Oversized\",\"Relaxed Fit\",\"Slim Fit\",\"Standard Fit\"]', 'Relaxed Fit', 1);
+(2, 'PRD-00002', 'SKU-MG7U0TUT-QYB84', 'Testing product', 'fldsjafldsa fldsa dsadsa', 6, 300.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:16:57', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(3, 'PRD-00003', 'SKU-MG7U19CV-J6KV2', 'Testing product', 'fldsjafldsa fldsa dsadsa', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:17:17', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(4, 'PRD-00004', 'TESTING-6AFC6CA2', 'Testing', 'afdsasihT', 8, 300.00, 30, 'Active', 'Active', '2025-10-01', '2025-10-01 15:28:31', '2025-10-27 14:58:03', 400.00, 300.00, 25.00, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(5, 'PRD-00005', 'THIS-TESTING-9953ACED', 'Updated Product', 'Updated description', 6, 23.00, 0, 'Out of Stock', 'Active', '2025-10-01', '2025-10-01 15:30:13', '2025-10-27 14:58:03', 33.00, 23.00, 30.30, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(7, 'PRD-00007', 'BSA-UK1EOAFS', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 45, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:24', '2026-02-21 01:08:43', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, '', 0),
+(8, 'PRD-00008', 'BSA-GWNWXIXD', 'Black SIlk Abaya', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:36:51', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(9, 'PRD-00009', 'BSA-H1IWRY2D', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:37:32', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(10, 'PRD-00010', 'BSA-D305YAO0', 'Black SIlk Abaya', 'fdslafkdsa', 8, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:00', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(11, 'PRD-00011', 'BSA-FT1GNCS4', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(12, 'PRD-00012', 'BSA-8TT2D302', 'Black SIlk Abaya', 'fdslafkdsa', 9, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:04', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(13, 'PRD-00013', 'BSA-J6CFUPPP', 'Black SIlk Abaya', 'fdslafkdsa', 10, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:05', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(14, 'PRD-00014', 'BSA-5GT87547', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(15, 'PRD-00015', 'BSA-4AVCILJU', 'Black SIlk Abaya ......', 'fdslafkdsa', 7, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(16, 'PRD-00016', 'BSA-ZK6EFBXR', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:07', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(17, 'PRD-00017', 'BSA-M1L63XBK', 'Black SIlk Abaya', 'fdslafkdsa', 6, 50.00, 40, 'Active', 'Active', '2025-10-01', '2025-10-01 15:38:11', '2025-10-27 14:58:03', 60.00, 50.00, 16.67, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(19, 'PRD-00019', 'A-2WIMT3N0', 'Updated Test Product', 'Product name: Aurora X200 Wireless Noise-Cancelling Headphones<div>SKU: AUR-X200-BLK</div><div><ul><li>Short description: Premium over-ear Bluetooth headphones with active noise cancellation, 40-hour battery, and studio-grade sound.</li></ul></div><div>Price: $129.99 (USD) — Sale: $99.99 (limited time)</div><div><ul><li>Currency: USD</li></ul></div><div>Stock: 1,250 units</div><div>Category: Electronics / Audio</div><div>Tags: wireless, ANC, bluetooth, over-ear, long-battery</div><div>Key features:</div><div><ol><li><b><br></b></li><li><b>1: Active Noise Cancellation (ANC) with ambient mode</b></li><li><b>Bluetooth 5.3, aptX HD support</b></li><li><b>40 hours playback (standard mode), 20 min quick charge → 6 hours</b></li><li><b>Built-in microphone with ENC for clear calls</b></li><li><b>Foldable, lightweight aluminum frame with memory-foam earcups</b></li><li><b>On-device touch controls + voice assistant support</b></li><li><b>Technical specifications:</b></li><li><b>Drivers: 40 mm dynamic</b></li><li><b>Frequency response: 20 Hz – 20 kH</b></li></ol></div>', 7, 23.00, 1000, 'Active', 'Active', '2025-10-02', '2025-10-02 01:30:18', '2025-10-28 13:18:47', 10.00, 23.00, NULL, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.\n\nany extra information that you want to add  >>>>>>>>>>>>', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', '[\"Fitted\",\"Loose Fit\",\"Oversized\",\"Relaxed Fit\",\"Slim Fit\",\"Standard Fit\"]', 'Oversized', 1),
+(20, 'PRD-00020', 'A-61FVUKBD', 'asdfasd', 'a', 6, 234.00, 90, 'Active', 'Active', '2025-10-08', '2025-10-08 23:12:27', '2025-10-27 14:58:03', 2344.00, 234.00, 90.02, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(21, 'PRD-00021', 'TP-NHUQ4CUZ', 'Testing product', 'dts', 6, 12.00, 100, 'Active', 'Active', '2025-10-11', '2025-10-11 18:52:25', '2025-10-27 14:58:03', 123.00, 12.00, 90.24, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', NULL, NULL, 0),
+(22, 'PRD-00022', 'AT-C75UTQCJ', 'Again tesgin', 'testing ........', 6, 200.00, 200, 'Active', 'Inactive', '2025-10-27', '2025-10-27 15:10:10', '2026-02-20 21:00:04', 200.00, 200.00, NULL, 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.', 'We offer free standard delivery on orders over £50. Standard delivery takes 3-5 business days. Express delivery available for £5.99. Returns accepted within 30 days of purchase. Items must be in original condition with tags attached.', 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.', 'For any questions about this product, please contact our customer service team at support@zarafeet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.', '[\"Fitted\",\"Loose Fit\",\"Oversized\",\"Relaxed Fit\",\"Slim Fit\",\"Standard Fit\"]', 'Relaxed Fit', 1),
+(23, 'PRD-00023', 'TP-K2WI8C6W', 'test product', 'asdfadsasdfadsfasdf', 7, 213.00, 23, 'Active', 'Active', '2026-02-28', '2026-02-28 21:20:25', '2026-02-28 21:20:25', 23.00, 213.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0),
+(24, 'PRD-00024', 'TP-2J78X5T1', 'test product', 'asdfadsasdfadsfasdf', 7, 213.00, 23, 'Active', 'Active', '2026-02-28', '2026-02-28 21:22:19', '2026-02-28 21:22:19', 23.00, 213.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -657,7 +725,9 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `order`) VALUES
 (266, 22, 'http://localhost:3000/uploads/products/22/mlv2lwlz-78c5f482aca9323b.jpg', 1),
 (267, 22, 'http://localhost:3000/uploads/products/22/mlv2lwm1-072e097cb508828e.jpg', 2),
 (268, 22, 'http://localhost:3000/uploads/products/22/mlv2lwm2-f715b42e359f9df0.jpg', 3),
-(269, 7, 'http://localhost:3000/uploads/products/7/mlv2tzik-ab07f1edf05a351e.jpg', 1);
+(269, 7, 'http://localhost:3000/uploads/products/7/mlv2tzik-ab07f1edf05a351e.jpg', 1),
+(270, 23, 'http://localhost:3000/uploads/products/23/mm6j20zc-f53863d2ff47a35f.jpg', 1),
+(271, 24, 'http://localhost:3000/uploads/products/24/mm6j4gde-374169eff55e5ae3.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -694,7 +764,8 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `extra_price`, `stock
 (70, 19, 'UPDATED-TEST-PRODUCT-M-Blue', 8.00, 23, 'M', 'Blue', '#087fba', ''),
 (71, 19, 'UPDATED-TEST-PRODUCT-L-blue', 0.00, 104, 'L', 'blue', '#0657f9', ''),
 (72, 22, 'AGAIN-TESGIN-S-Red', 0.00, 10, 'S', 'Red', '#f91515', ''),
-(73, 7, 'BLACK-SILK-ABAYA-S-Red', 0.00, 50, 'S', 'Red', '#e02424', '');
+(73, 7, 'BLACK-SILK-ABAYA-S-Red', 0.00, 45, 'S', 'Red', '#e02424', ''),
+(74, 24, 'TEST-PRODUCT-23-23', 0.00, 23, '23', '23', '#000000', '');
 
 -- --------------------------------------------------------
 
@@ -744,8 +815,6 @@ CREATE TABLE `recently_viewed` (
 
 INSERT INTO `recently_viewed` (`id`, `user_id`, `product_id`, `viewed_at`) VALUES
 (2, 5, 4, '2025-10-11 18:58:57'),
-(6, 8, 19, '2025-10-19 01:45:11'),
-(7, 8, 21, '2025-10-19 01:45:21'),
 (16, 5, 13, '2025-10-19 19:58:31'),
 (17, 5, 11, '2025-10-19 19:58:35'),
 (45, 5, 14, '2025-10-24 00:03:05'),
@@ -828,9 +897,6 @@ CREATE TABLE `shipments` (
 --
 
 INSERT INTO `shipments` (`id`, `order_id`, `method_value_id`, `scheduled_date`, `cost`) VALUES
-(35, 35, 28, NULL, 5.00),
-(36, 36, 28, NULL, 5.00),
-(37, 37, 28, NULL, 5.00),
 (38, 38, 28, NULL, 5.00),
 (39, 39, 28, NULL, 5.00),
 (40, 40, 28, NULL, 5.00),
@@ -840,7 +906,12 @@ INSERT INTO `shipments` (`id`, `order_id`, `method_value_id`, `scheduled_date`, 
 (44, 44, 28, NULL, 5.00),
 (45, 45, 28, NULL, 5.00),
 (46, 46, 28, NULL, 5.00),
-(47, 47, 28, NULL, 5.00);
+(47, 47, 28, NULL, 5.00),
+(49, 49, 28, NULL, 6.99),
+(50, 50, 28, NULL, 6.99),
+(51, 51, 28, NULL, 6.99),
+(52, 52, 28, NULL, 14.99),
+(53, 53, 28, NULL, 6.99);
 
 -- --------------------------------------------------------
 
@@ -854,6 +925,7 @@ CREATE TABLE `users` (
   `name` varchar(120) NOT NULL,
   `email` varchar(150) NOT NULL,
   `email_verified` tinyint(1) DEFAULT 0,
+  `is_guest` tinyint(1) NOT NULL DEFAULT 0,
   `email_verified_at` datetime DEFAULT NULL,
   `password_hash` varchar(255) NOT NULL,
   `phone` varchar(30) DEFAULT NULL,
@@ -869,19 +941,19 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `code`, `name`, `email`, `email_verified`, `email_verified_at`, `password_hash`, `phone`, `status`, `role_id`, `user_type`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-23 16:05:25', '$2a$12$eQzn7xNtB.cthdDxzYO6Kuesz4C8f1ADAj8SSZLG0MuR2Npr99v6K', '03048108665', 'Active', 1, 'admin', '2026-02-20 20:59:57', '2025-09-23 23:51:29', '2026-02-20 20:59:57'),
-(2, 'USR-00002', 'Test User', 'test@example.com', 0, NULL, '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, 'customer', '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
-(3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', 0, NULL, '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, 'customer', '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
-(5, 'USR-00005', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 1, '2025-10-22 23:00:57', '$2a$12$EiBbqczYi2OW0A8LuduAXeDff7LkbaiF6mThLG69gBhITN8GBwgNa', NULL, 'Active', 4, 'customer', '2025-10-25 15:14:16', '2025-10-03 22:51:42', '2025-10-25 15:14:16'),
-(6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', 0, NULL, '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, 'customer', NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51'),
-(7, 'USR-00007', 'Mian Muhammad Ramzan', 'mianmuhammadramzan9232349@gmail.com', 0, NULL, '$2a$12$FtrcO9bsoQ4iISLrbp5IneeFWQIvws.F8D..rnAce9HWohwcX5fRy', NULL, 'Active', 4, 'customer', '2025-10-18 00:01:43', '2025-10-17 23:36:31', '2025-10-19 01:38:17'),
-(8, 'USR-00008', 'ramzan', 'ramzan8664@gmail.com', 1, '2025-10-18 00:32:20', '$2a$12$ECrq/2BHBplxxIMvMF8lzOEhWZaQUX6UTPOlFKULGegcQQg404Jte', NULL, 'Active', 4, 'customer', '2025-10-18 00:39:54', '2025-10-17 23:46:25', '2025-10-18 00:39:54'),
-(9, 'USR-00009', 'Debug User', 'debug@example.com', 0, NULL, '$2a$12$epfxSR1/J9ceJT9BHgMmi./L5ueiImhmi/eZ7tane3qIQMLDNAK0S', NULL, 'Active', 3, 'admin', NULL, '2025-10-17 23:54:52', '2025-10-19 22:47:02'),
-(10, 'USR-00010', 'Test Customer', 'customer@example.com', 0, NULL, '$2a$12$jqf4DQoOqdbs1kE9n8MBy.SGkv6A0pPXsTRjKkHBhlfkCgwf0/9Ee', NULL, 'Active', 4, 'customer', NULL, '2025-10-18 00:05:33', '2025-10-18 00:05:33'),
-(11, 'USR-00011', 'Test Customer 2', 'customer2@example.com', 1, '2025-10-18 00:07:17', '$2a$12$nhmHuTfrfRxVS5aR/3M6TeOS.3uYXqEbsGB6s/LyuxNiYDso1ec4y', NULL, 'Active', 4, 'customer', '2025-10-18 00:07:17', '2025-10-18 00:07:14', '2025-10-18 00:07:17'),
-(13, 'USR-00013', 'Zarafeet', 'info@zarafet.uk', 0, NULL, '$2a$12$3PFJ0in2wOk7HcqQn0dJLOQ9bFJkVYZWCb8yQgHWuX6Zd14XF9uSS', '03048000000', 'Active', 2, 'admin', '2025-10-19 23:24:40', '2025-10-19 23:23:42', '2025-10-19 23:24:40'),
-(15, 'USR-00015', 'Mian razman', 'enablecoding@gmail.com', 1, '2025-10-22 23:06:32', '$2a$12$z/bSERxMHNG6259gBdPDJe3Eh.wwtlcoI.Ev32kBVnfa4Xp7d13Gu', NULL, 'Active', 4, 'customer', '2025-10-22 23:06:50', '2025-10-22 21:47:34', '2025-10-22 23:06:50');
+INSERT INTO `users` (`id`, `code`, `name`, `email`, `email_verified`, `is_guest`, `email_verified_at`, `password_hash`, `phone`, `status`, `role_id`, `user_type`, `last_login_at`, `created_at`, `updated_at`) VALUES
+(1, 'USR-001', 'Super Admin', 'mianmuhammadramzan99@gmail.com', 1, 0, '2026-02-28 22:49:56', '$2a$12$hu9GuHtKSQiz.kNMjrpJhO2iw9UZSpBopHGG8nq5fCDgLYSvFqUmi', '03048108665', 'Active', 1, 'admin', '2026-04-25 21:28:27', '2025-09-23 23:51:29', '2026-04-25 21:28:27'),
+(2, 'USR-00002', 'Test User', 'test@example.com', 0, 0, NULL, '$2a$12$/YLz8HAeJjffd88EKmfYwuaEwX.moo40zzDR5.0La2/Ds7kx/MwSy', NULL, 'Active', 4, 'customer', '2025-10-02 03:26:10', '2025-10-02 03:26:02', '2025-10-02 03:26:10'),
+(3, 'USR-00003', 'Updated Ramzan', 'ramzan@gmail.com', 0, 0, NULL, '$2a$12$MsxReESVq3d5NV5Rx7EQzOzOqD3UIp9bNs2UjPw8dyPXp9uDGcAym', '+1234567890', 'Active', 4, 'customer', '2025-10-02 04:53:17', '2025-10-02 03:26:49', '2025-10-02 04:53:17'),
+(5, 'USR-00005', 'Mian Muhammad Ramzan', 'mianmuhammadramzan99@gmail.com', 1, 0, '2025-10-22 23:00:57', '$2a$12$EiBbqczYi2OW0A8LuduAXeDff7LkbaiF6mThLG69gBhITN8GBwgNa', NULL, 'Active', 4, 'customer', '2026-02-21 19:55:17', '2025-10-03 22:51:42', '2026-02-21 19:55:17'),
+(6, 'USR-00006', 'asdfasdf', 'test2@gmail.com', 0, 0, NULL, '$2a$12$7H1mG0Rw4ZCwZDMBkUkxzOBEnNQMuu4x97ijGkvlZZ/fAAgWmhNGG', NULL, 'Active', 4, 'customer', NULL, '2025-10-07 00:06:51', '2025-10-07 00:06:51'),
+(9, 'USR-00009', 'Debug User', 'debug@example.com', 0, 0, NULL, '$2a$12$epfxSR1/J9ceJT9BHgMmi./L5ueiImhmi/eZ7tane3qIQMLDNAK0S', NULL, 'Active', 3, 'admin', NULL, '2025-10-17 23:54:52', '2025-10-19 22:47:02'),
+(10, 'USR-00010', 'Test Customer', 'customer@example.com', 0, 0, NULL, '$2a$12$jqf4DQoOqdbs1kE9n8MBy.SGkv6A0pPXsTRjKkHBhlfkCgwf0/9Ee', NULL, 'Active', 4, 'customer', NULL, '2025-10-18 00:05:33', '2025-10-18 00:05:33'),
+(11, 'USR-00011', 'Test Customer 2', 'customer2@example.com', 1, 0, '2025-10-18 00:07:17', '$2a$12$nhmHuTfrfRxVS5aR/3M6TeOS.3uYXqEbsGB6s/LyuxNiYDso1ec4y', NULL, 'Active', 4, 'customer', '2025-10-18 00:07:17', '2025-10-18 00:07:14', '2025-10-18 00:07:17'),
+(13, 'USR-00013', 'Zarafeet', 'info@zarafet.uk', 0, 0, NULL, '$2a$12$3PFJ0in2wOk7HcqQn0dJLOQ9bFJkVYZWCb8yQgHWuX6Zd14XF9uSS', '03048000000', 'Active', 2, 'admin', '2025-10-19 23:24:40', '2025-10-19 23:23:42', '2025-10-19 23:24:40'),
+(15, 'USR-00015', 'Mian razman', 'enablecoding@gmail.com', 1, 0, '2025-10-22 23:06:32', '$2a$12$z/bSERxMHNG6259gBdPDJe3Eh.wwtlcoI.Ev32kBVnfa4Xp7d13Gu', NULL, 'Active', 4, 'customer', '2025-10-22 23:06:50', '2025-10-22 21:47:34', '2025-10-22 23:06:50'),
+(17, 'USR-00017', 'Mian Services', 'user0i0i0i0@gmail.com', 0, 1, NULL, '$2a$12$7AoctYrPr9J2dsCDtzb7aeX6yL9o0fCxpw/gdiKFi96nbXC6/f42O', '+923048108664', 'Active', 4, 'customer', NULL, '2026-02-20 22:07:22', '2026-02-20 22:07:22'),
+(18, 'USR-00018', 'Mian Services', 'ramzan8664@gmail.com', 1, 1, '2026-02-20 23:02:46', '$2a$12$FnFCY7N2HQbCTumKSBSZ5edjAEBXarvwsEvv8iKuEGxsUiTNYbFCS', '+923048108664', 'Active', 4, 'customer', '2026-02-20 23:02:58', '2026-02-20 22:21:25', '2026-02-21 01:07:36');
 
 -- --------------------------------------------------------
 
@@ -968,6 +1040,21 @@ ALTER TABLE `customer_profiles`
   ADD PRIMARY KEY (`user_id`),
   ADD KEY `tier_value_id` (`tier_value_id`),
   ADD KEY `idx_customers_last_order` (`last_order_at`);
+
+--
+-- Indexes for table `discount_popups`
+--
+ALTER TABLE `discount_popups`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`);
+
+--
+-- Indexes for table `hero_banners`
+--
+ALTER TABLE `hero_banners`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `sort_order` (`sort_order`);
 
 --
 -- Indexes for table `lookup_headers`
@@ -1183,6 +1270,18 @@ ALTER TABLE `categories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
+-- AUTO_INCREMENT for table `discount_popups`
+--
+ALTER TABLE `discount_popups`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `hero_banners`
+--
+ALTER TABLE `hero_banners`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `lookup_headers`
 --
 ALTER TABLE `lookup_headers`
@@ -1198,37 +1297,37 @@ ALTER TABLE `lookup_values`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `order_addresses`
 --
 ALTER TABLE `order_addresses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `order_status_history`
 --
 ALTER TABLE `order_status_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `otp_verifications`
 --
 ALTER TABLE `otp_verifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -1240,19 +1339,19 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=270;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=272;
 
 --
 -- AUTO_INCREMENT for table `product_variants`
 --
 ALTER TABLE `product_variants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=74;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT for table `promo_codes`
@@ -1282,13 +1381,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `shipments`
 --
 ALTER TABLE `shipments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `user_loyalty_promos`
@@ -1332,6 +1431,18 @@ ALTER TABLE `categories`
 ALTER TABLE `customer_profiles`
   ADD CONSTRAINT `customer_profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `customer_profiles_ibfk_2` FOREIGN KEY (`tier_value_id`) REFERENCES `lookup_values` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `discount_popups`
+--
+ALTER TABLE `discount_popups`
+  ADD CONSTRAINT `discount_popups_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `hero_banners`
+--
+ALTER TABLE `hero_banners`
+  ADD CONSTRAINT `hero_banners_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `lookup_values`
