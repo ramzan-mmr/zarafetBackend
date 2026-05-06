@@ -117,8 +117,9 @@ const process = async (req, res) => {
 
     for (const item of cart.items) {
       console.log(`📋 Processing item: ${item.name} (ID: ${item.productId})`);
+      const variantId = item.variant?.id || null;
       
-      const product = await Order.getProductWithVariant(item.productId, item.variant.id);
+      const product = await Order.getProductWithVariant(item.productId, variantId);
       if (!product) {
         console.error(`❌ Product not found: ${item.productId}`);
         return res.status(400).json(responses.error('PRODUCT_NOT_FOUND', `Product not found: ${item.productId}`));
@@ -127,7 +128,7 @@ const process = async (req, res) => {
       console.log(`✅ Product found: ${product.name}`);
 
       // Check stock
-      const availableStock = item.variant.id ? product.variant_stock : product.stock;
+      const availableStock = variantId ? product.variant_stock : product.stock;
       console.log(`📊 Stock check: Required=${item.quantity}, Available=${availableStock}`);
       
       if (availableStock < item.quantity) {
@@ -143,7 +144,7 @@ const process = async (req, res) => {
 
       orderItems.push({
         product_id: item.productId,
-        variant_id: item.variant.id,
+        variant_id: variantId,
         quantity: item.quantity,
         unit_price: unitPrice
       });
@@ -372,6 +373,18 @@ const process = async (req, res) => {
             console.log('✅ Order confirmation email sent successfully');
           } else {
             console.error('❌ Failed to send order confirmation email:', emailResult.error);
+          }
+
+          const adminEmailResult = await EmailService.sendNewOrderAdminNotification({
+            customerEmail: user.email,
+            customerName: user.name,
+            orderData: emailData.orderData,
+            checkoutType: 'Registered customer'
+          });
+          if (adminEmailResult.success) {
+            console.log('✅ Admin new order email sent successfully');
+          } else {
+            console.error('❌ Failed to send admin new order email:', adminEmailResult.error);
           }
         } else {
           console.warn('⚠️ User email not found, skipping order confirmation email');
@@ -624,13 +637,14 @@ const processGuest = async (req, res) => {
     const orderItems = [];
 
     for (const item of cart.items) {
-      const product = await Order.getProductWithVariant(item.productId, item.variant.id);
+      const variantId = item.variant?.id || null;
+      const product = await Order.getProductWithVariant(item.productId, variantId);
       if (!product) {
         console.error('[PAYMENTS] processGuest — 400 PRODUCT_NOT_FOUND:', { productId: item.productId });
         return res.status(400).json(responses.error('PRODUCT_NOT_FOUND', `Product not found: ${item.productId}`));
       }
 
-      const availableStock = item.variant.id ? product.variant_stock : product.stock;
+      const availableStock = variantId ? product.variant_stock : product.stock;
       if (availableStock < item.quantity) {
         console.error('[PAYMENTS] processGuest — 400 INSUFFICIENT_STOCK:', { productName: product.name, required: item.quantity, available: availableStock });
         return res.status(400).json(responses.error('INSUFFICIENT_STOCK', `Insufficient stock for product: ${product.name}`));
@@ -642,7 +656,7 @@ const processGuest = async (req, res) => {
 
       orderItems.push({
         product_id: item.productId,
-        variant_id: item.variant.id,
+        variant_id: variantId,
         quantity: item.quantity,
         unit_price: unitPrice
       });
@@ -808,7 +822,24 @@ const processGuest = async (req, res) => {
               } : null
             }
           };
-          await EmailService.sendOrderConfirmation(emailData);
+          const emailResult = await EmailService.sendOrderConfirmation(emailData);
+          if (emailResult.success) {
+            console.log('✅ Guest order confirmation email sent successfully');
+          } else {
+            console.error('❌ Failed to send guest order confirmation email:', emailResult.error);
+          }
+
+          const adminEmailResult = await EmailService.sendNewOrderAdminNotification({
+            customerEmail: guest.email,
+            customerName: guest.name,
+            orderData: emailData.orderData,
+            checkoutType: 'Guest checkout'
+          });
+          if (adminEmailResult.success) {
+            console.log('✅ Admin new guest order email sent successfully');
+          } else {
+            console.error('❌ Failed to send admin new guest order email:', adminEmailResult.error);
+          }
         }
       } catch (emailError) {
         console.error('Guest order confirmation email error:', emailError);

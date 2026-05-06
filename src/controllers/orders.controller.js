@@ -120,13 +120,14 @@ const place = async (req, res) => {
     const orderItems = [];
 
     for (const item of cart.items) {
-      const product = await Order.getProductWithVariant(item.productId, item.variant.id);
+      const variantId = item.variant?.id || null;
+      const product = await Order.getProductWithVariant(item.productId, variantId);
       if (!product) {
         return res.status(400).json(responses.error('PRODUCT_NOT_FOUND', `Product not found: ${item.productId}`));
       }
 
       // Check stock
-      const availableStock = item.variant.id ? product.variant_stock : product.stock;
+      const availableStock = variantId ? product.variant_stock : product.stock;
       if (availableStock < item.quantity) {
         return res.status(400).json(responses.error('INSUFFICIENT_STOCK', `Insufficient stock for product: ${product.name}`));
       }
@@ -137,7 +138,7 @@ const place = async (req, res) => {
 
       orderItems.push({
         product_id: item.productId,
-        variant_id: item.variant.id,
+        variant_id: variantId,
         quantity: item.quantity,
         unit_price: unitPrice
       });

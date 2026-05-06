@@ -2,6 +2,18 @@ const config = require('../config/env');
 const Joi = require('joi');
 const { positiveInt, money } = require('./common');
 
+const cartItemVariantSchema = Joi.object({
+  id: Joi.number().integer().min(0).allow(null).required(),
+  product_id: positiveInt.required(),
+  sku: Joi.string().allow('').required(),
+  extra_price: Joi.string().required(),
+  stock: Joi.number().integer().min(0).required(),
+  size: Joi.string().allow(''),
+  color_name: Joi.string().allow(''),
+  color_code: Joi.string().allow(''),
+  color_image: Joi.string().allow('')
+}).required();
+
 exports.createPaymentIntent = Joi.object({
   amount: Joi.number().min(0.01).required(),
   currency: Joi.string().length(3).default(config.currency.default),
@@ -17,17 +29,7 @@ exports.processPayment = Joi.object({
       price: Joi.string().required(),
       quantity: Joi.number().integer().min(1).required(),
       image: Joi.string().uri().required(),
-      variant: Joi.object({
-        id: positiveInt.required(),
-        product_id: positiveInt.required(),
-        sku: Joi.string().required(),
-        extra_price: Joi.string().required(),
-        stock: Joi.number().integer().min(0).required(),
-        size: Joi.string().allow(''),
-        color_name: Joi.string().allow(''),
-        color_code: Joi.string().allow(''),
-        color_image: Joi.string().allow('')
-      }).required(),
+      variant: cartItemVariantSchema,
       selectedColor: Joi.string().allow(''),
       selectedSize: Joi.string().allow(''),
       stock: Joi.number().integer().min(0).required()
@@ -100,17 +102,7 @@ const guestCartSchema = Joi.object({
     price: Joi.string().required(),
     quantity: Joi.number().integer().min(1).required(),
     image: Joi.string().uri().required(),
-    variant: Joi.object({
-      id: positiveInt.required(),
-      product_id: positiveInt.required(),
-      sku: Joi.string().required(),
-      extra_price: Joi.string().required(),
-      stock: Joi.number().integer().min(0).required(),
-      size: Joi.string().allow(''),
-      color_name: Joi.string().allow(''),
-      color_code: Joi.string().allow(''),
-      color_image: Joi.string().allow('')
-    }).required(),
+    variant: cartItemVariantSchema,
     selectedColor: Joi.string().allow(''),
     selectedSize: Joi.string().allow(''),
     stock: Joi.number().integer().min(0).required()

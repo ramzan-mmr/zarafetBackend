@@ -58,9 +58,9 @@ module.exports = {
 
   // Shipping Configuration
   pricing: {
-    ukShippingCost: parseFloat(process.env.UK_SHIPPING_COST) || 6.99,
+    ukShippingCost: parseFloat(process.env.UK_SHIPPING_COST) || 0,
     internationalShippingCost: parseFloat(process.env.INTERNATIONAL_SHIPPING_COST) || 14.99,
-    defaultShippingCost: parseFloat(process.env.DEFAULT_SHIPPING_COST) || 6.99, // Default to UK
+    defaultShippingCost: parseFloat(process.env.DEFAULT_SHIPPING_COST) || 0, // Default to UK
     freeShippingThreshold: parseFloat(process.env.FREE_SHIPPING_THRESHOLD) || 10000000000000
   },
 
@@ -68,6 +68,11 @@ module.exports = {
   smtp: {
     email: process.env.SMTP_EMAIL,
     password: process.env.SMTP_PASSWORD
+  },
+
+  // Admin Notification Configuration
+  admin: {
+    email: process.env.ADMIN_EMAIL || 'info@zarafet.uk'
   },
 
   // Currency Configuration
