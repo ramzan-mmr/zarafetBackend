@@ -9,7 +9,7 @@ const getEmailFooter = () => {
 Thank you for choosing Zarafet — Effortlessly Refined
 
 Team Zarafet:
-WhatsApp: +447494930922
+WhatsApp: +447590551586
 Website: zarafet.uk
 Instagram: @zarafet.uk
 TikTok: @zarafet.uk
@@ -22,7 +22,7 @@ const getEmailFooterHTML = () => {
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e9ecef; color: #333; font-size: 14px; line-height: 1.8;">
             <p style="margin: 0 0 15px 0;">Thank you for choosing Zarafet — Effortlessly Refined</p>
             <p style="margin: 0 0 10px 0; font-weight: 600;">Team Zarafet:</p>
-            <p style="margin: 2px 0;">WhatsApp: +447494930922</p>
+            <p style="margin: 2px 0;">WhatsApp: +447590551586</p>
             <p style="margin: 2px 0;">Website: <a href="https://zarafet.uk" style="color: #333; text-decoration: none;">zarafet.uk</a></p>
             <p style="margin: 2px 0;">Instagram: <a href="https://instagram.com/zarafet.uk" style="color: #333; text-decoration: none;">@zarafet.uk</a></p>
             <p style="margin: 2px 0;">TikTok: <a href="https://tiktok.com/@zarafet.uk" style="color: #333; text-decoration: none;">@zarafet.uk</a></p>

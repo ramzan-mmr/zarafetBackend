@@ -195,16 +195,16 @@ class Product {
     // Add default values for product information sections for each product
     const productsWithDefaults = rows.map(product => {
       if (!product.materials_care) {
-        product.materials_care = 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.';
+        product.materials_care = 'DRY CLEAN ONLY';
       }
       if (!product.delivery_returns) {
-        product.delivery_returns = 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..';
+        product.delivery_returns = 'Free UK delivery is available on all orders, with international shipping available for £14.99. Customers may also choose our click and collect service from our studio in Bolton for added convenience. Once your order has been placed , please contact us to arrange a suitable collection date and time.';
       }
       if (!product.return_exchanges) {
-        product.return_exchanges = 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.';
+        product.return_exchanges = '<p>We hope you love your purchase from Zarafet. However, if you are not completely satisfied, you may return your item(s) within 7 days of receiving your order. Please contact us at info@zarafet.com with your order number and reason for return.</p><ul><li>Items must be unworn, unused, original tags attached.</li><li>Return postage is non-refundable and must be sent within 7 days of delivery unless the item is faulty.</li><li>Sale items, accessories, and customised items are non-refundable.</li><li>Once your return has been received and inspected, refunds will be processed to the original payment method within 5-10 working days.</li></ul>';
       }
       if (!product.contact_info) {
-        product.contact_info = 'For any questions about this product, please contact our customer service team at info@zarafet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.';
+        product.contact_info = 'For any questions regarding this product, please contact our customer service team at info@zarafet.com or message us on WhatsApp at 07590551586. Please allow up to 48 hours for a response.';
       }
       return product;
     });
@@ -262,16 +262,16 @@ class Product {
     
     // Add default values for product information sections if they are empty
     if (!product.materials_care) {
-      product.materials_care = 'This product is made from high-quality materials. Please follow the care instructions on the label for best results. Machine wash cold, gentle cycle. Do not bleach. Tumble dry low or hang to dry. Iron on low heat if needed.';
+      product.materials_care = 'DRY CLEAN ONLY';
     }
     if (!product.delivery_returns) {
-      product.delivery_returns = 'We offer reliable delivery services across the UK at a flat rate of £6.99, with international delivery available for £14.99. Customers may also choose self-collection from our studio in Bolton for added convenience..';
+      product.delivery_returns = 'Free UK delivery is available on all orders, with international shipping available for £14.99. Customers may also choose our click and collect service from our studio in Bolton for added convenience. Once your order has been placed , please contact us to arrange a suitable collection date and time.';
     }
     if (!product.return_exchanges) {
-      product.return_exchanges = 'We accept returns and exchanges within 30 days of purchase. Items must be unworn, unwashed, and in original condition with all tags attached. Refunds will be processed within 5-7 business days after we receive your return.';
+      product.return_exchanges = '<p>We hope you love your purchase from Zarafet. However, if you are not completely satisfied, you may return your item(s) within 7 days of receiving your order. Please contact us at info@zarafet.com with your order number and reason for return.</p><ul><li>Items must be unworn, unused, original tags attached.</li><li>Return postage is non-refundable and must be sent within 7 days of delivery unless the item is faulty.</li><li>Sale items, accessories, and customised items are non-refundable.</li><li>Once your return has been received and inspected, refunds will be processed to the original payment method within 5-10 working days.</li></ul>';
     }
     if (!product.contact_info) {
-      product.contact_info = 'For any questions about this product, please contact our customer service team at info@zarafet.com or call us at +44 20 1234 5678. We are available Monday-Friday 9AM-6PM GMT.';
+      product.contact_info = 'For any questions regarding this product, please contact our customer service team at info@zarafet.com or message us on WhatsApp at 07590551586. Please allow up to 48 hours for a response.';
     }
     
     return product;
