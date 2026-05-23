@@ -85,6 +85,7 @@ jobs:
           fi
 
           echo "Deployment configuration looks okay."
+          echo "App path: $APP_PATH"
 
       # ================= SETUP SSH KEY =================
       - name: Setup SSH Key
@@ -101,15 +102,13 @@ jobs:
           echo "Public key fingerprint:"
           ssh-keygen -lf ~/.ssh/deploy_key.pub
 
-      # ================= TEST SSH PORT =================
-      - name: Test SSH Port
+      # ================= TEST SSH CONNECTION =================
+      - name: Test SSH Connection
         run: |
           echo "Testing SSH port..."
           nc -vz "$SSH_HOST" "$SSH_PORT"
 
-      # ================= TEST SSH CONNECTION =================
-      - name: Test SSH Connection
-        run: |
+          echo "Testing SSH login..."
           ssh -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
             -o BatchMode=yes \
@@ -123,16 +122,67 @@ jobs:
             "$SSH_USER@$SSH_HOST" \
             "pwd && echo 'SSH CONNECTION SUCCESS'"
 
-      # ================= CREATE DEPLOY PACKAGE =================
-      - name: Create Deploy Package
+      # ================= CREATE DEPLOY MARKER =================
+      - name: Create Deploy Marker
         run: |
-          echo "Creating deployment package..."
-
-          rm -f /tmp/deploy.tar.gz
-          rm -f DEPLOY_VERSION.txt
-
           echo "Deploy commit: $GITHUB_SHA" > DEPLOY_VERSION.txt
-          echo "Deploy time: $(date -u)" >> DEPLOY_VERSION.txt
+          echo "Deploy time UTC: $(date -u)" >> DEPLOY_VERSION.txt
+          echo "GitHub run id: $GITHUB_RUN_ID" >> DEPLOY_VERSION.txt
+          echo "GitHub run attempt: $GITHUB_RUN_ATTEMPT" >> DEPLOY_VERSION.txt
+
+      # ================= PREPARE REMOTE APP FOLDER =================
+      - name: Prepare Remote App Folder
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            "$SSH_USER@$SSH_HOST" << EOF
+              set -e
+
+              mkdir -p "$APP_PATH"
+              mkdir -p "$APP_PATH/uploads"
+              mkdir -p "$APP_PATH/logs"
+              mkdir -p "$APP_PATH/tmp"
+
+              cd "$APP_PATH"
+
+              echo "Remote app folder:"
+              pwd
+
+              echo "Removing old temporary package files if any..."
+              rm -f deploy.tar.gz
+              rm -f deploy_*.tar.gz
+
+              echo "Cleaning old app files but keeping protected live files/folders..."
+
+              find . -mindepth 1 -maxdepth 1 \
+                ! -name 'uploads' \
+                ! -name 'logs' \
+                ! -name 'node_modules' \
+                ! -name 'tmp' \
+                ! -name '.env' \
+                ! -name '.htaccess' \
+                ! -name 'migrations' \
+                ! -name 'database' \
+                ! -name 'scripts' \
+                ! -name 'postman' \
+                -exec rm -rf {} +
+
+              echo "Remote folder prepared."
+          EOF
+
+      # ================= DEPLOY BY TAR STREAM =================
+      - name: Deploy Code Without Uploading Zip
+        run: |
+          echo "Deploying code directly through SSH stream..."
+          echo "No deploy.tar.gz will be saved on server."
 
           tar \
             --exclude='./.git' \
@@ -160,48 +210,22 @@ jobs:
             --exclude='./.cursor' \
             --exclude='./.cursor/**' \
             --exclude='./.DS_Store' \
-            --exclude='./deploy.tar.gz' \
-            --exclude='./DEPLOY_VERSION.txt.tmp' \
-            -czf /tmp/deploy.tar.gz .
+            --exclude='./deploy*.tar.gz' \
+            -czf - . | ssh -i ~/.ssh/deploy_key \
+              -p "$SSH_PORT" \
+              -o BatchMode=yes \
+              -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -o PubkeyAuthentication=yes \
+              -o PreferredAuthentications=publickey \
+              -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+              -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+              "$SSH_USER@$SSH_HOST" \
+              "cd '$APP_PATH' && tar -xzf -"
 
-          echo "Package created:"
-          ls -lh /tmp/deploy.tar.gz
-
-      # ================= PREPARE REMOTE APP FOLDER =================
-      - name: Prepare Remote App Folder
-        run: |
-          ssh -i ~/.ssh/deploy_key \
-            -p "$SSH_PORT" \
-            -o BatchMode=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o PubkeyAuthentication=yes \
-            -o PreferredAuthentications=publickey \
-            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            "$SSH_USER@$SSH_HOST" \
-            "mkdir -p '$APP_PATH' && mkdir -p '$APP_PATH/uploads' && mkdir -p '$APP_PATH/logs' && mkdir -p '$APP_PATH/tmp'"
-
-      # ================= UPLOAD PACKAGE VIA SCP =================
-      - name: Upload Package
-        run: |
-          scp \
-            -P "$SSH_PORT" \
-            -i ~/.ssh/deploy_key \
-            -o BatchMode=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o PubkeyAuthentication=yes \
-            -o PreferredAuthentications=publickey \
-            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            /tmp/deploy.tar.gz \
-            "$SSH_USER@$SSH_HOST:$APP_PATH/deploy.tar.gz"
-
-      # ================= EXTRACT PACKAGE SAFELY =================
-      - name: Extract Package Safely
+      # ================= VERIFY EXTRACT =================
+      - name: Verify Extracted Files
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
@@ -218,44 +242,29 @@ jobs:
 
               cd "$APP_PATH"
 
-              echo "Current remote folder:"
-              pwd
-
-              echo "Before deploy:"
+              echo "Files after deploy:"
               ls -la
 
-              echo "Cleaning old app files but keeping protected live folders/files..."
+              echo "Checking protected files/folders:"
+              test -d uploads && echo "uploads folder exists"
+              test -d logs && echo "logs folder exists"
+              test -d tmp && echo "tmp folder exists"
+              test -f .htaccess && echo ".htaccess exists"
+              test -f .env && echo ".env exists"
 
-              find . -mindepth 1 -maxdepth 1 \
-                ! -name 'uploads' \
-                ! -name 'logs' \
-                ! -name 'node_modules' \
-                ! -name 'tmp' \
-                ! -name '.env' \
-                ! -name '.htaccess' \
-                ! -name 'deploy.tar.gz' \
-                ! -name 'migrations' \
-                ! -name 'database' \
-                ! -name 'scripts' \
-                ! -name 'postman' \
-                -exec rm -rf {} +
+              echo "Checking deployment marker:"
+              if [ ! -f DEPLOY_VERSION.txt ]; then
+                echo "ERROR: DEPLOY_VERSION.txt not found. Code was not deployed."
+                exit 1
+              fi
 
-              echo "Extracting new code..."
-              tar -xzf deploy.tar.gz
+              cat DEPLOY_VERSION.txt
 
-              echo "Removing deploy package..."
+              echo "Removing any old package files if they exist..."
               rm -f deploy.tar.gz
+              rm -f deploy_*.tar.gz
 
-              echo "Making sure protected folders still exist..."
-              mkdir -p uploads
-              mkdir -p logs
-              mkdir -p tmp
-
-              echo "After deploy:"
-              ls -la
-
-              echo "Deployment version:"
-              cat DEPLOY_VERSION.txt || true
+              echo "Verification completed successfully."
           EOF
 
       # ================= INSTALL DEPENDENCIES AND RESTART =================
@@ -279,7 +288,7 @@ jobs:
               echo "Current directory:"
               pwd
 
-              echo "Checking package files..."
+              echo "Checking package files:"
               ls -la package.json package-lock.json || true
 
               echo "Installing production dependencies..."
@@ -306,42 +315,7 @@ jobs:
               selectorctl --restart --user "$SSH_USER" --app-root "$APP_PATH" || \
               echo "Restart command finished or not supported."
 
-              echo "Backend deployment completed."
-          EOF
-
-      # ================= VERIFY REMOTE DEPLOY =================
-      - name: Verify Remote Deploy
-        run: |
-          ssh -i ~/.ssh/deploy_key \
-            -p "$SSH_PORT" \
-            -o BatchMode=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o PubkeyAuthentication=yes \
-            -o PreferredAuthentications=publickey \
-            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            "$SSH_USER@$SSH_HOST" << EOF
-              set -e
-
-              cd "$APP_PATH"
-
-              echo "Final remote files:"
-              ls -la
-
-              echo "Checking protected files/folders:"
-              test -d uploads && echo "uploads folder exists"
-              test -f .htaccess && echo ".htaccess exists"
-              test -f .env && echo ".env exists"
-              test -f DEPLOY_VERSION.txt && cat DEPLOY_VERSION.txt
-
-              if [ -f deploy.tar.gz ]; then
-                echo "WARNING: deploy.tar.gz still exists. Removing it now..."
-                rm -f deploy.tar.gz
-              fi
-
-              echo "Verification completed."
+              echo "Backend restart step completed."
           EOF
 
       # ================= DONE =================
