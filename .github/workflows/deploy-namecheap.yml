@@ -31,18 +31,15 @@ jobs:
       APP_PATH: ${{ secrets.NAMECHEAP_APP_PATH }}
 
     steps:
-      # ================= CHECKOUT CODE =================
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ================= SETUP NODE =================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
 
-      # ================= VALIDATE SECRETS =================
       - name: Validate Deploy Secrets
         run: |
           echo "Validating deployment configuration..."
@@ -87,7 +84,6 @@ jobs:
           echo "Deployment configuration looks okay."
           echo "App path: $APP_PATH"
 
-      # ================= SETUP SSH KEY =================
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -102,7 +98,6 @@ jobs:
           echo "Public key fingerprint:"
           ssh-keygen -lf ~/.ssh/deploy_key.pub
 
-      # ================= TEST SSH CONNECTION =================
       - name: Test SSH Connection
         run: |
           echo "Testing SSH port..."
@@ -122,7 +117,6 @@ jobs:
             "$SSH_USER@$SSH_HOST" \
             "cd '$APP_PATH' && pwd && echo 'SSH CONNECTION SUCCESS'"
 
-      # ================= CREATE DEPLOY VERSION FILE =================
       - name: Create Deploy Version File
         run: |
           echo "Deploy commit: $GITHUB_SHA" > DEPLOY_VERSION.txt
@@ -130,8 +124,7 @@ jobs:
           echo "GitHub run id: $GITHUB_RUN_ID" >> DEPLOY_VERSION.txt
           echo "GitHub run attempt: $GITHUB_RUN_ATTEMPT" >> DEPLOY_VERSION.txt
 
-      # ================= PREPARE REMOTE FOLDERS =================
-      - name: Prepare Remote Folders
+      - name: Prepare Remote Folder
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
@@ -149,15 +142,11 @@ jobs:
               mkdir -p "$APP_PATH"
               cd "$APP_PATH"
 
-              echo "Remote app path:"
-              pwd
-
-              echo "Creating protected folders if missing..."
               mkdir -p uploads
               mkdir -p logs
               mkdir -p tmp
 
-              echo "Cleaning old code files but keeping protected files/folders..."
+              echo "Cleaning old code but keeping protected files/folders..."
 
               find . -mindepth 1 -maxdepth 1 \
                 ! -name 'uploads' \
@@ -166,108 +155,43 @@ jobs:
                 ! -name 'tmp' \
                 ! -name '.env' \
                 ! -name '.htaccess' \
-                ! -name 'migrations' \
-                ! -name 'database' \
-                ! -name 'scripts' \
-                ! -name 'postman' \
                 -exec rm -rf {} +
 
               echo "Remote folder prepared."
           EOF
 
-      # ================= DEPLOY ROOT FILES =================
-      - name: Deploy Root Files
+      - name: Deploy Files and Folders via SCP
         run: |
-          echo "Deploying root files..."
+          echo "Deploying files and folders via SCP..."
 
-          for file in *; do
-            if [ -f "$file" ]; then
-              case "$file" in
-                *.sql|*.md|.env|.htaccess|deploy.tar.gz|DEPLOY_VERSION.txt.tmp)
-                  echo "Skipping protected/excluded file: $file"
-                  ;;
-                *)
-                  echo "Uploading file: $file"
-                  scp \
-                    -P "$SSH_PORT" \
-                    -i ~/.ssh/deploy_key \
-                    -o BatchMode=yes \
-                    -o IdentitiesOnly=yes \
-                    -o StrictHostKeyChecking=no \
-                    -o UserKnownHostsFile=/dev/null \
-                    -o PubkeyAuthentication=yes \
-                    -o PreferredAuthentications=publickey \
-                    -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-                    -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-                    "$file" \
-                    "$SSH_USER@$SSH_HOST:$APP_PATH/$file"
-                  ;;
-              esac
+          for item in * .[^.]*; do
+            if [ ! -e "$item" ]; then
+              continue
             fi
+
+            case "$item" in
+              .|..|.git|.github|node_modules|uploads|logs|tmp|.env|.htaccess|.cursor|*.sql|*.md)
+                echo "Skipping protected/excluded item: $item"
+                ;;
+              *)
+                echo "Uploading item: $item"
+                scp -r \
+                  -P "$SSH_PORT" \
+                  -i ~/.ssh/deploy_key \
+                  -o BatchMode=yes \
+                  -o IdentitiesOnly=yes \
+                  -o StrictHostKeyChecking=no \
+                  -o UserKnownHostsFile=/dev/null \
+                  -o PubkeyAuthentication=yes \
+                  -o PreferredAuthentications=publickey \
+                  -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+                  -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+                  "$item" \
+                  "$SSH_USER@$SSH_HOST:$APP_PATH/"
+                ;;
+            esac
           done
 
-          echo "Uploading DEPLOY_VERSION.txt"
-          scp \
-            -P "$SSH_PORT" \
-            -i ~/.ssh/deploy_key \
-            -o BatchMode=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o PubkeyAuthentication=yes \
-            -o PreferredAuthentications=publickey \
-            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            DEPLOY_VERSION.txt \
-            "$SSH_USER@$SSH_HOST:$APP_PATH/DEPLOY_VERSION.txt"
-
-      # ================= DEPLOY SRC FOLDER =================
-      - name: Deploy Src Folder
-        run: |
-          if [ -d "src" ]; then
-            echo "Deploying src folder..."
-
-            scp -r \
-              -P "$SSH_PORT" \
-              -i ~/.ssh/deploy_key \
-              -o BatchMode=yes \
-              -o IdentitiesOnly=yes \
-              -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null \
-              -o PubkeyAuthentication=yes \
-              -o PreferredAuthentications=publickey \
-              -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-              -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-              src \
-              "$SSH_USER@$SSH_HOST:$APP_PATH/"
-          else
-            echo "No src folder found."
-          fi
-
-      # ================= DEPLOY OTHER SAFE FOLDERS =================
-      - name: Deploy Other Safe Folders
-        run: |
-          for dir in config controllers middlewares models routes services utils validators helpers public; do
-            if [ -d "$dir" ]; then
-              echo "Deploying folder: $dir"
-
-              scp -r \
-                -P "$SSH_PORT" \
-                -i ~/.ssh/deploy_key \
-                -o BatchMode=yes \
-                -o IdentitiesOnly=yes \
-                -o StrictHostKeyChecking=no \
-                -o UserKnownHostsFile=/dev/null \
-                -o PubkeyAuthentication=yes \
-                -o PreferredAuthentications=publickey \
-                -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-                -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-                "$dir" \
-                "$SSH_USER@$SSH_HOST:$APP_PATH/"
-            fi
-          done
-
-      # ================= VERIFY DEPLOY =================
       - name: Verify Deploy
         run: |
           ssh -i ~/.ssh/deploy_key \
@@ -303,14 +227,9 @@ jobs:
 
               cat DEPLOY_VERSION.txt
 
-              echo "Removing old package files if any..."
-              rm -f deploy.tar.gz
-              rm -f deploy_*.tar.gz
-
               echo "Verification completed."
           EOF
 
-      # ================= INSTALL DEPENDENCIES AND RESTART =================
       - name: Restart Node.js App
         run: |
           ssh -i ~/.ssh/deploy_key \
@@ -350,6 +269,5 @@ jobs:
               echo "Restart commands finished."
           EOF
 
-      # ================= DONE =================
       - name: Deployment Complete
         run: echo "Node.js backend deployment completed successfully"
