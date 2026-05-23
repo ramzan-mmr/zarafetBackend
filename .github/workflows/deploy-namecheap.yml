@@ -128,12 +128,19 @@ jobs:
         run: |
           echo "Creating deployment package..."
 
+          echo "Deploy commit: $GITHUB_SHA" > DEPLOY_VERSION.txt
+          echo "Deploy time: $(date -u)" >> DEPLOY_VERSION.txt
+
           tar \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='node_modules' \
             --exclude='uploads' \
             --exclude='uploads/**' \
+            --exclude='logs' \
+            --exclude='logs/**' \
+            --exclude='tmp' \
+            --exclude='tmp/**' \
             --exclude='migrations' \
             --exclude='migrations/**' \
             --exclude='database' \
@@ -146,6 +153,7 @@ jobs:
             --exclude='*.md' \
             --exclude='.env' \
             --exclude='.env.*' \
+            --exclude='.htaccess' \
             --exclude='.cursor' \
             --exclude='.cursor/**' \
             --exclude='.DS_Store' \
@@ -169,7 +177,7 @@ jobs:
             -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             "$SSH_USER@$SSH_HOST" \
-            "mkdir -p '$APP_PATH' && mkdir -p '$APP_PATH/uploads' && mkdir -p '$APP_PATH/tmp'"
+            "mkdir -p '$APP_PATH' && mkdir -p '$APP_PATH/uploads' && mkdir -p '$APP_PATH/logs' && mkdir -p '$APP_PATH/tmp'"
 
       # ================= UPLOAD PACKAGE VIA SCP =================
       - name: Upload Package
@@ -206,10 +214,17 @@ jobs:
 
               cd "$APP_PATH"
 
-              echo "Cleaning old app files but keeping important folders..."
+              echo "Current remote folder:"
+              pwd
+
+              echo "Before deploy:"
+              ls -la
+
+              echo "Cleaning old app files but keeping important live folders/files..."
 
               find . -mindepth 1 -maxdepth 1 \
                 ! -name 'uploads' \
+                ! -name 'logs' \
                 ! -name 'node_modules' \
                 ! -name 'tmp' \
                 ! -name '.env' \
@@ -221,18 +236,22 @@ jobs:
                 ! -name 'postman' \
                 -exec rm -rf {} +
 
-              echo "Extracting new files..."
+              echo "Extracting new code..."
               tar -xzf deploy.tar.gz
 
               echo "Removing deploy package..."
               rm -f deploy.tar.gz
 
-              echo "Making sure uploads folder still exists..."
+              echo "Making sure protected folders still exist..."
               mkdir -p uploads
+              mkdir -p logs
               mkdir -p tmp
 
-              echo "Remote files after deploy:"
+              echo "After deploy:"
               ls -la
+
+              echo "Deployment version:"
+              cat DEPLOY_VERSION.txt || true
           EOF
 
       # ================= INSTALL DEPENDENCIES AND RESTART =================
@@ -255,6 +274,9 @@ jobs:
 
               echo "Current directory:"
               pwd
+
+              echo "Checking package files..."
+              ls -la package.json package-lock.json || true
 
               echo "Installing production dependencies..."
 
@@ -281,6 +303,41 @@ jobs:
               echo "Restart command finished or not supported."
 
               echo "Backend deployment completed."
+          EOF
+
+      # ================= VERIFY REMOTE DEPLOY =================
+      - name: Verify Remote Deploy
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            "$SSH_USER@$SSH_HOST" << EOF
+              set -e
+
+              cd "$APP_PATH"
+
+              echo "Final remote files:"
+              ls -la
+
+              echo "Checking protected files/folders:"
+              test -d uploads && echo "uploads folder exists"
+              test -f .htaccess && echo ".htaccess exists"
+              test -f .env && echo ".env exists"
+              test -f DEPLOY_VERSION.txt && cat DEPLOY_VERSION.txt
+
+              if [ -f deploy.tar.gz ]; then
+                echo "WARNING: deploy.tar.gz still exists. Removing it now..."
+                rm -f deploy.tar.gz
+              fi
+
+              echo "Verification completed."
           EOF
 
       # ================= DONE =================
