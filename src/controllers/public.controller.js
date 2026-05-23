@@ -8,7 +8,6 @@ const PublicModule = require('../models/public.module');
 const OTP = require('../models/OTP.model');
 const jwt = require('../config/jwt');
 const db = require('../config/db');
-const { generateCode } = require('../utils/sql');
 const { sendEmail, sendOTPVerificationEmail, sendPasswordResetEmail, sendContactEmail, sendSubscriptionConfirmation } = require('../services/email.service');
 const Banner = require('../models/Banner.model');
 const DiscountPopup = require('../models/DiscountPopup.model');
@@ -1279,7 +1278,7 @@ const createReview = async (req, res) => {
 
     if (existingReview.length > 0) {
       // Get order code for better error message
-      const orderCode = order.code || generateCode('ORD', order_id);
+      const orderCode = order.code || 'Unavailable';
       const existingReviewData = existingReview[0];
       const reviewDate = new Date(existingReviewData.created_at).toLocaleDateString();
       
@@ -1307,7 +1306,7 @@ const createReview = async (req, res) => {
         all_reviews_for_product: allProductReviews.map(r => ({
           id: r.id,
           order_id: r.order_id,
-          order_code: r.order_code || generateCode('ORD', r.order_id),
+          order_code: r.order_code || 'Unavailable',
           rating: r.rating,
           created_at: r.created_at
         }))
@@ -1316,8 +1315,8 @@ const createReview = async (req, res) => {
 
     // Create the review
     const [result] = await db.execute(
-      `INSERT INTO reviews (user_id, product_id, order_id, rating, comment, status, created_at, updated_at) 
-       VALUES (?, ?, ?, ?, ?, 'Active', NOW(), NOW())`,
+      `INSERT INTO reviews (user_id, product_id, order_id, rating, comment, status, source, created_at, updated_at) 
+       VALUES (?, ?, ?, ?, ?, 'Active', 'real', NOW(), NOW())`,
       [user_id, product_id, order_id, rating, comment || null]
     );
 
@@ -1436,15 +1435,19 @@ const deleteReview = async (req, res) => {
 const getProductReviews = async (req, res) => {
   try {
     const { product_id } = req.params;
+    console.log("reviews",product_id)
     const { page = 1, limit = 10 } = req.query;
 
     const offset = (page - 1) * limit;
 
-    // Get reviews with user information
+    // Get real customer reviews and admin-created manual reviews together.
     const [reviews] = await db.execute(
-      `SELECT r.*, u.name as user_name, u.email as user_email
+      `SELECT r.*,
+              COALESCE(r.reviewer_name, u.name, 'Anonymous') as user_name,
+              u.email as user_email,
+              CASE WHEN r.source = 'real' THEN 1 ELSE 0 END as verified
        FROM reviews r
-       JOIN users u ON r.user_id = u.id
+       LEFT JOIN users u ON r.user_id = u.id
        WHERE r.product_id = ? AND r.status = 'Active'
        ORDER BY r.created_at DESC
        LIMIT ? OFFSET ?`,

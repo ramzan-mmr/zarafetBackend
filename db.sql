@@ -831,12 +831,14 @@ INSERT INTO `recently_viewed` (`id`, `user_id`, `product_id`, `viewed_at`) VALUE
 
 CREATE TABLE `reviews` (
   `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
   `product_id` int(11) NOT NULL,
-  `order_id` int(11) NOT NULL,
+  `order_id` int(11) DEFAULT NULL,
+  `reviewer_name` varchar(120) DEFAULT NULL,
   `rating` tinyint(4) NOT NULL CHECK (`rating` >= 1 and `rating` <= 5),
   `comment` text DEFAULT NULL,
   `status` enum('Active','Inactive') DEFAULT 'Active',
+  `source` enum('real','manual') NOT NULL DEFAULT 'real',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1192,7 +1194,9 @@ ALTER TABLE `reviews`
   ADD KEY `idx_product_id` (`product_id`),
   ADD KEY `idx_user_id` (`user_id`),
   ADD KEY `idx_order_id` (`order_id`),
-  ADD KEY `idx_status` (`status`);
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_reviews_source` (`source`),
+  ADD KEY `idx_reviews_product_source_status` (`product_id`,`source`,`status`);
 
 --
 -- Indexes for table `roles`

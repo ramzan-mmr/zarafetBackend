@@ -24,6 +24,7 @@ const categoriesRoutes = require('./src/routes/categories.routes');
 const promoCodeRoutes = require('./src/routes/promoCode.routes');
 const bannerRoutes = require('./src/routes/banner.routes');
 const discountPopupRoutes = require('./src/routes/discountPopup.routes');
+const reviewsRoutes = require('./src/routes/reviews.routes');
 
 const app = express();
 
@@ -204,6 +205,7 @@ app.use('/categories', categoriesRoutes);
 app.use('/promo-codes', promoCodeRoutes);
 app.use('/banners', bannerRoutes);
 app.use('/discount-popups', discountPopupRoutes);
+app.use('/reviews', reviewsRoutes);
 
 // 404 handler - Express 5 compatible
 app.use((req, res) => {
@@ -286,4 +288,3 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 module.exports = { app, server };
-

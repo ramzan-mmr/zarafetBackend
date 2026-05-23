@@ -1,7 +1,36 @@
 const db = require('../config/db');
-const { generateCode } = require('../utils/sql');
+const crypto = require('crypto');
+
+const ORDER_CODE_PREFIX = 'ORD';
+const ORDER_CODE_LENGTH = 8;
+const ORDER_CODE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const ORDER_CODE_MAX_ATTEMPTS = 10;
 
 class Order {
+  static generateRandomOrderCode() {
+    let suffix = '';
+    for (let i = 0; i < ORDER_CODE_LENGTH; i += 1) {
+      suffix += ORDER_CODE_CHARS[crypto.randomInt(ORDER_CODE_CHARS.length)];
+    }
+    return `${ORDER_CODE_PREFIX}-${suffix}`;
+  }
+
+  static async generateUniqueOrderCode(connection) {
+    for (let attempt = 0; attempt < ORDER_CODE_MAX_ATTEMPTS; attempt += 1) {
+      const code = this.generateRandomOrderCode();
+      const [existingRows] = await connection.execute(
+        'SELECT id FROM orders WHERE code = ? LIMIT 1',
+        [code]
+      );
+
+      if (existingRows.length === 0) {
+        return code;
+      }
+    }
+
+    throw new Error('Unable to generate a unique order code');
+  }
+
   static async create(orderData) {
     console.log('🏗️ Order.create() called with data:', {
       user_id: orderData.user_id,
@@ -72,7 +101,7 @@ class Order {
 
       // Get initial status (set default to "Processing")
       console.log('🔍 Looking up order status...');
-      const [statusRows] = await connection.execute(
+      let [statusRows] = await connection.execute(
         'SELECT id FROM lookup_values WHERE header_id = (SELECT id FROM lookup_headers WHERE name = "Order Status") AND value = "Processing"'
       );
       if (!statusRows[0]) {
@@ -104,22 +133,34 @@ class Order {
         total: total
       });
       
-      const [orderResult] = await connection.execute(
-        `INSERT INTO orders (user_id, status_value_id, payment_method_value_id, subtotal, tax, shipping, total, payment_id, payment_status, promo_code_id, discount_amount, promo_code_used) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [user_id, status_value_id, payment_method_value_id, subtotal, tax, shipping, total, payment_id, payment_id ? 'paid' : 'pending', promoCodeId, discountAmount, promoCodeUsed]
-      );
+      let orderResult;
+      let code;
+
+      for (let attempt = 0; attempt < ORDER_CODE_MAX_ATTEMPTS; attempt += 1) {
+        code = await this.generateUniqueOrderCode(connection);
+
+        try {
+          [orderResult] = await connection.execute(
+            `INSERT INTO orders (code, user_id, status_value_id, payment_method_value_id, subtotal, tax, shipping, total, payment_id, payment_status, promo_code_id, discount_amount, promo_code_used) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [code, user_id, status_value_id, payment_method_value_id, subtotal, tax, shipping, total, payment_id, payment_id ? 'paid' : 'pending', promoCodeId, discountAmount, promoCodeUsed]
+          );
+          break;
+        } catch (error) {
+          if (error.code === 'ER_DUP_ENTRY' && error.message?.includes('code')) {
+            console.warn(`⚠️ Order code collision detected, retrying (${attempt + 1}/${ORDER_CODE_MAX_ATTEMPTS})`);
+            continue;
+          }
+          throw error;
+        }
+      }
+
+      if (!orderResult) {
+        throw new Error('Unable to create order with a unique order code');
+      }
 
       const orderId = orderResult.insertId;
       console.log(`✅ Order record created with ID: ${orderId}`);
-
-      // Generate order code
-      console.log('🔢 Generating order code...');
-      const code = generateCode('ORD', orderId);
-      await connection.execute(
-        'UPDATE orders SET code = ? WHERE id = ?',
-        [code, orderId]
-      );
       console.log(`✅ Order code generated: ${code}`);
 
       // Create order items and update stock

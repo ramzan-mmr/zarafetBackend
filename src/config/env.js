@@ -72,7 +72,7 @@ module.exports = {
 
   // Admin Notification Configuration
   admin: {
-    email: process.env.ADMIN_EMAIL || 'info@zarafet.uk'
+    email: process.env.ADMIN_EMAIL || 'mianmuhammadramzan99@gmail.com'
   },
 
   // Currency Configuration
