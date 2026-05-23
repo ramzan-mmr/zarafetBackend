@@ -6,10 +6,31 @@ on:
       - main
     paths-ignore:
       - 'uploads/**'
+      - 'database/**'
+      - 'migrations/**'
+      - 'scripts/**'
+      - 'node_modules/**'
+      - 'logs/**'
+      - 'tmp/**'
       - '.env'
       - '.env.*'
+      - '.htaccess'
+      - '.gitignore'
+      - 'env.example'
+      - 'db.sql'
+      - 'dbsql'
+      - 'dbSchema.sql'
+      - 'dbschem.sql'
+      - 'API_QUICK_REFERENCE.md'
+      - 'IMAGE_STORAGE_GUIDE.md'
+      - 'PAYMENT_FLOW_IMPROVEMENTS.md'
+      - 'PAYMENT_FRAUD_PREVENTION_ANALYSIS.md'
+      - 'README.md'
+      - '**/*.sql'
+      - '**/*.md'
       - '.DS_Store'
       - '**/.DS_Store'
+      - '__MACOSX/**'
   workflow_dispatch:
 
 jobs:
@@ -123,7 +144,7 @@ jobs:
           echo "GitHub run id: $GITHUB_RUN_ID" >> DEPLOY_VERSION.txt
           echo "GitHub run attempt: $GITHUB_RUN_ATTEMPT" >> DEPLOY_VERSION.txt
 
-      # ================= CLEAN REMOTE BUT KEEP LIVE FILES =================
+      # ================= CLEAN REMOTE BUT KEEP PROTECTED FILES =================
       - name: Clean Remote Folder Safely
         run: |
           ssh -i ~/.ssh/deploy_key \
@@ -151,30 +172,56 @@ jobs:
               mkdir -p tmp
 
               echo "Cleaning remote app folder..."
-              echo "Protected items will NOT be touched:"
+              echo "These protected items will NOT be touched:"
               echo "- uploads"
-              echo "- .htaccess"
-              echo "- .env"
+              echo "- database"
+              echo "- migrations"
+              echo "- scripts"
               echo "- logs"
               echo "- tmp"
               echo "- node_modules"
+              echo "- .env"
+              echo "- .htaccess"
+              echo "- .gitignore"
+              echo "- env.example"
+              echo "- db.sql"
+              echo "- dbSchema.sql"
+              echo "- API_QUICK_REFERENCE.md"
+              echo "- IMAGE_STORAGE_GUIDE.md"
+              echo "- PAYMENT_FLOW_IMPROVEMENTS.md"
+              echo "- PAYMENT_FRAUD_PREVENTION_ANALYSIS.md"
+              echo "- README.md"
 
               find . -mindepth 1 -maxdepth 1 \
                 ! -name 'uploads' \
+                ! -name 'database' \
+                ! -name 'migrations' \
+                ! -name 'scripts' \
                 ! -name 'logs' \
                 ! -name 'tmp' \
                 ! -name 'node_modules' \
                 ! -name '.env' \
                 ! -name '.htaccess' \
+                ! -name '.gitignore' \
+                ! -name 'env.example' \
+                ! -name 'db.sql' \
+                ! -name 'dbsql' \
+                ! -name 'dbSchema.sql' \
+                ! -name 'dbschem.sql' \
+                ! -name 'API_QUICK_REFERENCE.md' \
+                ! -name 'IMAGE_STORAGE_GUIDE.md' \
+                ! -name 'PAYMENT_FLOW_IMPROVEMENTS.md' \
+                ! -name 'PAYMENT_FRAUD_PREVENTION_ANALYSIS.md' \
+                ! -name 'README.md' \
                 -exec rm -rf {} +
 
               echo "Remote folder cleaned safely."
           EOF
 
-      # ================= DEPLOY ALL CODE VIA SCP =================
+      # ================= DEPLOY CODE VIA SCP =================
       - name: Deploy Code via SCP
         run: |
-          echo "Deploying all code files/folders..."
+          echo "Deploying normal code files/folders only..."
 
           for item in * .[^.]*; do
             if [ ! -e "$item" ]; then
@@ -186,8 +233,24 @@ jobs:
                 echo "Skipping: $item"
                 ;;
 
-              .git|.github|node_modules|uploads|logs|tmp|.env|.env.*|.htaccess|.DS_Store|__MACOSX)
-                echo "Skipping protected/excluded item: $item"
+              .git|.github|node_modules|uploads|database|migrations|scripts|logs|tmp|.cursor|__MACOSX)
+                echo "Skipping protected/excluded folder: $item"
+                ;;
+
+              .env|.env.*|.htaccess|.gitignore|env.example|.DS_Store)
+                echo "Skipping protected/excluded file: $item"
+                ;;
+
+              db.sql|dbsql|dbSchema.sql|dbschem.sql)
+                echo "Skipping protected database file: $item"
+                ;;
+
+              API_QUICK_REFERENCE.md|IMAGE_STORAGE_GUIDE.md|PAYMENT_FLOW_IMPROVEMENTS.md|PAYMENT_FRAUD_PREVENTION_ANALYSIS.md|README.md)
+                echo "Skipping protected documentation file: $item"
+                ;;
+
+              *.sql|*.md)
+                echo "Skipping SQL/Markdown file: $item"
                 ;;
 
               *)
@@ -236,8 +299,22 @@ jobs:
               test -d logs && echo "logs folder exists"
               test -d tmp && echo "tmp folder exists"
               test -d node_modules && echo "node_modules exists"
-              test -f .htaccess && echo ".htaccess exists"
-              test -f .env && echo ".env exists"
+
+              if [ -d database ]; then echo "database folder exists and was protected"; fi
+              if [ -d migrations ]; then echo "migrations folder exists and was protected"; fi
+              if [ -d scripts ]; then echo "scripts folder exists and was protected"; fi
+
+              if [ -f .htaccess ]; then echo ".htaccess exists and was protected"; fi
+              if [ -f .env ]; then echo ".env exists and was protected"; fi
+              if [ -f .gitignore ]; then echo ".gitignore exists and was protected"; fi
+              if [ -f env.example ]; then echo "env.example exists and was protected"; fi
+              if [ -f db.sql ]; then echo "db.sql exists and was protected"; fi
+              if [ -f dbSchema.sql ]; then echo "dbSchema.sql exists and was protected"; fi
+              if [ -f API_QUICK_REFERENCE.md ]; then echo "API_QUICK_REFERENCE.md exists and was protected"; fi
+              if [ -f IMAGE_STORAGE_GUIDE.md ]; then echo "IMAGE_STORAGE_GUIDE.md exists and was protected"; fi
+              if [ -f PAYMENT_FLOW_IMPROVEMENTS.md ]; then echo "PAYMENT_FLOW_IMPROVEMENTS.md exists and was protected"; fi
+              if [ -f PAYMENT_FRAUD_PREVENTION_ANALYSIS.md ]; then echo "PAYMENT_FRAUD_PREVENTION_ANALYSIS.md exists and was protected"; fi
+              if [ -f README.md ]; then echo "README.md exists and was protected"; fi
 
               echo "Checking deployment version:"
               if [ ! -f DEPLOY_VERSION.txt ]; then
@@ -293,7 +370,11 @@ jobs:
 
               cloudlinux-selector restart --json --interpreter nodejs --user "$SSH_USER" --app-root "$APP_PATH" || \
               selectorctl --restart --user "$SSH_USER" --app-root "$APP_PATH" || \
-              echo "Restart commands finished."
+              {
+                echo "ERROR: Could not restart Node.js app automatically."
+                echo "If Namecheap says shell access is disabled, restart manually from cPanel."
+                exit 1
+              }
 
               echo "Backend deployment completed."
           EOF
