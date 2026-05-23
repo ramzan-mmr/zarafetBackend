@@ -6,15 +6,8 @@ on:
       - main
     paths-ignore:
       - 'uploads/**'
-      - 'migrations/**'
-      - 'database/**'
-      - 'scripts/**'
-      - 'postman/**'
-      - '**/*.sql'
-      - '**/*.md'
       - '.env'
       - '.env.*'
-      - '.cursor/**'
       - '.DS_Store'
       - '**/.DS_Store'
   workflow_dispatch:
@@ -31,15 +24,18 @@ jobs:
       APP_PATH: ${{ secrets.NAMECHEAP_APP_PATH }}
 
     steps:
+      # ================= CHECKOUT CODE =================
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # ================= SETUP NODE =================
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
 
+      # ================= VALIDATE SECRETS =================
       - name: Validate Deploy Secrets
         run: |
           echo "Validating deployment configuration..."
@@ -84,6 +80,7 @@ jobs:
           echo "Deployment configuration looks okay."
           echo "App path: $APP_PATH"
 
+      # ================= SETUP SSH KEY =================
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -98,6 +95,7 @@ jobs:
           echo "Public key fingerprint:"
           ssh-keygen -lf ~/.ssh/deploy_key.pub
 
+      # ================= TEST SSH CONNECTION =================
       - name: Test SSH Connection
         run: |
           echo "Testing SSH port..."
@@ -115,8 +113,9 @@ jobs:
             -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             "$SSH_USER@$SSH_HOST" \
-            "cd '$APP_PATH' && pwd && echo 'SSH CONNECTION SUCCESS'"
+            "mkdir -p '$APP_PATH' && cd '$APP_PATH' && pwd && echo 'SSH CONNECTION SUCCESS'"
 
+      # ================= CREATE DEPLOY VERSION FILE =================
       - name: Create Deploy Version File
         run: |
           echo "Deploy commit: $GITHUB_SHA" > DEPLOY_VERSION.txt
@@ -124,7 +123,8 @@ jobs:
           echo "GitHub run id: $GITHUB_RUN_ID" >> DEPLOY_VERSION.txt
           echo "GitHub run attempt: $GITHUB_RUN_ATTEMPT" >> DEPLOY_VERSION.txt
 
-      - name: Prepare Remote Folder
+      # ================= CLEAN REMOTE BUT KEEP LIVE FILES =================
+      - name: Clean Remote Folder Safely
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
@@ -142,27 +142,39 @@ jobs:
               mkdir -p "$APP_PATH"
               cd "$APP_PATH"
 
+              echo "Remote app path:"
+              pwd
+
+              echo "Creating protected folders if missing..."
               mkdir -p uploads
               mkdir -p logs
               mkdir -p tmp
 
-              echo "Cleaning old code but keeping protected files/folders..."
+              echo "Cleaning remote app folder..."
+              echo "Protected items will NOT be touched:"
+              echo "- uploads"
+              echo "- .htaccess"
+              echo "- .env"
+              echo "- logs"
+              echo "- tmp"
+              echo "- node_modules"
 
               find . -mindepth 1 -maxdepth 1 \
                 ! -name 'uploads' \
                 ! -name 'logs' \
-                ! -name 'node_modules' \
                 ! -name 'tmp' \
+                ! -name 'node_modules' \
                 ! -name '.env' \
                 ! -name '.htaccess' \
                 -exec rm -rf {} +
 
-              echo "Remote folder prepared."
+              echo "Remote folder cleaned safely."
           EOF
 
-      - name: Deploy Files and Folders via SCP
+      # ================= DEPLOY ALL CODE VIA SCP =================
+      - name: Deploy Code via SCP
         run: |
-          echo "Deploying files and folders via SCP..."
+          echo "Deploying all code files/folders..."
 
           for item in * .[^.]*; do
             if [ ! -e "$item" ]; then
@@ -170,11 +182,17 @@ jobs:
             fi
 
             case "$item" in
-              .|..|.git|.github|node_modules|uploads|logs|tmp|.env|.htaccess|.cursor|*.sql|*.md)
+              .|..)
+                echo "Skipping: $item"
+                ;;
+
+              .git|.github|node_modules|uploads|logs|tmp|.env|.env.*|.htaccess|.DS_Store|__MACOSX)
                 echo "Skipping protected/excluded item: $item"
                 ;;
+
               *)
                 echo "Uploading item: $item"
+
                 scp -r \
                   -P "$SSH_PORT" \
                   -i ~/.ssh/deploy_key \
@@ -192,6 +210,7 @@ jobs:
             esac
           done
 
+      # ================= VERIFY DEPLOY =================
       - name: Verify Deploy
         run: |
           ssh -i ~/.ssh/deploy_key \
@@ -216,6 +235,7 @@ jobs:
               test -d uploads && echo "uploads folder exists"
               test -d logs && echo "logs folder exists"
               test -d tmp && echo "tmp folder exists"
+              test -d node_modules && echo "node_modules exists"
               test -f .htaccess && echo ".htaccess exists"
               test -f .env && echo ".env exists"
 
@@ -230,7 +250,8 @@ jobs:
               echo "Verification completed."
           EOF
 
-      - name: Restart Node.js App
+      # ================= INSTALL DEPENDENCIES AND RESTART =================
+      - name: Install Dependencies and Restart Node.js App
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
@@ -247,6 +268,11 @@ jobs:
 
               cd "$APP_PATH"
 
+              echo "Current directory:"
+              pwd
+
+              echo "Installing production dependencies..."
+
               APP_NAME=\$(basename "$APP_PATH")
               NPM_PATH=\$(find ~/nodevenv -path "*/\$APP_NAME/*/bin/npm" | head -n 1)
 
@@ -261,13 +287,17 @@ jobs:
                 npm install --omit=dev
               fi
 
+              echo "Triggering app restart..."
               mkdir -p tmp
               touch tmp/restart.txt
 
               cloudlinux-selector restart --json --interpreter nodejs --user "$SSH_USER" --app-root "$APP_PATH" || \
               selectorctl --restart --user "$SSH_USER" --app-root "$APP_PATH" || \
               echo "Restart commands finished."
+
+              echo "Backend deployment completed."
           EOF
 
+      # ================= DONE =================
       - name: Deployment Complete
         run: echo "Node.js backend deployment completed successfully"
