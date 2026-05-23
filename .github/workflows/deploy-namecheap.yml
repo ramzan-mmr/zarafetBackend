@@ -128,40 +128,44 @@ jobs:
         run: |
           echo "Creating deployment package..."
 
+          rm -f /tmp/deploy.tar.gz
+          rm -f DEPLOY_VERSION.txt
+
           echo "Deploy commit: $GITHUB_SHA" > DEPLOY_VERSION.txt
           echo "Deploy time: $(date -u)" >> DEPLOY_VERSION.txt
 
           tar \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='node_modules' \
-            --exclude='uploads' \
-            --exclude='uploads/**' \
-            --exclude='logs' \
-            --exclude='logs/**' \
-            --exclude='tmp' \
-            --exclude='tmp/**' \
-            --exclude='migrations' \
-            --exclude='migrations/**' \
-            --exclude='database' \
-            --exclude='database/**' \
-            --exclude='scripts' \
-            --exclude='scripts/**' \
-            --exclude='postman' \
-            --exclude='postman/**' \
-            --exclude='*.sql' \
-            --exclude='*.md' \
-            --exclude='.env' \
-            --exclude='.env.*' \
-            --exclude='.htaccess' \
-            --exclude='.cursor' \
-            --exclude='.cursor/**' \
-            --exclude='.DS_Store' \
-            --exclude='**/.DS_Store' \
-            -czf deploy.tar.gz .
+            --exclude='./.git' \
+            --exclude='./.github' \
+            --exclude='./node_modules' \
+            --exclude='./uploads' \
+            --exclude='./uploads/**' \
+            --exclude='./logs' \
+            --exclude='./logs/**' \
+            --exclude='./tmp' \
+            --exclude='./tmp/**' \
+            --exclude='./migrations' \
+            --exclude='./migrations/**' \
+            --exclude='./database' \
+            --exclude='./database/**' \
+            --exclude='./scripts' \
+            --exclude='./scripts/**' \
+            --exclude='./postman' \
+            --exclude='./postman/**' \
+            --exclude='./*.sql' \
+            --exclude='./*.md' \
+            --exclude='./.env' \
+            --exclude='./.env.*' \
+            --exclude='./.htaccess' \
+            --exclude='./.cursor' \
+            --exclude='./.cursor/**' \
+            --exclude='./.DS_Store' \
+            --exclude='./deploy.tar.gz' \
+            --exclude='./DEPLOY_VERSION.txt.tmp' \
+            -czf /tmp/deploy.tar.gz .
 
           echo "Package created:"
-          ls -lh deploy.tar.gz
+          ls -lh /tmp/deploy.tar.gz
 
       # ================= PREPARE REMOTE APP FOLDER =================
       - name: Prepare Remote App Folder
@@ -193,7 +197,7 @@ jobs:
             -o PreferredAuthentications=publickey \
             -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
-            deploy.tar.gz \
+            /tmp/deploy.tar.gz \
             "$SSH_USER@$SSH_HOST:$APP_PATH/deploy.tar.gz"
 
       # ================= EXTRACT PACKAGE SAFELY =================
@@ -220,7 +224,7 @@ jobs:
               echo "Before deploy:"
               ls -la
 
-              echo "Cleaning old app files but keeping important live folders/files..."
+              echo "Cleaning old app files but keeping protected live folders/files..."
 
               find . -mindepth 1 -maxdepth 1 \
                 ! -name 'uploads' \
