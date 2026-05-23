@@ -1,0 +1,288 @@
+name: Deploy Node.js Backend to Namecheap
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'uploads/**'
+      - 'migrations/**'
+      - 'database/**'
+      - 'scripts/**'
+      - 'postman/**'
+      - '**/*.sql'
+      - '**/*.md'
+      - '.env'
+      - '.env.*'
+      - '.cursor/**'
+      - '.DS_Store'
+      - '**/.DS_Store'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      SSH_HOST: ${{ secrets.NAMECHEAP_SSH_HOST }}
+      SSH_PORT: ${{ secrets.NAMECHEAP_SSH_PORT }}
+      SSH_USER: ${{ secrets.NAMECHEAP_SSH_USER }}
+      SSH_KEY: ${{ secrets.NAMECHEAP_SSH_KEY }}
+      APP_PATH: ${{ secrets.NAMECHEAP_APP_PATH }}
+
+    steps:
+      # ================= CHECKOUT CODE =================
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ================= SETUP NODE =================
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # ================= VALIDATE SECRETS =================
+      - name: Validate Deploy Secrets
+        run: |
+          echo "Validating deployment configuration..."
+
+          if [ -z "$SSH_HOST" ]; then
+            echo "ERROR: NAMECHEAP_SSH_HOST secret is missing."
+            exit 1
+          fi
+
+          if [ -z "$SSH_PORT" ]; then
+            echo "ERROR: NAMECHEAP_SSH_PORT secret is missing."
+            exit 1
+          fi
+
+          if [ -z "$SSH_USER" ]; then
+            echo "ERROR: NAMECHEAP_SSH_USER secret is missing."
+            exit 1
+          fi
+
+          if [ -z "$SSH_KEY" ]; then
+            echo "ERROR: NAMECHEAP_SSH_KEY secret is missing."
+            exit 1
+          fi
+
+          if [ -z "$APP_PATH" ]; then
+            echo "ERROR: NAMECHEAP_APP_PATH secret is missing."
+            exit 1
+          fi
+
+          if [ "$SSH_PORT" = "2083" ]; then
+            echo "ERROR: Port 2083 is cPanel HTTPS port, not SSH."
+            echo "Use Namecheap SSH port, usually 21098 or 22."
+            exit 1
+          fi
+
+          if [ "$SSH_PORT" = "2082" ]; then
+            echo "ERROR: Port 2082 is cPanel HTTP port, not SSH."
+            echo "Use Namecheap SSH port, usually 21098 or 22."
+            exit 1
+          fi
+
+          echo "Deployment configuration looks okay."
+
+      # ================= SETUP SSH KEY =================
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          echo "Checking private key format..."
+          ssh-keygen -y -f ~/.ssh/deploy_key > ~/.ssh/deploy_key.pub
+
+          echo "Private key is valid."
+          echo "Public key fingerprint:"
+          ssh-keygen -lf ~/.ssh/deploy_key.pub
+
+      # ================= TEST SSH PORT =================
+      - name: Test SSH Port
+        run: |
+          echo "Testing SSH port..."
+          nc -vz "$SSH_HOST" "$SSH_PORT"
+
+      # ================= TEST SSH CONNECTION =================
+      - name: Test SSH Connection
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            "$SSH_USER@$SSH_HOST" \
+            "pwd && echo 'SSH CONNECTION SUCCESS'"
+
+      # ================= CREATE DEPLOY PACKAGE =================
+      - name: Create Deploy Package
+        run: |
+          echo "Creating deployment package..."
+
+          tar \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='uploads' \
+            --exclude='uploads/**' \
+            --exclude='migrations' \
+            --exclude='migrations/**' \
+            --exclude='database' \
+            --exclude='database/**' \
+            --exclude='scripts' \
+            --exclude='scripts/**' \
+            --exclude='postman' \
+            --exclude='postman/**' \
+            --exclude='*.sql' \
+            --exclude='*.md' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='.cursor' \
+            --exclude='.cursor/**' \
+            --exclude='.DS_Store' \
+            --exclude='**/.DS_Store' \
+            -czf deploy.tar.gz .
+
+          echo "Package created:"
+          ls -lh deploy.tar.gz
+
+      # ================= PREPARE REMOTE APP FOLDER =================
+      - name: Prepare Remote App Folder
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            "$SSH_USER@$SSH_HOST" \
+            "mkdir -p '$APP_PATH' && mkdir -p '$APP_PATH/uploads' && mkdir -p '$APP_PATH/tmp'"
+
+      # ================= UPLOAD PACKAGE VIA SCP =================
+      - name: Upload Package
+        run: |
+          scp \
+            -P "$SSH_PORT" \
+            -i ~/.ssh/deploy_key \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            deploy.tar.gz \
+            "$SSH_USER@$SSH_HOST:$APP_PATH/deploy.tar.gz"
+
+      # ================= EXTRACT PACKAGE SAFELY =================
+      - name: Extract Package Safely
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            "$SSH_USER@$SSH_HOST" << EOF
+              set -e
+
+              cd "$APP_PATH"
+
+              echo "Cleaning old app files but keeping important folders..."
+
+              find . -mindepth 1 -maxdepth 1 \
+                ! -name 'uploads' \
+                ! -name 'node_modules' \
+                ! -name 'tmp' \
+                ! -name '.env' \
+                ! -name '.htaccess' \
+                ! -name 'deploy.tar.gz' \
+                ! -name 'migrations' \
+                ! -name 'database' \
+                ! -name 'scripts' \
+                ! -name 'postman' \
+                -exec rm -rf {} +
+
+              echo "Extracting new files..."
+              tar -xzf deploy.tar.gz
+
+              echo "Removing deploy package..."
+              rm -f deploy.tar.gz
+
+              echo "Making sure uploads folder still exists..."
+              mkdir -p uploads
+              mkdir -p tmp
+
+              echo "Remote files after deploy:"
+              ls -la
+          EOF
+
+      # ================= INSTALL DEPENDENCIES AND RESTART =================
+      - name: Install Dependencies and Restart Node.js App
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            "$SSH_USER@$SSH_HOST" << EOF
+              set -e
+
+              cd "$APP_PATH"
+
+              echo "Current directory:"
+              pwd
+
+              echo "Installing production dependencies..."
+
+              APP_NAME=\$(basename "$APP_PATH")
+              NPM_PATH=\$(find ~/nodevenv -path "*/\$APP_NAME/*/bin/npm" | head -n 1)
+
+              if [ -n "\$NPM_PATH" ]; then
+                echo "Found app npm at: \$NPM_PATH"
+                "\$NPM_PATH" install --omit=dev
+              else
+                echo "Specific app npm not found. Trying CloudLinux selector..."
+
+                cloudlinux-selector run --json --interpreter nodejs --user "$SSH_USER" --app-root "$APP_PATH" --command "npm install --omit=dev" || \
+                selectorctl --run --user "$SSH_USER" --app-root "$APP_PATH" --command "npm install --omit=dev" || \
+                npm install --omit=dev
+              fi
+
+              echo "Triggering app restart..."
+              mkdir -p tmp
+              touch tmp/restart.txt
+
+              cloudlinux-selector restart --json --interpreter nodejs --user "$SSH_USER" --app-root "$APP_PATH" || \
+              selectorctl --restart --user "$SSH_USER" --app-root "$APP_PATH" || \
+              echo "Restart command finished or not supported."
+
+              echo "Backend deployment completed."
+          EOF
+
+      # ================= DONE =================
+      - name: Deployment Complete
+        run: echo "Node.js backend deployment completed successfully"
