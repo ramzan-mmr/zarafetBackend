@@ -102,8 +102,6 @@ jobs:
           echo "Public key fingerprint:"
           ssh-keygen -lf ~/.ssh/deploy_key.pub
 
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts || true
-
       # ================= TEST SSH CONNECTION =================
       - name: Test SSH Connection
         run: |
@@ -113,8 +111,12 @@ jobs:
           echo "Testing SSH login..."
           ssh -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
             -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             "$SSH_USER@$SSH_HOST" \
@@ -128,47 +130,154 @@ jobs:
           echo "GitHub run id: $GITHUB_RUN_ID" >> DEPLOY_VERSION.txt
           echo "GitHub run attempt: $GITHUB_RUN_ATTEMPT" >> DEPLOY_VERSION.txt
 
-      # ================= DEPLOY VIA RSYNC =================
-      - name: Deploy via Rsync
+      # ================= PREPARE REMOTE FOLDERS =================
+      - name: Prepare Remote Folders
         run: |
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512" \
-            --exclude 'node_modules/' \
-            --exclude '.git/' \
-            --exclude '.github/' \
-            --exclude '.env' \
-            --exclude '.env.*' \
-            --exclude '.htaccess' \
-            --exclude 'uploads/' \
-            --exclude 'uploads/***' \
-            --exclude 'logs/' \
-            --exclude 'logs/***' \
-            --exclude 'tmp/' \
-            --exclude 'tmp/***' \
-            --exclude '*.sql' \
-            --exclude '*.md' \
-            --exclude 'postman/' \
-            --exclude 'postman/***' \
-            --exclude 'scripts/' \
-            --exclude 'scripts/***' \
-            --exclude 'database/' \
-            --exclude 'database/***' \
-            --exclude 'migrations/' \
-            --exclude 'migrations/***' \
-            --exclude '.cursor/' \
-            --exclude '.cursor/***' \
-            --exclude '.DS_Store' \
-            --exclude '**/.DS_Store' \
-            ./ \
-            "$SSH_USER@$SSH_HOST:$APP_PATH/"
+          ssh -i ~/.ssh/deploy_key \
+            -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            "$SSH_USER@$SSH_HOST" << EOF
+              set -e
+
+              mkdir -p "$APP_PATH"
+              cd "$APP_PATH"
+
+              echo "Remote app path:"
+              pwd
+
+              echo "Creating protected folders if missing..."
+              mkdir -p uploads
+              mkdir -p logs
+              mkdir -p tmp
+
+              echo "Cleaning old code files but keeping protected files/folders..."
+
+              find . -mindepth 1 -maxdepth 1 \
+                ! -name 'uploads' \
+                ! -name 'logs' \
+                ! -name 'node_modules' \
+                ! -name 'tmp' \
+                ! -name '.env' \
+                ! -name '.htaccess' \
+                ! -name 'migrations' \
+                ! -name 'database' \
+                ! -name 'scripts' \
+                ! -name 'postman' \
+                -exec rm -rf {} +
+
+              echo "Remote folder prepared."
+          EOF
+
+      # ================= DEPLOY ROOT FILES =================
+      - name: Deploy Root Files
+        run: |
+          echo "Deploying root files..."
+
+          for file in *; do
+            if [ -f "$file" ]; then
+              case "$file" in
+                *.sql|*.md|.env|.htaccess|deploy.tar.gz|DEPLOY_VERSION.txt.tmp)
+                  echo "Skipping protected/excluded file: $file"
+                  ;;
+                *)
+                  echo "Uploading file: $file"
+                  scp \
+                    -P "$SSH_PORT" \
+                    -i ~/.ssh/deploy_key \
+                    -o BatchMode=yes \
+                    -o IdentitiesOnly=yes \
+                    -o StrictHostKeyChecking=no \
+                    -o UserKnownHostsFile=/dev/null \
+                    -o PubkeyAuthentication=yes \
+                    -o PreferredAuthentications=publickey \
+                    -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+                    -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+                    "$file" \
+                    "$SSH_USER@$SSH_HOST:$APP_PATH/$file"
+                  ;;
+              esac
+            fi
+          done
+
+          echo "Uploading DEPLOY_VERSION.txt"
+          scp \
+            -P "$SSH_PORT" \
+            -i ~/.ssh/deploy_key \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
+            -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+            DEPLOY_VERSION.txt \
+            "$SSH_USER@$SSH_HOST:$APP_PATH/DEPLOY_VERSION.txt"
+
+      # ================= DEPLOY SRC FOLDER =================
+      - name: Deploy Src Folder
+        run: |
+          if [ -d "src" ]; then
+            echo "Deploying src folder..."
+
+            scp -r \
+              -P "$SSH_PORT" \
+              -i ~/.ssh/deploy_key \
+              -o BatchMode=yes \
+              -o IdentitiesOnly=yes \
+              -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -o PubkeyAuthentication=yes \
+              -o PreferredAuthentications=publickey \
+              -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+              -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+              src \
+              "$SSH_USER@$SSH_HOST:$APP_PATH/"
+          else
+            echo "No src folder found."
+          fi
+
+      # ================= DEPLOY OTHER SAFE FOLDERS =================
+      - name: Deploy Other Safe Folders
+        run: |
+          for dir in config controllers middlewares models routes services utils validators helpers public; do
+            if [ -d "$dir" ]; then
+              echo "Deploying folder: $dir"
+
+              scp -r \
+                -P "$SSH_PORT" \
+                -i ~/.ssh/deploy_key \
+                -o BatchMode=yes \
+                -o IdentitiesOnly=yes \
+                -o StrictHostKeyChecking=no \
+                -o UserKnownHostsFile=/dev/null \
+                -o PubkeyAuthentication=yes \
+                -o PreferredAuthentications=publickey \
+                -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+                -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
+                "$dir" \
+                "$SSH_USER@$SSH_HOST:$APP_PATH/"
+            fi
+          done
 
       # ================= VERIFY DEPLOY =================
       - name: Verify Deploy
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
             -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             "$SSH_USER@$SSH_HOST" << EOF
@@ -176,20 +285,19 @@ jobs:
 
               cd "$APP_PATH"
 
-              echo "Remote app path:"
-              pwd
-
-              echo "Remote files:"
+              echo "Remote files after deploy:"
               ls -la
 
               echo "Checking protected files/folders:"
               test -d uploads && echo "uploads folder exists"
+              test -d logs && echo "logs folder exists"
+              test -d tmp && echo "tmp folder exists"
               test -f .htaccess && echo ".htaccess exists"
               test -f .env && echo ".env exists"
 
               echo "Checking deployment version:"
               if [ ! -f DEPLOY_VERSION.txt ]; then
-                echo "ERROR: DEPLOY_VERSION.txt not found. Rsync did not deploy new files."
+                echo "ERROR: DEPLOY_VERSION.txt not found. Deploy failed."
                 exit 1
               fi
 
@@ -198,6 +306,8 @@ jobs:
               echo "Removing old package files if any..."
               rm -f deploy.tar.gz
               rm -f deploy_*.tar.gz
+
+              echo "Verification completed."
           EOF
 
       # ================= INSTALL DEPENDENCIES AND RESTART =================
@@ -205,8 +315,12 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p "$SSH_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
+            -o PubkeyAuthentication=yes \
+            -o PreferredAuthentications=publickey \
             -o PubkeyAcceptedAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             -o HostkeyAlgorithms=+ssh-rsa,rsa-sha2-256,rsa-sha2-512 \
             "$SSH_USER@$SSH_HOST" << EOF
