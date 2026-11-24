@@ -51,6 +51,7 @@ module.exports = {
   },
   // Paypal Configuration
   paypal: {
+    enabled: false, // Set to true to restore PayPal, then restart/redeploy the backend.
     mode: process.env.PAYPAL_MODE || "test",
     clientId: process.env.PAYPAL_CLIENT_ID,
     clientSecret: process.env.PAYPAL_CLIENT_SECRET

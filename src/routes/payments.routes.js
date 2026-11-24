@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { requirePaypalEnabled, checkPaypalPayment } = require('../middleware/paypalEnabled');
 const { validateBody, validateParams } = require('../middleware/validate');
 const { verifyJWT } = require('../middleware/auth');
 const { idParam } = require('../validators/common');
@@ -25,14 +26,23 @@ router.post('/create-intent-guest',
   ctrl.createIntentGuest
 );
 router.post('/process-guest',
+  checkPaypalPayment,
   validateBody(processPaymentGuest),
   ctrl.processGuest
 );
 
+// Public availability flag; no credentials or database access.
+router.get('/paypal/availability', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ data: { paypalEnabled: config.paypal.enabled === true } });
+});
+
 // PayPal config and create-order (public for guest checkout)
 router.get('/paypal/config',
+  requirePaypalEnabled,
   ctrl.getConfig);
 router.post('/paypal/create-order',
+  requirePaypalEnabled,
   ctrl.createPaypalOrder);
 
 // All routes below require authentication
@@ -46,6 +56,7 @@ router.post('/create-intent',
 );
 // Process payment and create order (main endpoint)
 router.post('/process',
+  checkPaypalPayment,
   validateBody(processPayment),
   ctrl.process
 );

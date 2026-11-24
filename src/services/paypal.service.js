@@ -23,6 +23,9 @@ const client = new checkoutNodeJssdk.core.PayPalHttpClient(environment());
  */
 const capturePaypalOrder = async (orderID) => {
   try {
+    if (!config.paypal.enabled) {
+      throw new Error('PayPal is temporarily unavailable. Please choose another payment method.');
+    }
     if (!orderID) {
       return {
         success: false,

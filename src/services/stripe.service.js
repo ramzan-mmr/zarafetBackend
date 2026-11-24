@@ -127,6 +127,9 @@ class StripeService {
    */
   static async createPayPalPaymentIntent(amount, currency = config.currency.default, metadata = {}) {
     try {
+      if (!config.paypal.enabled) {
+        throw new Error('PayPal is temporarily unavailable. Please choose another payment method.');
+      }
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency,
@@ -315,6 +318,9 @@ class StripeService {
    */
   static async processPayment(paymentData, amount, currency = config.currency.default, metadata = {}) {
     try {
+      if (paymentData.method === 'paypal' && !config.paypal.enabled) {
+        throw new Error('PayPal is temporarily unavailable. Please choose another payment method.');
+      }
       console.log('🔍 StripeService.processPayment called with:', {
         paymentData,
         amount,
